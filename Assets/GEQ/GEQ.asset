@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6db49ee0f33e5c641b9e04e00d8d5170, type: 3}
+  m_Name: GEQ
+  m_EditorClassIdentifier: 
+  titleText: Survey
+  instructionsText: Please indicate how you felt while playing the game for each
+    of the items.
+  nextPageText: Next Page
+  finishText: Finish Survey
+  questions:
+  - {fileID: 11400000, guid: f470712fa3c5d454f930ff547e1582a8, type: 2}
+  - {fileID: 11400000, guid: d7a46b1105eda0b44aa0a5383a43278b, type: 2}
+  - {fileID: 11400000, guid: 9e4ec1d31f95c874bbdcb43070f528a8, type: 2}
+  - {fileID: 11400000, guid: 2762a104f16a3924da722117505a72b2, type: 2}
+  - {fileID: 11400000, guid: ab717a79500b1a243bf12caa095bce8c, type: 2}
+  - {fileID: 11400000, guid: 485791374d7cf624ea49fa45f36c829a, type: 2}
+  - {fileID: 11400000, guid: 0b46eb6d0bd0afd4ebf35d621c1ab48f, type: 2}
+  - {fileID: 11400000, guid: e5be49a33a0b52f4ba722ef8a5a23ff4, type: 2}
+  - {fileID: 11400000, guid: 121ef3fe744be5d439e197ebab992863, type: 2}
+  - {fileID: 11400000, guid: 33901287d9817bc4cba6f81a4fcbdaaf, type: 2}
+  - {fileID: 11400000, guid: f1d7dda6bb8e7f24bb948fcd2ed16949, type: 2}
+  - {fileID: 11400000, guid: 3cada8123783c5c46adf92a90b85bd0d, type: 2}
+  - {fileID: 11400000, guid: c558b713e822716418738ebddb83da19, type: 2}
+  - {fileID: 11400000, guid: 6bcbcc72b16459b41a879370222d1fdf, type: 2}
+  - {fileID: 11400000, guid: 0bf55e7429308d647a5f1e76fa989459, type: 2}
+  - {fileID: 11400000, guid: 0b39206cd01646b40985270f1c293d5d, type: 2}
+  - {fileID: 11400000, guid: 1bd40c0493345d841acd6edf5736de24, type: 2}
+  - {fileID: 11400000, guid: 8159d06252b1feb40b84b0153503dfe9, type: 2}
+  - {fileID: 11400000, guid: 31a520a853babef45b3cb439858e2237, type: 2}
+  - {fileID: 11400000, guid: b1faba77eed6ebe4a8f9a6f6fcaf3f38, type: 2}
+  - {fileID: 11400000, guid: 9287cf5a243007d48a5ec6f1b47be748, type: 2}
+  - {fileID: 11400000, guid: b96dbff2e99e9a14a99e3637e1207e5c, type: 2}
+  - {fileID: 11400000, guid: 7786d854824db2f44b87f15f2b97db8c, type: 2}
+  - {fileID: 11400000, guid: 329b4801bc92e9143a89eb6e17072bc3, type: 2}
+  - {fileID: 11400000, guid: 7ea4780c9a884eb498def1ae3bb90e33, type: 2}
+  - {fileID: 11400000, guid: 5f66bdc94cc3c624895f59f6a4e116eb, type: 2}
+  - {fileID: 11400000, guid: 53557269a7db4ae429fbd807e633aaf0, type: 2}
+  - {fileID: 11400000, guid: 4f0019aedce6bf84ba8ac954293b1e14, type: 2}
+  - {fileID: 11400000, guid: 3e1438dd127b9fb4d85402555253bfe8, type: 2}
+  - {fileID: 11400000, guid: ce90b8ab84f6327409f9b39120868d0a, type: 2}
+  - {fileID: 11400000, guid: 5f2be5dc159a7434bafa563018667643, type: 2}
+  - {fileID: 11400000, guid: 4ce76effb8dc07a4288ec923105a53df, type: 2}
+  - {fileID: 11400000, guid: 6da41ae23d2a3eb43a62d6d99afce707, type: 2}
+  questionsPerPage: 5
+  popupPrefab: {fileID: 0}
+  rowPrefab: {fileID: 0}
+  analyticsActionToRecordWith: 77
+  analyticsQuestionColumn: 45
+  analyticsAnswerColumn: 46

@@ -1,0 +1,18 @@
+{
+    "name": "PlayUR.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:e84ffbc99bfb8ff4da17946945efccfd"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
