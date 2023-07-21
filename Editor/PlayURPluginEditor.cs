@@ -11,6 +11,7 @@ using UnityEditor.SceneManagement;
 using System.Text;
 using PlayUR.Core;
 using PlayUR.Exceptions;
+using System.Diagnostics;
 
 namespace PlayUR.Editor
 {
@@ -24,15 +25,17 @@ namespace PlayUR.Editor
         static string GeneratedFilesPath => Path.Combine(Application.dataPath, GENERATED_FILES_PATH);
         static string GameIDPath => Path.Combine(Application.dataPath, GENERATED_FILES_PATH, "gameID.txt");
         static string ClientSecretPath => Path.Combine(Application.dataPath, GENERATED_FILES_PATH, "clientSecret.txt");
+        static string LoginScenePath => Path.Combine(GENERATED_FILES_PATH, "PlayURLogin.unity");
 
         [MenuItem("PlayUR/Set Up Plugin")]
         public static void ReSetUpPlugin()
         {
-            SetUpPlugin(reset:true);
+            SetUpPlugin(reset: true);
         }
         public static void SetUpPlugin(bool reset = false)
         {
             Debug.ClearDeveloperConsole();
+            EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
 
             if (reset)
             {
@@ -45,14 +48,21 @@ namespace PlayUR.Editor
                 Directory.CreateDirectory(GeneratedFilesPath);
             }
 
-            SetSceneBuildSettings();
-            if (SetGameIDInPlayURLoginScene())
+            if (MakeCopyOfLoginScene())
             {
-                GenerateEnum();
+                SetSceneBuildSettings();
+                if (SetGameIDInPlayURLoginScene())
+                {
+                    GenerateEnum();
 
-                EditorUtility.DisplayDialog("PlayUR Plugin Setup", "Plugin Set Up Complete.", "OK");
-                //SetExecutionOrder();
-                PlayURPlugin.Log("Set up complete."); 
+                    EditorUtility.DisplayDialog("PlayUR Plugin Setup", "Plugin Set Up Complete.", "OK");
+                    //SetExecutionOrder();
+                    PlayURPlugin.Log("Set up complete.");
+                }
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("PlayUR Plugin Setup", "Plugin Set Up Failed: Could not Copy Login Scene. Report to Developer.", "OK");
             }
         }
         static void SetPathIfNecessary()
@@ -61,7 +71,7 @@ namespace PlayUR.Editor
             {
                 path = "Packages/io.playur.unity/Runtime/PlayURPlugin.cs";
             }
-            
+
             MonoScript playURScript;
             do
             {
@@ -93,18 +103,32 @@ namespace PlayUR.Editor
             PlayURPlugin.Log("Set execution order of PlayUR Plugin to -10000");
         }
 
+        //copy PLayURLogin file
+        static bool MakeCopyOfLoginScene()
+        {
+            SetPathIfNecessary();
+            var scenePath = path.Replace("PlayURPlugin.cs", "Assets/PlayURLogin.unity");
+            //copy the file to the generated files folder
+            if (AssetDatabase.CopyAsset(scenePath, "Assets/" + LoginScenePath))
+            {
+                AssetDatabase.Refresh();
+                return true;
+            }
+            return false;
+        }
+
         //add PlayURLogin to Build Settings
         static void SetSceneBuildSettings()
         {
             SetPathIfNecessary();
-            var scenePath = path.Replace("PlayURPlugin.cs", "Assets/PlayURLogin.unity");
+            var scenePath = "Assets/" + LoginScenePath;
             var scenes = new List<EditorBuildSettingsScene>();
             scenes.AddRange(EditorBuildSettings.scenes);
 
             //check it doesn't already exist
             for (var i = 0; i < scenes.Count; i++)
             {
-                if (scenes[i].path.Equals(scenePath))
+                if (scenes[i].path.Contains("PlayURLogin"))
                 {
                     return;
                 }
@@ -117,7 +141,8 @@ namespace PlayUR.Editor
         static bool SetGameIDInPlayURLoginScene()
         {
             var previousScenePath = EditorSceneManager.GetActiveScene().path;
-            var scenePath = path.Replace("PlayURPlugin.cs", "Assets/PlayURLogin.unity");
+
+            var scenePath = "Assets/" + LoginScenePath;
             EditorSceneManager.OpenScene(scenePath);
 
             var PlayURPluginObject = FindObjectOfType<PlayURPlugin>();
@@ -177,30 +202,30 @@ namespace PlayUR.Editor
         {
             SetPathIfNecessary();
 
-            var GET = "?gameID=" + GetGameIDFromScene()+"&clientSecret=" + GetClientSecretFromScene();
+            var GET = "?gameID=" + GetGameIDFromFile() + "&clientSecret=" + GetClientSecretFromFile();
             //get actions from the server and populate an enum
-            EditorCoroutines.StartCoroutine(Rest.Get("Action/listForGame.php"+GET, null, (succ, json) =>
-              {
-                  if (succ)
-                  {
-                      var actions = json["records"].AsArray;
-                      string text = "namespace PlayUR\n{\n\t///<summary>Enum generated from server representing possible user actions. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Action\n\t{\n";
-                      foreach (var action in actions.Values)
-                      {
-                          text += "\t\t" + PlatformNameToValidEnumValue(action["name"].Value) + " = " + action["id"] + ",\n";
-                      }
-                      text += "\t}\n}\n";
+            EditorCoroutines.StartCoroutine(Rest.Get("Action/listForGame.php" + GET, null, (succ, json) =>
+            {
+                if (succ)
+                {
+                    var actions = json["records"].AsArray;
+                    string text = "namespace PlayUR\n{\n\t///<summary>Enum generated from server representing possible user actions. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Action\n\t{\n";
+                    foreach (var action in actions.Values)
+                    {
+                        text += "\t\t" + PlatformNameToValidEnumValue(action["name"].Value) + " = " + action["id"] + ",\n";
+                    }
+                    text += "\t}\n}\n";
 
-                      //write it out!
-                      File.WriteAllBytes(path.Replace("PlayURPlugin.cs", "Action.cs"), Encoding.UTF8.GetBytes(text));
-                      AssetDatabase.Refresh();
+                    //write it out!
+                    File.WriteAllBytes(path.Replace("PlayURPlugin.cs", "Action.cs"), Encoding.UTF8.GetBytes(text));
+                    AssetDatabase.Refresh();
 
-                      PlayURPlugin.Log("Generated Actions Enum (" + actions.Count + " actions)");
-                  }
-              }), new CoroutineRunner());
+                    PlayURPlugin.Log("Generated Actions Enum (" + actions.Count + " actions)");
+                }
+            }), new CoroutineRunner());
 
             //get elements from the server and populate an enum
-            EditorCoroutines.StartCoroutine(Rest.Get("Element/listForGame.php"+GET, null, (succ, json) =>
+            EditorCoroutines.StartCoroutine(Rest.Get("Element/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -222,7 +247,7 @@ namespace PlayUR.Editor
             }), new CoroutineRunner());
 
             //get experiments from the server and populate an enum
-            EditorCoroutines.StartCoroutine(Rest.Get("Experiment/listForGame.php"+GET, null, (succ, json) =>
+            EditorCoroutines.StartCoroutine(Rest.Get("Experiment/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -244,7 +269,7 @@ namespace PlayUR.Editor
             }), new CoroutineRunner());
 
             //get experiment groups from the server and populate an enum
-            EditorCoroutines.StartCoroutine(Rest.Get("ExperimentGroup/listForGame.php"+GET, null, (succ, json) =>
+            EditorCoroutines.StartCoroutine(Rest.Get("ExperimentGroup/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -253,7 +278,7 @@ namespace PlayUR.Editor
                     string text = "namespace PlayUR\n{\n\t///<summary>Enum generated from server representing experiment groups for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum ExperimentGroup\n\t{\n";
                     foreach (var experiment in experiments.Values)
                     {
-                        text += "\t\t" + PlatformNameToValidEnumValue(experiment["experiment"].Value) +"_"+ experiment["name"].Value.Replace(" ", "") + " = " + experiment["id"] + ",\n";
+                        text += "\t\t" + PlatformNameToValidEnumValue(experiment["experiment"].Value) + "_" + experiment["name"].Value.Replace(" ", "") + " = " + experiment["id"] + ",\n";
                     }
                     text += "\t}\n}\n";
 
@@ -266,7 +291,7 @@ namespace PlayUR.Editor
             }), new CoroutineRunner());
 
             //get analytics columns from the server and populate an enum
-            EditorCoroutines.StartCoroutine(Rest.Get("AnalyticsColumn/listForGame.php"+GET, null, (succ, json) =>
+            EditorCoroutines.StartCoroutine(Rest.Get("AnalyticsColumn/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -297,7 +322,7 @@ namespace PlayUR.Editor
                     string text = "namespace PlayUR\n{\n\t///<summary>Constant Strings generated from server representing the parameter keys for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic static class Parameter\n\t{\n";
                     foreach (var parameter in parameters.Values)
                     {
-                        text += "\t\tpublic static string " + PlatformNameToValidEnumValue(parameter.ToString().Replace("[]",  "")) + " = \"" + PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + "\";\n";
+                        text += "\t\tpublic static string " + PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + " = \"" + PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + "\";\n";
                     }
                     text += "\t}\n}\n";
 
@@ -311,11 +336,11 @@ namespace PlayUR.Editor
         }
         static string PlatformNameToValidEnumValue(string input)
         {
-            var rgx = new System.Text.RegularExpressions.Regex("[^a-zA-Z0-9_]"); 
+            var rgx = new System.Text.RegularExpressions.Regex("[^a-zA-Z0-9_]");
             input = rgx.Replace(input, "");
             input = input.Replace(" ", "");
-            if (!char.IsLetter(input[0])) input = "_"+input;
-            return input;      
+            if (!char.IsLetter(input[0])) input = "_" + input;
+            return input;
         }
         #endregion
 
@@ -367,7 +392,7 @@ namespace PlayUR.Editor
                 }
             }
             // ZIP everything
-            CompressDirectory(buildPath+"/", buildPath + "/index.zip");
+            CompressDirectory(buildPath + "/", buildPath + "/index.zip");
 
             if (upload || onlyUpload)
             {
@@ -401,7 +426,7 @@ namespace PlayUR.Editor
                     }
 
                 }, defaultText: "main");//TODO: remember last time a branch was used?
-                
+
             }
         }
         [MenuItem("PlayUR/Run Game In Broswer")]
@@ -412,8 +437,8 @@ namespace PlayUR.Editor
             EditorCoroutines.StartCoroutine(Rest.Get("Build/latestBuildID.php", form, (succ, result) =>
             {
                 int buildID = result["latestBuildID"];
-                                       Application.OpenURL(PlayURPlugin.SERVER_URL.Replace("/api/", "/games.php?/game/" + form["clientSecret"] + "/buildID/" + buildID));
-           }, debugOutput: true), new CoroutineRunner());
+                Application.OpenURL(PlayURPlugin.SERVER_URL.Replace("/api/", "/games.php?/game/" + form["clientSecret"] + "/buildID/" + buildID));
+            }, debugOutput: true), new CoroutineRunner());
         }
 
         static string[] GetScenePaths()
@@ -444,7 +469,7 @@ namespace PlayUR.Editor
         }
         static IEnumerator UploadBuild(string zipPath, string branch, Rest.ServerCallback callback)
         {
-            var form = GetGameIDForm(); 
+            var form = GetGameIDForm();
             form.Add("branch", branch);
 
             yield return EditorCoroutines.StartCoroutine(Rest.Get("Build/latestBuildID.php", form, (succ, result) =>
@@ -559,7 +584,7 @@ namespace PlayUR.Editor
             }
             while (version != versionNumberToLookFor);
 
-            if(callback != null)
+            if (callback != null)
                 callback(true, null);
             GenerateEnum();
         }
@@ -663,6 +688,7 @@ namespace PlayUR.Editor
             }
             File.WriteAllText(p, clientSecret);
         }
+        /*
         static int GetGameIDFromScene()
         {
             string previousSceneID = EditorSceneManager.GetActiveScene().path;
@@ -693,6 +719,7 @@ namespace PlayUR.Editor
             EditorSceneManager.OpenScene(previousSceneID);
             return clientSecret;
         }
+        */
         #endregion
 
         #region utils
@@ -702,7 +729,7 @@ namespace PlayUR.Editor
             form.AddField("gameID", GetGameIDFromFile().ToString());
             form.AddField("clientSecret", GetClientSecretFromFile());
             form.AddBinaryData("file", File.ReadAllBytes(filePath), fileName, mimeType);
-            
+
             if (additionalRequest != null) form.AddField("request", additionalRequest.ToString());
 
             using (var www = UnityWebRequest.Post(PlayURPlugin.SERVER_URL + endPoint, form))
@@ -756,17 +783,17 @@ namespace PlayUR.Editor
 
         static Dictionary<string, string> GetGameIDForm()
         {
-            
+
             //first, grab the latest build number for this game
-            int gameID = GetGameIDFromScene();
+            int gameID = GetGameIDFromFile();
             if (gameID == -1)
                 return null;
 
-            string clientSecret = GetClientSecretFromScene();
+            string clientSecret = GetClientSecretFromFile();
             if (string.IsNullOrEmpty(clientSecret))
                 return null;
 
-            PlayURPlugin.Log("Game ID: " + gameID + ", Client Secret: "+clientSecret);
+            PlayURPlugin.Log("Game ID: " + gameID + ", Client Secret: " + clientSecret);
 
             //then get the latest build id, so we can upload the next one in sequence
             Dictionary<string, string> gameIDForm = new Dictionary<string, string>();
@@ -775,7 +802,7 @@ namespace PlayUR.Editor
             return gameIDForm;
         }
         #endregion
-        
+
         [MenuItem("PlayUR/Clear PlayerPrefs (Local Only)")] //TODO: clear from server for this user too?
         public static void ClearPlayerPrefs()
         {
