@@ -5,4 +5,4 @@ See the [documentation](https://playur.io/docs).
 ## Installation
 - Open the Unity Package Manager.
 - Click the `+` button and choose `Add Package from Git URL...`.
-- Enter `https://github.com/lfwells/playur-unity-plugin`.
+- Enter `https://github.com/lfwells/playur-unity-plugin.git`.
