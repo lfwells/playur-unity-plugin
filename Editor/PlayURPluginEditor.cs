@@ -19,6 +19,12 @@ namespace PlayUR.Editor
         #region Initial Set Up
         static string path;
 
+        const string GENERATED_FILES_PATH = "PlayURPlugin";
+
+        static string GeneratedFilesPath => Path.Combine(Application.dataPath, GENERATED_FILES_PATH);
+        static string GameIDPath => Path.Combine(Application.dataPath, GENERATED_FILES_PATH, "gameID.txt");
+        static string ClientSecretPath => Path.Combine(Application.dataPath, GENERATED_FILES_PATH, "clientSecret.txt");
+
         [MenuItem("PlayUR/Set Up Plugin")]
         public static void ReSetUpPlugin()
         {
@@ -31,10 +37,12 @@ namespace PlayUR.Editor
             if (reset)
             {
                 //if chosing this option, we should clear the saved options
-                var p = Path.Combine(Application.dataPath, "gameID.txt");
-                File.Delete(p);
-                p = Path.Combine(Application.dataPath, "clientSecret.txt");
-                File.Delete(p);
+                File.Delete(GameIDPath);
+                File.Delete(ClientSecretPath);
+            }
+            if (Directory.Exists(GeneratedFilesPath) == false)
+            {
+                Directory.CreateDirectory(GeneratedFilesPath);
             }
 
             SetSceneBuildSettings();
@@ -43,7 +51,7 @@ namespace PlayUR.Editor
                 GenerateEnum();
 
                 EditorUtility.DisplayDialog("PlayUR Plugin Setup", "Plugin Set Up Complete.", "OK");
-                SetExecutionOrder();
+                //SetExecutionOrder();
                 PlayURPlugin.Log("Set up complete."); 
             }
         }
@@ -51,8 +59,9 @@ namespace PlayUR.Editor
         {
             if (path == null)
             {
-                path = "Assets/PlayURPlugin/PlayURPlugin.cs";
+                path = "Packages/io.playur.unity/Runtime/PlayURPlugin.cs";
             }
+            
             MonoScript playURScript;
             do
             {
@@ -463,7 +472,7 @@ namespace PlayUR.Editor
         #endregion
 
         #region Auto-Update
-        [MenuItem("PlayUR/Check for Update...")]
+        //[MenuItem("PlayUR/Check for Update...")]
         public static void CheckForUpdate()
         {
             EditorCoroutines.StartCoroutine(CheckForUpdate(true), new CoroutineRunner());
@@ -555,7 +564,7 @@ namespace PlayUR.Editor
             GenerateEnum();
         }
 
-        [MenuItem("PlayUR/Admin/Upload plugin code (requires password)")]
+        //[MenuItem("PlayUR/Admin/Upload plugin code (requires password)")]
         public static void UploadPluginCodeToServer()
         {
             //require a password first
@@ -612,7 +621,7 @@ namespace PlayUR.Editor
         #region Game ID and Client Secret Getters
         static int GetGameIDFromFile()
         {
-            var p = Path.Combine(Application.dataPath, "gameID.txt");
+            var p = GameIDPath;
             if (File.Exists(p) == false)
                 return -1;
 
@@ -624,7 +633,7 @@ namespace PlayUR.Editor
         }
         static void SetGameIDInFile(int id)
         {
-            var p = Path.Combine(Application.dataPath, "gameID.txt");
+            var p = GameIDPath;
             if (File.Exists(p) == false)
             {
                 var f = File.Open(p, FileMode.OpenOrCreate);
@@ -634,7 +643,7 @@ namespace PlayUR.Editor
         }
         static string GetClientSecretFromFile()
         {
-            var p = Path.Combine(Application.dataPath, "clientSecret.txt");
+            var p = ClientSecretPath;
             if (File.Exists(p) == false)
                 return null;
 
@@ -646,7 +655,7 @@ namespace PlayUR.Editor
         }
         static void SetClientSecretInFile(string clientSecret)
         {
-            var p = Path.Combine(Application.dataPath, "clientSecret.txt");
+            var p = ClientSecretPath;
             if (File.Exists(p) == false)
             {
                 var f = File.Open(p, FileMode.OpenOrCreate);

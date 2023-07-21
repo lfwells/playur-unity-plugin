@@ -480,7 +480,7 @@ namespace PlayUR
 
 #endregion
 
-#region Game Element Getters
+        #region Game Element Getters
         /// <summary>Gets all enabled Game Elements from the current configuration.</summary>
         /// <returns>a list of the active Game Elements.</returns>
         /// <exception cref="ConfigurationNotReadyException">thrown if configuration is not previously obtained</exception>
