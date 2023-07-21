@@ -132,7 +132,19 @@ namespace PlayUR
         /// <summary>Used to determine if the plugin is ready for normal use (i.e. the user has logged in, and a configuration has been obtained.</summary>
         /// <value><c>true</c> if the user has logged in, and the configuration has been set.
         /// <c>false</c> if the user has not logged in yet, or a configuration could not be found.</value>
+        public bool IsReady => inited;
+
+        [Obsolete("Use PlayURPlugin.instance.IsReady instead.")]
+        /// <summary>Used to determine if the plugin is ready for normal use (i.e. the user has logged in, and a configuration has been obtained.</summary>
+        /// <value><c>true</c> if the user has logged in, and the configuration has been set.
+        /// <c>false</c> if the user has not logged in yet, or a configuration could not be found.</value>
         public static bool Ready { get { return instance.inited; } }
+
+        /// <summary>
+        /// The current configuration of the plugin. Contains the current experiment, experiment group, and active elements and parameters.
+        /// However it is recommended to use the <see cref="CurrentExperiment"/>, <see cref="CurrentExperimentGroup"/>, <see cref="CurrentElements"/> and <see cref="CurrentParameters"/> properties instead.
+        /// </summary>
+        public Configuration Configuration { get { return configuration; } }    
 
         protected Configuration configuration;
         bool inited;
@@ -463,8 +475,8 @@ namespace PlayUR
             Log(s);
         }
 
-        /// <summary>Event called when <see cref="Ready"/> becomes <c>true</c>. </summary>
-        public UnityEvent OnReady = new UnityEvent();
+        /// <summary>Event called when <see cref="IsReady"/> becomes <c>true</c>. If a new listener is added when the plugin is already ready, the code will be executed immediately.</summary>
+        public PlayURReadyEvent OnReady = new PlayURReadyEvent();
 
 #endregion
 
@@ -506,6 +518,7 @@ namespace PlayUR
                 return configuration.experiment;
             }
         }
+
         /// <summary>Currently running experiment group.</summary>
         /// <exception cref="ConfigurationNotReadyException">thrown if configuration is not previously obtained</exception>
         public ExperimentGroup CurrentExperimentGroup
@@ -519,7 +532,6 @@ namespace PlayUR
                 return configuration.experimentGroup;
             }
         }
-
 
         /// <summary>Current build number of this experiment.</summary>
         /// <exception cref="ConfigurationNotReadyException">thrown if configuration is not previously obtained</exception>
@@ -552,6 +564,20 @@ namespace PlayUR
         #endregion
 
         #region Parameter Getters
+        /// <summary>
+        /// Return a list of all parameters defined in the <see cref="Configuration"/>.
+        /// </summary>
+        /// <returns>The parameters in Dictionary format, keys are parameter names, values are the associated values.</returns>
+        /// <exception cref="ConfigurationNotReadyException"></exception>
+        public Dictionary<string, string> ListParameters()
+        {
+            if (configuration == null)
+            {
+                throw new ConfigurationNotReadyException();
+            }
+            return configuration.parameters;
+        }
+
         /// <summary>
         /// Check if a given parameter key exists in the <see cref="Configuration"/>.
         /// </summary>
