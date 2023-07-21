@@ -121,7 +121,6 @@ namespace PlayUR
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void InitDomainReload()
         {
-            Debug.Log("Counter reset.");
             instance = null;
             startedFromScene = -1;
         }
