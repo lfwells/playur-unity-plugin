@@ -26,7 +26,7 @@ jobs:
           dotnet publish -c Release -o tools tools/unity-package-exporter/UnityPackageExporter
         
       # Pack the assets
-      - name: Package ${{matrix.feature.name}}
+      - name: Create Package
         run: |
           echo "Creating package"
           dotnet tools/UnityPackageExporter.dll \
