@@ -30,7 +30,7 @@ namespace PlayUR
         /// <summary>
         /// Is the user listed as an owner of this game?
         /// </summary>
-        public bool IsGameOwner { get { return accessLevel > NO_ACCESS; }}
+        public bool IsGameOwner { get { return accessLevel > NO_ACCESS; } }
 
         /// <summary>
         /// The user's defined access level as defined on Owners tab of the platform. Will be -1 if not an owner
@@ -144,7 +144,7 @@ namespace PlayUR
         /// The current configuration of the plugin. Contains the current experiment, experiment group, and active elements and parameters.
         /// However it is recommended to use the <see cref="CurrentExperiment"/>, <see cref="CurrentExperimentGroup"/>, <see cref="CurrentElements"/> and <see cref="CurrentParameters"/> properties instead.
         /// </summary>
-        public Configuration Configuration { get { return configuration; } }    
+        public Configuration Configuration { get { return configuration; } }
 
         protected Configuration configuration;
         bool inited;
@@ -318,7 +318,7 @@ namespace PlayUR
             experimentFull = false;
 
             bool experimentOverrideFound = false;
-            Experiment? experiment = null; 
+            Experiment? experiment = null;
             //try and get an experiment from the experiment URL
             if (didRequestExperiment)
             {
@@ -347,11 +347,11 @@ namespace PlayUR
             if (experimentOverrideFound && experiment.HasValue)
             {
                 form.Add("experimentID", ((int)experiment.Value).ToString());
-                Log("Using Experiment Override "+experiment.Value.ToString());
+                Log("Using Experiment Override " + experiment.Value.ToString());
             }
 
             bool experimentGroupOverrideFound = false;
-            ExperimentGroup? experimentGroup = null; 
+            ExperimentGroup? experimentGroup = null;
 
             if (didRequestExperimentGroup)
             {
@@ -367,7 +367,7 @@ namespace PlayUR
             if (experimentGroupOverrideFound && experimentGroup.HasValue)
             {
                 form.Add("experimentGroupID", ((int)experimentGroup.Value).ToString());
-                Log("Using Experiment Group Override "+experimentGroup.Value.ToString());
+                Log("Using Experiment Group Override " + experimentGroup.Value.ToString());
             }
 
             //go ahead and get config now
@@ -410,7 +410,7 @@ namespace PlayUR
                     {
                         inColumns.Add(column.Value);
                     }
-                    inColumns.Sort((a,b) =>
+                    inColumns.Sort((a, b) =>
                     {
                         if (a["sort"].AsInt == b["sort"].AsInt)
                         {
@@ -436,7 +436,7 @@ namespace PlayUR
                     }
                     configuration = null;
                 }
-            }, debugOutput:true));
+            }, debugOutput: true));
         }
         /// <summary>used for debugging to the Unity console the elements included and the key value pair parameters.</summary>
         void DebugConfiguration()
@@ -446,7 +446,7 @@ namespace PlayUR
                 throw new ConfigurationNotReadyException();
             }
 
-            var s = 
+            var s =
                 $"CONFIGURATION:" +
                 $"\n\tExperimentID:{configuration.experimentID} - {configuration.experiment}" +
                 $"\n\tExperimentGroupID: {configuration.experimentGroupID} - {configuration.experimentGroup}" +
@@ -464,7 +464,7 @@ namespace PlayUR
                 s += "\t\t" + p.Key + "\t" + p.Value + "\n";
             }
 
-            s += "\tUser:\n\t\t"+user.name+"\n\t\tID = "+user.id+"\n\t\tAccess Level = "+user.accessLevel+"\n";
+            s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n";
 
             s += "\tAnalytics columns:\n";
             foreach (var c in configuration.analyticsColumnsOrder)
@@ -478,7 +478,7 @@ namespace PlayUR
         /// <summary>Event called when <see cref="IsReady"/> becomes <c>true</c>. If a new listener is added when the plugin is already ready, the code will be executed immediately.</summary>
         public PlayURReadyEvent OnReady = new PlayURReadyEvent();
 
-#endregion
+        #endregion
 
         #region Game Element Getters
         /// <summary>Gets all enabled Game Elements from the current configuration.</summary>
@@ -504,7 +504,7 @@ namespace PlayUR
             }
             return configuration.elements.Contains(element);
         }
-        
+
         /// <summary>Currently running experiment.</summary>
         /// <exception cref="ConfigurationNotReadyException">thrown if configuration is not previously obtained</exception>
         public Experiment CurrentExperiment
@@ -914,8 +914,9 @@ namespace PlayUR
         #region Session Logging
         bool inSession;
         const int NO_SESSION = -1;
-        int sessionID = NO_SESSION; 
-        public int CurrentSession {
+        int sessionID = NO_SESSION;
+        public int CurrentSession
+        {
             get { return sessionID; }
         }
         public bool CurrentSessionRunning
@@ -995,8 +996,8 @@ namespace PlayUR
                 {
                     sessionID = result["id"];
                     inSession = true;
-                    
-                    Log("Session Started "+sessionID);
+
+                    Log("Session Started " + sessionID);
                 }
             }, debugOutput: true));
         }
@@ -1017,7 +1018,7 @@ namespace PlayUR
                 { "debugLog", GetDebugLogs(PlayURPluginHelper.instance.minimumLogLevelToStore) }
             };
 
-            StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) => 
+            StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) =>
             {
                 if (succ)
                 {
@@ -1031,7 +1032,7 @@ namespace PlayUR
             }, debugOutput: true, storeFormInHistory: false));
         }
 
-        
+
         /// <summary>
         /// Records the end of a session.
         /// </summary>
@@ -1102,7 +1103,7 @@ namespace PlayUR
 
         #region Leaderboards
         [System.Serializable]
-        public class LeaderboardConfiguration 
+        public class LeaderboardConfiguration
         {
             public string title = "High Scores";
 
@@ -1119,7 +1120,7 @@ namespace PlayUR
             public bool autoScrollToHighlightedRow = true;
             [Tooltip("Leave Blank For Default")]
             public string displayFormat = ""; //element 0 is the number
-                                                 //if using total seconds bool, 0 = hours, 1 = minutes, 2 = seconds
+                                              //if using total seconds bool, 0 = hours, 1 = minutes, 2 = seconds
             [System.Serializable]
             public enum DataType
             {
@@ -1162,7 +1163,7 @@ namespace PlayUR
             {
                 throw new PlayUR.Exceptions.InvalidLeaderboardIDException(leaderboardID);
             }
-            
+
             var form = Rest.GetWWWForm();
             form.Add("leaderboardID", leaderboardID);
             form.Add("experimentID", configuration.experimentID.ToString());
@@ -1170,8 +1171,8 @@ namespace PlayUR
             form.Add("score", score.ToString());
             form.Add("extra", string.Join(",", extraFields));
             form = leaderBoardConfiguration.AddToForm(form);
-            
-            StartCoroutine(Rest.EnqueuePost("LeaderboardEntry", form, callback:callback, debugOutput:true));
+
+            StartCoroutine(Rest.EnqueuePost("LeaderboardEntry", form, callback: callback, debugOutput: true));
         }
         public void GetLeaderboardEntries(string leaderboardID, LeaderboardConfiguration leaderBoardConfiguration, Rest.ServerCallback callback)
         {
@@ -1185,24 +1186,24 @@ namespace PlayUR
             form.Add("experimentID", configuration.experimentID.ToString());
             form.Add("experimentGroupID", configuration.experimentGroupID.ToString());
             form = leaderBoardConfiguration.AddToForm(form);
-            
-            StartCoroutine(Rest.EnqueueGet("LeaderboardEntry/list.php", form, callback:callback, debugOutput:true));
+
+            StartCoroutine(Rest.EnqueueGet("LeaderboardEntry/list.php", form, callback: callback, debugOutput: true));
         }
         public void AddLeaderboardEntryAndShowHighScoreTable(
-            string leaderboardID, float score, 
-            LeaderboardConfiguration configuration, 
-            GameObject leaderboardPrefab = null, 
+            string leaderboardID, float score,
+            LeaderboardConfiguration configuration,
+            GameObject leaderboardPrefab = null,
             Canvas onCanvas = null,
             float height = -1,
-            bool showCloseButton = true, 
+            bool showCloseButton = true,
             KeyCode keyCodeForClose = KeyCode.None,
-            HighScoreTable.CloseCallback closeCallback = null, 
+            HighScoreTable.CloseCallback closeCallback = null,
             params object[] extraFields)
         {
-            AddLeaderboardEntry(leaderboardID, score, configuration, callback:(succ, data) =>
+            AddLeaderboardEntry(leaderboardID, score, configuration, callback: (succ, data) =>
             {
                 //actually for single-entry only entries, succ may be false, and thats fine, should still show highscores
-                if (succ || !configuration.onlyShowIfNewEntryAdded) 
+                if (succ || !configuration.onlyShowIfNewEntryAdded)
                 {
                     int highlightRowID = -1;
                     if (data != null) int.TryParse(data["id"], out highlightRowID);
@@ -1215,17 +1216,17 @@ namespace PlayUR
         {
             var form = Rest.GetWWWForm();
             form.Add("customName", name);
-            
-            StartCoroutine(Rest.EnqueuePut("LeaderboardEntry", id, form, callback:callback, debugOutput:true));
+
+            StartCoroutine(Rest.EnqueuePut("LeaderboardEntry", id, form, callback: callback, debugOutput: true));
         }
         public GameObject ShowHighScoreTable(
-            string leaderboardID, 
-            LeaderboardConfiguration configuration, 
-            int highlightRowID = -1, 
+            string leaderboardID,
+            LeaderboardConfiguration configuration,
+            int highlightRowID = -1,
             GameObject leaderboardPrefab = null,
-            Canvas onCanvas = null, 
+            Canvas onCanvas = null,
             float height = -1,
-            bool showCloseButton = true, 
+            bool showCloseButton = true,
             KeyCode keyCodeForClose = KeyCode.None,
             HighScoreTable.CloseCallback closeCallback = null)
         {
@@ -1245,14 +1246,14 @@ namespace PlayUR
             return go;
         }
         public IEnumerator ShowHighScoreTableFor(
-            float seconds, 
-            string leaderboardID, 
-            LeaderboardConfiguration configuration, 
-            int highlightRowID = -1, 
-            GameObject leaderboardPrefab = null, 
-            Canvas onCanvas = null, 
+            float seconds,
+            string leaderboardID,
+            LeaderboardConfiguration configuration,
+            int highlightRowID = -1,
+            GameObject leaderboardPrefab = null,
+            Canvas onCanvas = null,
             float height = -1,
-            bool showCloseButton = false, 
+            bool showCloseButton = false,
             KeyCode keyCodeForClose = KeyCode.Delete)
         {
             var go = ShowHighScoreTable(leaderboardID, configuration, highlightRowID, leaderboardPrefab, onCanvas, height, showCloseButton, keyCodeForClose);
@@ -1260,17 +1261,17 @@ namespace PlayUR
             Destroy(go);
         }
         public IEnumerator ShowHighScoreTableRoutine(
-            string leaderboardID, 
-            LeaderboardConfiguration configuration, 
-            int highlightRowID = -1, 
-            GameObject leaderboardPrefab = null, 
-            Canvas onCanvas = null, 
+            string leaderboardID,
+            LeaderboardConfiguration configuration,
+            int highlightRowID = -1,
+            GameObject leaderboardPrefab = null,
+            Canvas onCanvas = null,
             float height = -1,
-            bool showCloseButton = true, 
+            bool showCloseButton = true,
             KeyCode keyCodeForClose = KeyCode.Delete)
         {
             var waiting = true;
-            ShowHighScoreTable(leaderboardID, configuration, highlightRowID, leaderboardPrefab, onCanvas, height, showCloseButton, keyCodeForClose, closeCallback:() =>
+            ShowHighScoreTable(leaderboardID, configuration, highlightRowID, leaderboardPrefab, onCanvas, height, showCloseButton, keyCodeForClose, closeCallback: () =>
             {
                 waiting = false;
             });
@@ -1279,19 +1280,19 @@ namespace PlayUR
                 yield return new WaitForEndOfFrame();
         }
         public IEnumerator AddLeaderboardEntryAndShowHighScoreTableRoutine(
-            string leaderboardID, 
-            float score, 
-            LeaderboardConfiguration configuration, 
-            GameObject leaderboardPrefab = null, 
-            Canvas onCanvas = null, 
+            string leaderboardID,
+            float score,
+            LeaderboardConfiguration configuration,
+            GameObject leaderboardPrefab = null,
+            Canvas onCanvas = null,
             float height = -1,
-            bool showCloseButton = true, 
+            bool showCloseButton = true,
             KeyCode keyCodeForClose = KeyCode.None,
             params object[] extraFields)
         {
             var waiting = true;
             int highlightRowID = -1;
-            AddLeaderboardEntry(leaderboardID, score, configuration, callback:(succ, data) =>
+            AddLeaderboardEntry(leaderboardID, score, configuration, callback: (succ, data) =>
             {
                 waiting = false;
                 if (data != null) int.TryParse(data["id"], out highlightRowID);
@@ -1301,11 +1302,11 @@ namespace PlayUR
                 yield return new WaitForEndOfFrame();
 
             yield return StartCoroutine(ShowHighScoreTableRoutine(leaderboardID, configuration, highlightRowID, leaderboardPrefab, onCanvas, height, showCloseButton, keyCodeForClose));
-            
-        }
-#endregion
 
-#region Logout/Quit stuff
+        }
+        #endregion
+
+        #region Logout/Quit stuff
         /// <summary>
         /// Logout the current user. Will move them to the PlayURLogin scene. Clears PlayerPref data that stored their password.
         /// </summary>
@@ -1329,9 +1330,9 @@ namespace PlayUR
 
             StartCoroutine(RecordActionRoutineInternal());
         }
-#endregion
+        #endregion
 
-#region Popups
+        #region Popups
         //TODO: turn these into achievements
         //TODO: stack these visually like steam does, or queue them
 
@@ -1364,7 +1365,7 @@ namespace PlayUR
             var currentPopup = go.GetComponentInChildren<Animator>();
 
             var closeButton = go.GetComponentInChildren<Button>();
-            if (closeable == false) 
+            if (closeable == false)
             {
                 closeButton?.gameObject.SetActive(false);
                 StartCoroutine(ClosePopupAfter(duration, currentPopup));
@@ -1373,7 +1374,7 @@ namespace PlayUR
             {
                 closeButton?.gameObject.SetActive(true);
                 closeButton?.onClick.AddListener(() => ClosePopup(currentPopup));
-            } 
+            }
         }
         void ClosePopup(Animator popup)
         {
@@ -1388,9 +1389,9 @@ namespace PlayUR
             yield return new WaitForSecondsRealtime(duration);
             ClosePopup(popup);
         }
-#endregion
+        #endregion
 
-#region PlayerPrefs
+        #region PlayerPrefs
         /// <summary>
         /// Saves playerprefs (overrides unity's ones) to the server.
         /// </summary>
@@ -1406,10 +1407,10 @@ namespace PlayUR
                 var value = kvp.Value != null ? kvp.Value : "";
                 convertedData.Add(kvp.Key, value.ToString());
 
-                convertedData.Add("__type__"+kvp.Key, value.GetType().ToString());
+                convertedData.Add("__type__" + kvp.Key, value.GetType().ToString());
             }
 
-            StartCoroutine(Rest.EnqueuePost("SavePlayerPrefs", convertedData, null, HTMLencode:HTMLencode, debugOutput: debugOutput));
+            StartCoroutine(Rest.EnqueuePost("SavePlayerPrefs", convertedData, null, HTMLencode: HTMLencode, debugOutput: debugOutput));
         }
 
         /// <summary>
@@ -1421,7 +1422,7 @@ namespace PlayUR
         {
             Log("LoadPlayerPrefs");
             var form = Rest.GetWWWForm();
-            StartCoroutine(Rest.EnqueueGet("SavePlayerPrefs", form, callback, debugOutput:true));
+            StartCoroutine(Rest.EnqueueGet("SavePlayerPrefs", form, callback, debugOutput: true));
         }
         #endregion
 
@@ -1516,7 +1517,7 @@ namespace PlayUR
 
 #region Exceptions
 namespace PlayUR.Exceptions
-{ 
+{
 
     /// <summary>
     /// Thrown when a user attempts to open the game but they haven't been allocated to an ExperimentGroup
@@ -1537,7 +1538,7 @@ namespace PlayUR.Exceptions
 
     }
 
-    
+
     /// <summary>
     /// Thrown when a user attempts to open the game but the game is unable to assign them to an
     /// Experiment Group, because all the groups are over capacity.
@@ -1545,7 +1546,7 @@ namespace PlayUR.Exceptions
     public class ExperimentGroupsFullException : System.Exception
     {
         User user;
-        int gameID; 
+        int gameID;
         public ExperimentGroupsFullException(User user, int gameID) { this.user = user; this.gameID = gameID; }
         public override string Message
         {
@@ -1578,7 +1579,7 @@ namespace PlayUR.Exceptions
     {
         string key;
         System.Type format;
-        public InvalidParamFormatException(string key, System.Type format) { this.key = key;  this.format = format; }
+        public InvalidParamFormatException(string key, System.Type format) { this.key = key; this.format = format; }
         public override string Message
         {
             get
@@ -1587,11 +1588,12 @@ namespace PlayUR.Exceptions
             }
         }
     }
-    
+
     /// <summary>
     /// Thrown when a parameter is requested from the <see cref="Configuration"/> but was not found in the configuration.
     /// </summary>
-    public class ParameterNotFoundException : System.Exception {
+    public class ParameterNotFoundException : System.Exception
+    {
         string key;
         public ParameterNotFoundException(string key) { this.key = key; }
         public override string Message
@@ -1658,7 +1660,7 @@ namespace PlayUR.Exceptions
         {
             get
             {
-                return "Cannot perform leaderboard operation with leaderboard ID '"+id+"'";
+                return "Cannot perform leaderboard operation with leaderboard ID '" + id + "'";
             }
         }
     }
@@ -1697,7 +1699,7 @@ public static class PlayerPrefs
                     else
                         DATA.Add(key, v);
                 }
-                catch (System.Exception e) { PlayUR.PlayURPlugin.LogError("Failed to convert "+value+" to "+type+". Exception:"+e.GetType()+" - "+e.Message); }
+                catch (System.Exception e) { PlayUR.PlayURPlugin.LogError("Failed to convert " + value + " to " + type + ". Exception:" + e.GetType() + " - " + e.Message); }
 
                 if (callback != null) callback(succ, result);
             }
@@ -1730,7 +1732,7 @@ public static class PlayerPrefs
             {
                 return (int)DATA[key];
             }
-            catch (System.InvalidCastException) {  return defaultValue; }
+            catch (System.InvalidCastException) { return defaultValue; }
         else
             return defaultValue;
     }
@@ -1780,7 +1782,7 @@ public static class PlayerPrefs
             DATA.Add(key, v);
         else
             DATA[key] = v;
-        
+
         UnityEngine.PlayerPrefs.SetInt(key, v ? 1 : 0);
     }
     public static bool GetBool(string key, bool defaultValue = false)
@@ -1803,7 +1805,7 @@ public static class PlayerPrefs
     {
         if (DATA.ContainsKey(key))
             DATA.Remove(key);
-        
+
         UnityEngine.PlayerPrefs.DeleteKey(key);
     }
 
@@ -1814,7 +1816,8 @@ public static class PlayerPrefs
         UnityEngine.PlayerPrefs.DeleteAll();
     }
 
-    public static void Clear() {
+    public static void Clear()
+    {
         DeleteAll();
     }
 }

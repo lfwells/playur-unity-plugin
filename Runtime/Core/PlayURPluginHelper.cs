@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using PlayUR.Core;
+using System.Diagnostics;
 
 namespace PlayUR
 {
@@ -51,13 +52,13 @@ namespace PlayUR
 
 
         [Header("MTurk Options (if used)")]
-        [TextArea(3,3)]
+        [TextArea(3, 3)]
         /// <summary>
         /// What message should be shown to the user when they complete the game as a Amazon Mechanical Turk user. \
         /// This value can (and should) be set at any time.
         /// </summary>
         public string mTurkCompletionMessage = "HiT Completed\nCode: 6226";
-        
+
         [Header("Editor-Only Testing")]
         /// <summary>
         /// For use in-editor only, this allows us to test the game with the Experiment defined in <see cref="experimentToTestInEditor"/>.
@@ -142,16 +143,11 @@ namespace PlayUR
 
             gameObject.AddComponent<URLParameters>();
 
-            if (standardSessionTracking)
-            {
-                gameObject.AddComponent<PlayURSessionTracker>();
-            }
-
             instance = this;
             DontDestroyOnLoad(this);
             StartCoroutine(Init());
         }
- 
+
         /// <summary>
         /// Takes us to the login scene and returns us to the scene we came from as required.
         /// In builds, we will always get to the login scene first, then head on to Scene #1.
@@ -178,13 +174,18 @@ namespace PlayUR
             yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
 
+            if (standardSessionTracking)
+            {
+                gameObject.AddComponent<PlayURSessionTracker>();
+            }
+
             //definitely load the scene we were in in unity
             if (SceneManager.GetActiveScene().buildIndex != currentSceneIndex)
             {
                 SceneManager.LoadScene(currentSceneIndex);
             }
 
-                
+
 
             //no longer need this object
             //DestroyImmediate(this.gameObject);
