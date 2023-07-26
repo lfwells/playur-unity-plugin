@@ -1,6 +1,6 @@
 {
   "name": "io.playur.unity",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "displayName": "PlayUR Plugin",
   "description": "Unity plugin wrapper for the PlayUR platform (https://playur.io).",
   "unity": "2019.4",
@@ -14,9 +14,9 @@
   "type": "tool",
   "samples": [
     {
-        "displayName": "Reading Parameters",
-        "description": "Shows how to read parameter values from PlayUR Configuration",
-        "path": "Samples~/ParameterTest"
-    } 
+      "displayName": "Reading Parameters",
+      "description": "Shows how to read parameter values from PlayUR Configuration",
+      "path": "Samples~/ParameterTest"
+    }
   ]
 }
