@@ -47,6 +47,7 @@ jobs:
 
   # Tag the build
   tag:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
