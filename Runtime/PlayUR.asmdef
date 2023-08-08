@@ -1,5 +1,5 @@
 {
-    "name": "io.playur.unity",
+    "name": "PlayUR",
     "references": [
         "Unity.TextMeshPro",
         "Unity.InputSystem"
