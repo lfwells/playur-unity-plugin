@@ -18,5 +18,8 @@
       "description": "Shows how to read parameter values from PlayUR Configuration",
       "path": "Samples~/ParameterTest"
     }
-  ]
+  ],
+  "dependencies": {
+    "com.unity.editorcoroutines": "1.0.0"
+  }
 }
