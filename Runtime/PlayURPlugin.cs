@@ -864,6 +864,52 @@ namespace PlayUR
         }
 
         /// <summary>
+        /// Obtains a float array of values of a parameter defined in the <see cref="Configuration"/>.
+        /// </summary>
+        /// <param name="key">The key matching the parameter name set on the back-end</param>
+        /// <returns>The float array of value of the requested parameter if it exists</returns>
+        /// <exception cref="ConfigurationNotReadyException">thrown if <see cref="Configuration"/> is not previously obtained</exception>
+        /// <exception cref="ParameterNotFoundException">thrown if no parameter with that name present in the <see cref="Configuration"/></exception>
+        /// <exception cref="InvalidParamFormatException">thrown if one or more values in the array were unable to be converted to an integer</exception>
+        public float[] GetFloatParamList(string key)
+        {
+            string unsplit = GetStringParam(key + PARAM_LIST_KEY_APPEND);
+            string[] split = unsplit.Split(PARAM_LIST_SPLIT_DELIMITER, StringSplitOptions.RemoveEmptyEntries);
+            float[] result = new float[split.Length];
+            for (var i = 0; i < result.Length; i++)
+            {
+                result[i] = float.Parse(split[i]);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Obtains a float array of values of a parameter defined in the <see cref="Configuration"/>.
+        /// This version includes a defaultValue to return if the parameter is not found.
+        /// </summary>
+        /// <param name="key">The key matching the parameter name set on the back-end</param>
+        /// <returns>The float array of value of the requested parameter if it exists</returns>
+        /// <exception cref="ConfigurationNotReadyException">thrown if <see cref="Configuration"/> is not previously obtained</exception>
+        /// <exception cref="ParameterNotFoundException">thrown if no parameter with that name present in the <see cref="Configuration"/></exception>
+        /// <exception cref="InvalidParamFormatException">thrown if one or more values in the array were unable to be converted to a float</exception>
+        public float[] GetFloatParamList(string key, float[] defaultValue, bool warn = true)
+        {
+            try
+            {
+                return GetFloatParamList(key + PARAM_LIST_KEY_APPEND);
+            }
+            catch (ParameterNotFoundException)
+            {
+                if (warn) Debug.LogWarning("Parameter " + key + " not found, using default value");
+                return defaultValue;
+            }
+            catch (ArgumentNullException) //thrown if int.Parse fails
+            {
+                throw new InvalidParamFormatException(key, typeof(float));
+            }
+        }
+
+        /// <summary>
         /// Obtains a boolean array of values of a parameter defined in the <see cref="Configuration"/>.
         /// </summary>
         /// <param name="key">The key matching the parameter name set on the back-end</param>
