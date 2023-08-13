@@ -158,23 +158,24 @@ namespace PlayUR
             var currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
             startedFromScene = currentSceneIndex;
 
-            //if already on the login page, can ignore
+            //if already on the login page, can  skip login
             if (currentSceneIndex == 0)
             {
                 startedFromScene = 0;
-                yield break;
             }
-
-            //login (if required...)
-            while (PlayURLoginCanvas.LoggedIn == false)
+            else
             {
-                yield return PlayURPlugin.GetLogin();
+                //login (if required...)
+                while (PlayURLoginCanvas.LoggedIn == false)
+                {
+                    yield return PlayURPlugin.GetLogin();
+                }
             }
 
             yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
 
-            if (standardSessionTracking)
+            if (standardSessionTracking && gameObject.GetComponent<PlayURSessionTracker>() == null)
             {
                 gameObject.AddComponent<PlayURSessionTracker>();
             }
