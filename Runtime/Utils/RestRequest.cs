@@ -176,21 +176,21 @@ namespace PlayUR.Core
                         {
                             if (_backoffSeconds >= 1f)
                             {
-                                PlayURPlugin.LogError($"Rest Queue: #{restRequest.Order} exceeded backoff time of {MaxBackoffTime}s. Giving up!!!!");
+                                //PlayURPlugin.LogError($"Rest Queue: #{restRequest.Order} exceeded backoff time of {MaxBackoffTime}s. Giving up!!!!");
                                 restRequest.Response = new RestResponse(wwwRequest);
                                 break;
                             }
                             else
                             {
                                 // We need to wait before looping again. Increment the backoff exponentially 
-                                PlayURPlugin.LogWarning($"Rest Queue: Required to backoff and attempt {restRequest.Order} again. Waiting {_backoffSeconds}s");
+                                //PlayURPlugin.LogWarning($"Rest Queue: Required to backoff and attempt {restRequest.Order} again. Waiting {_backoffSeconds}s");
                                 System.Threading.Thread.Sleep(Mathf.FloorToInt(_backoffSeconds * 1000f));
                                 _backoffSeconds *= 2;
                             }
                         }
                         else
                         {
-                            PlayURPlugin.Log($"Rest Queue: #{restRequest.Order} finished (took backoff of {_backoffSeconds}s).");
+                            //PlayURPlugin.Log($"Rest Queue: #{restRequest.Order} finished (took backoff of {_backoffSeconds}s).");
                             restRequest.Response = new RestResponse(wwwRequest);
                             break;
                         }
@@ -211,7 +211,7 @@ namespace PlayUR.Core
             {
                 if (_pending.Count > 0)
                 {
-                    PlayURPlugin.Log("Premptive saving of history...");
+                    //PlayURPlugin.Log("Premptive saving of history...");
                     SaveToFile();
                 }
 
@@ -234,21 +234,21 @@ namespace PlayUR.Core
                             {
                                 if (_backoffSeconds >= MaxBackoffTime)
                                 {
-                                    PlayURPlugin.LogError($"Rest Queue: #{restRequest.Order} exceeded backoff time of {MaxBackoffTime}s. Giving up!!!!");
+                                    //PlayURPlugin.LogError($"Rest Queue: #{restRequest.Order} exceeded backoff time of {MaxBackoffTime}s. Giving up!!!!");
                                     restRequest.Response = new RestResponse(wwwRequest);
                                     break;
                                 }
                                 else
                                 {
                                     // We need to wait before looping again. Increment the backoff exponentially 
-                                    PlayURPlugin.LogWarning($"Rest Queue: Required to backoff and attempt {restRequest.Order} again. Waiting {_backoffSeconds}s");
+                                    //PlayURPlugin.LogWarning($"Rest Queue: Required to backoff and attempt {restRequest.Order} again. Waiting {_backoffSeconds}s");
                                     yield return new WaitForSeconds(_backoffSeconds);
                                     _backoffSeconds *= 2;
                                 }
                             }
                             else
                             {
-                                PlayURPlugin.Log($"Rest Queue: #{restRequest.Order} finished (took backoff of {_backoffSeconds}s).");
+                                //PlayURPlugin.Log($"Rest Queue: #{restRequest.Order} finished (took backoff of {_backoffSeconds}s).");
                                 restRequest.Response = new RestResponse(wwwRequest);
                                 break;
                             }
@@ -268,7 +268,7 @@ namespace PlayUR.Core
         {
             try
             {
-                PlayURPlugin.Log("Serializing and Saving Rest history...");
+                //PlayURPlugin.Log("Serializing and Saving Rest history...");
                 XmlSerializer serializer = new XmlSerializer(typeof(RestHistoryRecord));
 
 
@@ -316,7 +316,7 @@ namespace PlayUR.Core
 
             string fullPath = System.IO.Path.Combine(Application.persistentDataPath, HistoryFilename);
             File.WriteAllBytes(fullPath, data);
-            PlayURPlugin.Log("Finished Saving history to " + fullPath);
+            //PlayURPlugin.Log("Finished Saving history to " + fullPath);
         }
 
         /// <summary>Enqueues a request to be compelted</summary>
