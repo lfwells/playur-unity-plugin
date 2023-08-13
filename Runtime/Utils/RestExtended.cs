@@ -61,11 +61,15 @@ namespace PlayUR.Core
             try
             {
                 json = JSON.Parse(request.Response.Content);
+                if (json == null) { throw new System.Exception();  }
             }
             catch (System.Exception ex)
             {
                 PlayURPlugin.Log($"Failed to GET (JSON): {ex.Message} (status: {request.Response.StatusCode})");
-                throw new ServerCommunicationException("JSON Parser Error: " + ex.Message + "\nRaw: '" + request.Response.Content + "'");
+                throw new ServerCommunicationException("JSON Parser Error: " + ex.Message + "\nRaw: '" + request.Response.Content + "'\n" +
+                    "Page: " + page + "\n" +
+                    "Form: " + string.Join(",", form.Select((kvp) => kvp.Key + "=" + kvp.Value))
+                );
             }
 
             // Return if HTTP error
@@ -136,11 +140,15 @@ namespace PlayUR.Core
             try
             {
                 json = JSON.Parse(request.Response.Content);
+                if (json == null) { throw new System.Exception();  }
             }
             catch (System.Exception ex)
             {
                 PlayURPlugin.Log($"Failed to POST (JSON): {ex.Message} (status: {request.Response.StatusCode})");
-                throw new ServerCommunicationException("JSON Parser Error: " + ex.Message + "\nRaw: '" + request.Response.Content + "'");
+                throw new ServerCommunicationException("JSON Parser Error: " + ex.Message + "\nRaw: '" + request.Response.Content + "'\n" +
+                    "Page: " + page + "\n" +
+                    "Form: " + string.Join(",", form.Select((kvp) => kvp.Key + "=" + kvp.Value))
+                );
             }
 
             // Return if HTTP error
@@ -211,11 +219,15 @@ namespace PlayUR.Core
             try
             {
                 json = JSON.Parse(request.Response.Content);
+                if (json == null) { throw new System.Exception();  }
             }
             catch (System.Exception ex)
             {
                 PlayURPlugin.Log($"Failed to PUT (JSON): {ex.Message} (status: {request.Response.StatusCode})");
-                throw new ServerCommunicationException("JSON Parser Error: " + ex.Message + "\nRaw: '" + request.Response.Content + "'");
+                throw new ServerCommunicationException("JSON Parser Error: " + ex.Message + "\nRaw: '" + request.Response.Content + "'\n" +
+                    "Page: " + page + "\n" +
+                    "Form: " + string.Join(",", form.Select((kvp) => kvp.Key + "=" + kvp.Value))
+                );
             }
 
             // Return if HTTP error
