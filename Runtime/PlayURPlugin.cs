@@ -266,7 +266,7 @@ namespace PlayUR
                     StartCoroutine(PlayerPrefs.PeriodicallySavePlayerPrefs());
                 }
                 callback(succ, result);
-            }, debugOutput: true));
+            }, debugOutput: false));
         }
 
         /// <summary>Performs a register request to the server.
@@ -298,7 +298,7 @@ namespace PlayUR
                     PlayerPrefs.Load(callback);
                 }
                 callback(succ, result);
-            }, debugOutput: true));
+            }, debugOutput: false));
         }
 
 
@@ -963,7 +963,7 @@ namespace PlayUR
                     // Start automated backups
                     _periodicBackup = StartCoroutine(PeriodicallyBackupSession());
                 }
-            }, debugOutput: true));
+            }, debugOutput: false));
         }
         /// <summary>
         /// Starts logging a new session (if not already in a session). Records system information, note that on WebGL, returned information
@@ -1029,7 +1029,7 @@ namespace PlayUR
                     if (startNew)
                         StartSession();
                 }
-            }, debugOutput: true, storeFormInHistory: false));
+            }, debugOutput: false, storeFormInHistory: false));
         }
 
 
@@ -1060,7 +1060,7 @@ namespace PlayUR
                     if (startNew)
                         StartSession();
                 }
-            }, debugOutput: true, storeFormInHistory: false));
+            }, debugOutput: false, storeFormInHistory: false));
         }
 
         /// <summary>
@@ -1086,7 +1086,7 @@ namespace PlayUR
             return Rest.EnqueuePut("Session", sessionID, form, (succ, result) =>
             {
                 PlayURPlugin.Log("session backedup");
-            }, debugOutput: true, storeFormInHistory: false);
+            }, debugOutput: false, storeFormInHistory: false);
         }
 
         private Coroutine _periodicBackup;
@@ -1172,7 +1172,7 @@ namespace PlayUR
             form.Add("extra", string.Join(",", extraFields));
             form = leaderBoardConfiguration.AddToForm(form);
 
-            StartCoroutine(Rest.EnqueuePost("LeaderboardEntry", form, callback: callback, debugOutput: true));
+            StartCoroutine(Rest.EnqueuePost("LeaderboardEntry", form, callback: callback, debugOutput: false));
         }
         public void GetLeaderboardEntries(string leaderboardID, LeaderboardConfiguration leaderBoardConfiguration, Rest.ServerCallback callback)
         {
@@ -1187,7 +1187,7 @@ namespace PlayUR
             form.Add("experimentGroupID", configuration.experimentGroupID.ToString());
             form = leaderBoardConfiguration.AddToForm(form);
 
-            StartCoroutine(Rest.EnqueueGet("LeaderboardEntry/list.php", form, callback: callback, debugOutput: true));
+            StartCoroutine(Rest.EnqueueGet("LeaderboardEntry/list.php", form, callback: callback, debugOutput: false));
         }
         public void AddLeaderboardEntryAndShowHighScoreTable(
             string leaderboardID, float score,
@@ -1420,9 +1420,9 @@ namespace PlayUR
         /// <param name="callback">Code to run once the player prefs have been loaded</param>
         public void LoadPlayerPrefs(Rest.ServerCallback callback)
         {
-            Log("LoadPlayerPrefs");
+            //Log("LoadPlayerPrefs");
             var form = Rest.GetWWWForm();
-            StartCoroutine(Rest.EnqueueGet("SavePlayerPrefs", form, callback, debugOutput: true));
+            StartCoroutine(Rest.EnqueueGet("SavePlayerPrefs", form, callback, debugOutput: false));
         }
         #endregion
 
