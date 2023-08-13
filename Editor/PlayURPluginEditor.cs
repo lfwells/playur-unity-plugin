@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine.Networking;
 using UnityEditor.Build.Reporting;
 using Ionic.Zip; // this uses the Unity port of DotNetZip https://github.com/r2d2rigo/dotnetzip-for-unity
-using EditorCoroutinesPlugin;
+using Unity.EditorCoroutines.Editor;
 using System.IO;
 using UnityEditor.SceneManagement;
 using System.Text;
@@ -204,7 +204,7 @@ namespace PlayUR.Editor
 
             var GET = "?gameID=" + GetGameIDFromFile() + "&clientSecret=" + GetClientSecretFromFile();
             //get actions from the server and populate an enum
-            EditorCoroutines.StartCoroutine(Rest.Get("Action/listForGame.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(Rest.Get("Action/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -225,7 +225,7 @@ namespace PlayUR.Editor
             }), new CoroutineRunner());
 
             //get elements from the server and populate an enum
-            EditorCoroutines.StartCoroutine(Rest.Get("Element/listForGame.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(Rest.Get("Element/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -247,7 +247,7 @@ namespace PlayUR.Editor
             }), new CoroutineRunner());
 
             //get experiments from the server and populate an enum
-            EditorCoroutines.StartCoroutine(Rest.Get("Experiment/listForGame.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(Rest.Get("Experiment/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -269,7 +269,7 @@ namespace PlayUR.Editor
             }), new CoroutineRunner());
 
             //get experiment groups from the server and populate an enum
-            EditorCoroutines.StartCoroutine(Rest.Get("ExperimentGroup/listForGame.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(Rest.Get("ExperimentGroup/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -291,7 +291,7 @@ namespace PlayUR.Editor
             }), new CoroutineRunner());
 
             //get analytics columns from the server and populate an enum
-            EditorCoroutines.StartCoroutine(Rest.Get("AnalyticsColumn/listForGame.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(Rest.Get("AnalyticsColumn/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -313,7 +313,7 @@ namespace PlayUR.Editor
             }), new CoroutineRunner());
 
             //get all parameter keys from the server and populate an enum
-            EditorCoroutines.StartCoroutine(Rest.Get("GameParameter/listParameterKeys.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(Rest.Get("GameParameter/listParameterKeys.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -405,7 +405,7 @@ namespace PlayUR.Editor
                         PlayURPlugin.Log("Selected branch: " + branch);
 
                         //upload to server
-                        EditorCoroutines.StartCoroutine(UploadBuild(buildPath + "/index.zip", branch, (succ2, json) =>
+                        EditorCoroutineUtility.StartCoroutine(UploadBuild(buildPath + "/index.zip", branch, (succ2, json) =>
                         {
                             if (succ2)
                             {
@@ -434,7 +434,7 @@ namespace PlayUR.Editor
         {
             //get the latest build id, so that we can open it up in unity
             var form = GetGameIDForm();
-            EditorCoroutines.StartCoroutine(Rest.Get("Build/latestBuildID.php", form, (succ, result) =>
+            EditorCoroutineUtility.StartCoroutine(Rest.Get("Build/latestBuildID.php", form, (succ, result) =>
             {
                 int buildID = result["latestBuildID"];
                 Application.OpenURL(PlayURPlugin.SERVER_URL.Replace("/api/", "/games.php?/game/" + form["clientSecret"] + "/buildID/" + buildID));
@@ -472,10 +472,10 @@ namespace PlayUR.Editor
             var form = GetGameIDForm();
             form.Add("branch", branch);
 
-            yield return EditorCoroutines.StartCoroutine(Rest.Get("Build/latestBuildID.php", form, (succ, result) =>
+            yield return EditorCoroutineUtility.StartCoroutine(Rest.Get("Build/latestBuildID.php", form, (succ, result) =>
             {
                 var newBuildID = int.Parse(result["latestBuildID"]) + 1;
-                EditorCoroutines.StartCoroutine(UploadBuildPart2(zipPath, branch, callback, form["gameID"], form["clientSecret"], newBuildID), new CoroutineRunner());
+                EditorCoroutineUtility.StartCoroutine(UploadBuildPart2(zipPath, branch, callback, form["gameID"], form["clientSecret"], newBuildID), new CoroutineRunner());
             }), new CoroutineRunner());
         }
         static IEnumerator UploadBuildPart2(string zipPath, string branch, Rest.ServerCallback callback, string gameID, string clientSecret, int newBuildID)
@@ -491,7 +491,7 @@ namespace PlayUR.Editor
             jsonSend["branch"] = branch;
             PlayURPlugin.Log("JSON: " + jsonSend.ToString());
 
-            yield return EditorCoroutines.StartCoroutine(UploadFile("Build/", zipPath, "index.zip", "application/zip", jsonSend, callback), new CoroutineRunner());
+            yield return EditorCoroutineUtility.StartCoroutine(UploadFile("Build/", zipPath, "index.zip", "application/zip", jsonSend, callback), new CoroutineRunner());
         }
 
         #endregion
@@ -500,19 +500,19 @@ namespace PlayUR.Editor
         //[MenuItem("PlayUR/Check for Update...")]
         public static void CheckForUpdate()
         {
-            EditorCoroutines.StartCoroutine(CheckForUpdate(true), new CoroutineRunner());
+            EditorCoroutineUtility.StartCoroutine(CheckForUpdate(true), new CoroutineRunner());
         }
         static IEnumerator CheckForUpdate(bool showMessageEvenIfNoUpdate)
         {
             var form = new Dictionary<string, string>();
             form.Add("currentVersion", CurrentVersion().ToString());//lol @ toString()
-            yield return EditorCoroutines.StartCoroutine(Rest.Get("PluginVersion/check.php", form, (succ, result) =>
+            yield return EditorCoroutineUtility.StartCoroutine(Rest.Get("PluginVersion/check.php", form, (succ, result) =>
             {
                 if (succ && result["updateExists"].AsBool == true)
                 {
                     if (EditorUtility.DisplayDialog("PlayUR Plugin", "An updated version exists. Do you want to download it?", "Yes", "No"))
                     {
-                        EditorCoroutines.StartCoroutine(DownloadAndImportPlugin((succ2, result2) =>
+                        EditorCoroutineUtility.StartCoroutine(DownloadAndImportPlugin((succ2, result2) =>
                         {
                             SetGameIDInPlayURLoginScene();
                             EditorUtility.DisplayDialog("PlayUR Plugin", "Downloaded.", "OK");
@@ -545,7 +545,7 @@ namespace PlayUR.Editor
         {
             int newVersion = -100;
             //get the latest version number first (we need it later)
-            yield return EditorCoroutines.StartCoroutine(Rest.Get("PluginVersion/getLatestVersionID.php", null, (succ, result) =>
+            yield return EditorCoroutineUtility.StartCoroutine(Rest.Get("PluginVersion/getLatestVersionID.php", null, (succ, result) =>
             {
                 if (succ)
                 {
@@ -554,7 +554,7 @@ namespace PlayUR.Editor
             }), new CoroutineRunner());
 
             //now download the actual plugin 
-            yield return EditorCoroutines.StartCoroutine(Rest.GetFile("PluginVersion/latestVersion.php", new Dictionary<string, string>(), (succ, result) =>
+            yield return EditorCoroutineUtility.StartCoroutine(Rest.GetFile("PluginVersion/latestVersion.php", new Dictionary<string, string>(), (succ, result) =>
             {
                 PlayURPlugin.Log(result.Length + " bytes downloaded...");
 
@@ -569,7 +569,7 @@ namespace PlayUR.Editor
                 //which is wait until the package is imported with the brand new version number, 
                 //and then once the number is up to date, we know the package has been imported
                 //so then we can generate the enums
-                EditorCoroutines.StartCoroutine(WaitForPackageImportThenUpdateEnums(newVersion, callback), new CoroutineRunner());
+                EditorCoroutineUtility.StartCoroutine(WaitForPackageImportThenUpdateEnums(newVersion, callback), new CoroutineRunner());
 
             }), new CoroutineRunner());
         }
@@ -605,7 +605,7 @@ namespace PlayUR.Editor
                 if (string.IsNullOrEmpty(exportPath)) return;
 
                 //first work out what the latest version number is to use
-                EditorCoroutines.StartCoroutine(Rest.Get("PluginVersion/getLatestVersionID.php", null, (succ, result) =>
+                EditorCoroutineUtility.StartCoroutine(Rest.Get("PluginVersion/getLatestVersionID.php", null, (succ, result) =>
                 {
                     if (succ)
                     {
@@ -628,7 +628,7 @@ namespace PlayUR.Editor
                             //pop the password in to upload
                             jsonSend["pass"] = input;
 
-                            EditorCoroutines.StartCoroutine(UploadFile("PluginVersion/", exportPath, "PlayUR_UnityPlugin", "application/unitypackage", jsonSend, (succ2, result2) =>
+                            EditorCoroutineUtility.StartCoroutine(UploadFile("PluginVersion/", exportPath, "PlayUR_UnityPlugin", "application/unitypackage", jsonSend, (succ2, result2) =>
                             {
                                 if (succ2)
                                     EditorUtility.DisplayDialog("PlayUR Plugin", "Code Uploaded! Current Version = " + result2["id"], "OK");// (Version number is now:"+result2['currentVersion']+")");

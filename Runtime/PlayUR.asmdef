@@ -1,5 +1,6 @@
 {
     "name": "PlayUR",
+    "rootNamespace": "",
     "references": [
         "Unity.TextMeshPro",
         "Unity.InputSystem"
