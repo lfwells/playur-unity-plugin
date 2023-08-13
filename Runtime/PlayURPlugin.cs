@@ -436,7 +436,7 @@ namespace PlayUR
                     }
                     configuration = null;
                 }
-            }, debugOutput: true));
+            }, debugOutput: false));
         }
         /// <summary>used for debugging to the Unity console the elements included and the key value pair parameters.</summary>
         void DebugConfiguration()
