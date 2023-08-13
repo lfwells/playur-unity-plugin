@@ -489,7 +489,7 @@ namespace PlayUR.Editor
             jsonSend["clientSecret"] = clientSecret;
             jsonSend["buildID"] = newBuildID;
             jsonSend["branch"] = branch;
-            PlayURPlugin.Log("JSON: " + jsonSend.ToString());
+            //PlayURPlugin.Log("JSON: " + jsonSend.ToString());
 
             yield return EditorCoroutineUtility.StartCoroutine(UploadFile("Build/", zipPath, "index.zip", "application/zip", jsonSend, callback), new CoroutineRunner());
         }
