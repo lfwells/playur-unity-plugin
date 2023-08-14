@@ -28,7 +28,7 @@ namespace PlayUR
         {
             get {
                 #if UNITY_EDITOR
-                    return PlayURPluginHelper.instance.forceMTurkIDInEditor;
+                    return PlayURPlugin.Settings.forceMTurkIDInEditor;
                 #else
                     string result = null;
                     URLParameters.GetSearchParameters().TryGetValue(MTURK_URL_PARAM, out result);
@@ -93,11 +93,11 @@ namespace PlayUR
 
         void ShowMTurkStartPopup()
         {
-            ShowPopup("MTurk Participant:\n"+MTurkID, PlayURPluginHelper.instance.mTurkLogo);
+            ShowPopup("MTurk Participant:\n"+MTurkID, PlayURPlugin.Settings.mTurkLogo);
         }
         void ShowMTurkCompletePopup()
         {
-            ShowCloseablePopup(PlayURPluginHelper.instance.mTurkCompletionMessage, PlayURPluginHelper.instance.mTurkLogo);
+            ShowCloseablePopup(PlayURPlugin.Settings.mTurkCompletionMessage, PlayURPlugin.Settings.mTurkLogo);
         }
     }
 

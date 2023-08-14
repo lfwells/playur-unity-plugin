@@ -254,8 +254,8 @@ namespace PlayUR.Core
         {
             var form = new Dictionary<string, string>();
             if (PlayURPlugin.instance.user != null) form.Add("userID", PlayURPlugin.instance.user.id.ToString());
-            form.Add("gameID", PlayURPlugin.instance.gameID.ToString());
-            form.Add("clientSecret", PlayURPlugin.instance.clientSecret);
+            form.Add("gameID", PlayURPlugin.GameID.ToString());
+            form.Add("clientSecret", PlayURPlugin.ClientSecret);
             return form;
         }
 

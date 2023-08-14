@@ -100,15 +100,36 @@ namespace PlayUR
     public partial class PlayURPlugin : UnitySingletonPersistent<PlayURPlugin>
     {
         #region Configuration and Set Up
+        static PlayURSettings _settings;
+        public static PlayURSettings Settings
+        {
+            get
+            {
+                if (_settings == null)
+                    _settings = Resources.Load<PlayURSettings>(PlayURSettings.ResourcePath);
+                return _settings;
+            }
+        }
+        static PlayURClientSecretSettings _clientSecretSettings;
+        static PlayURClientSecretSettings ClientSecretSettings
+        {
+            get
+            {
+                if (_clientSecretSettings == null)
+                    _clientSecretSettings = Resources.Load<PlayURClientSecretSettings>(PlayURClientSecretSettings.ResourcePath);
+                return _clientSecretSettings;
+            }
+        }
+
         /// <summary>Matches the id field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
-        public int gameID;
+        public static int GameID => Settings.GameID;
 
         /// <summary>Matches the client_secret field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
-        public string clientSecret;
+        public static string ClientSecret => ClientSecretSettings.ClientSecret;
 
         /// <summary> The currently logged in user. Will be null before log in. </summary>
         public User user;
@@ -155,19 +176,17 @@ namespace PlayUR
         {
             if (exists && instance != this) { DestroyImmediate(this); return; }
 
-            if (gameID <= 0)
+            if (GameID <= 0)
             {
-                Debug.LogError("Game ID must be > 0");
                 Debug.Break();
                 Quit();
-                return;
+                throw new PluginNotConfiguredException("Game ID must be set. ");
             }
-            if (string.IsNullOrEmpty(clientSecret))
+            if (string.IsNullOrEmpty(ClientSecret))
             {
-                Debug.LogError("Client Secret ID must be set");
                 Debug.Break();
                 Quit();
-                return;
+                throw new PluginNotConfiguredException("Client Secret ID must be set");
             }
 
             base.Awake();
@@ -195,7 +214,7 @@ namespace PlayUR
                 SceneManager.LoadScene("PlayURLogin");
                 yield return new WaitForEndOfFrame();
                 PlayURLoginCanvas.instance.ShowError("Experiment has closed, please check with game owner for more details.");
-                throw new ExperimentGroupsFullException(user, gameID);
+                throw new ExperimentGroupsFullException(user, GameID);
             }
 
             else if (configuration == null)
@@ -203,7 +222,7 @@ namespace PlayUR
                 StartCoroutine(Init());
                 if (PlayURLoginCanvas.exists) PlayURLoginCanvas.instance.CancelLogin();
 
-                throw new GameNotOwnedException(user, gameID);
+                throw new GameNotOwnedException(user, GameID);
             }
             else
             {
@@ -341,8 +360,8 @@ namespace PlayUR
             //if not found, try and get an experiment from the PluginHelper script
             if (Application.isEditor && experimentOverrideFound == false && PlayURPluginHelper.instance != null)
             {
-                experimentOverrideFound = PlayURPluginHelper.instance.forceToUseSpecificExperiment;
-                experiment = PlayURPluginHelper.instance.experimentToTestInEditor;
+                experimentOverrideFound = PlayURPlugin.Settings.forceToUseSpecificExperiment;
+                experiment = PlayURPlugin.Settings.experimentToTestInEditor;
             }
             if (experimentOverrideFound && experiment.HasValue)
             {
@@ -361,8 +380,8 @@ namespace PlayUR
             //if not found, try and get an experiment group from the PluginHelper script
             if (Application.isEditor && experimentGroupOverrideFound == false && PlayURPluginHelper.instance != null)
             {
-                experimentGroupOverrideFound = PlayURPluginHelper.instance.forceToUseSpecificGroup;
-                experimentGroup = PlayURPluginHelper.instance.groupToTestInEditor;
+                experimentGroupOverrideFound = PlayURPlugin.Settings.forceToUseSpecificGroup;
+                experimentGroup = PlayURPlugin.Settings.groupToTestInEditor;
             }
             if (experimentGroupOverrideFound && experimentGroup.HasValue)
             {
@@ -1061,7 +1080,7 @@ namespace PlayUR
             var endConfig = new Dictionary<string, string>() {
                 { "end", GetMysqlFormatTime() },
                 { "history", GetHistoryString() },
-                { "debugLog", GetDebugLogs(PlayURPluginHelper.instance.minimumLogLevelToStore) }
+                { "debugLog", GetDebugLogs(PlayURPlugin.Settings.minimumLogLevelToStore) }
             };
 
             StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) =>
@@ -1092,7 +1111,7 @@ namespace PlayUR
             var endConfig = new Dictionary<string, string>() {
                 { "end", GetMysqlFormatTime() },
                 { "history", GetHistoryString() },
-                { "debugLog", GetDebugLogs(PlayURPluginHelper.instance.minimumLogLevelToStore) }
+                { "debugLog", GetDebugLogs(PlayURPlugin.Settings.minimumLogLevelToStore) }
             };
 
             yield return StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) =>
@@ -1276,7 +1295,7 @@ namespace PlayUR
             KeyCode keyCodeForClose = KeyCode.None,
             HighScoreTable.CloseCallback closeCallback = null)
         {
-            var prefab = leaderboardPrefab ?? PlayURPluginHelper.instance.defaultHighScoreTablePrefab;
+            var prefab = leaderboardPrefab ?? PlayURPlugin.Settings.defaultHighScoreTablePrefab;
             var canvas = onCanvas ?? FindObjectOfType<Canvas>();
             var go = Instantiate(prefab, canvas.transform);
             var highScoreTableScript = go.GetComponent<HighScoreTable>();
@@ -1402,7 +1421,7 @@ namespace PlayUR
         {
             //TODO: handle null image
             var closeable = duration == -1;
-            var go = Instantiate(PlayURPluginHelper.instance.defaultPopupPrefab);
+            var go = Instantiate(PlayURPlugin.Settings.defaultPopupPrefab);
             DontDestroyOnLoad(go);
 
             go.transform.Find("Popup/Image").GetComponent<Image>().sprite = image;
@@ -1564,6 +1583,21 @@ namespace PlayUR
 #region Exceptions
 namespace PlayUR.Exceptions
 {
+    /// <summary>
+    /// Thrown when attempting to run the game without having first set up the plugin
+    /// </summary>
+    public class PluginNotConfiguredException : System.Exception
+    {
+        string specificMessage;
+        public PluginNotConfiguredException(string specificMessage) { this.specificMessage = specificMessage; }
+        public override string Message
+        {
+            get
+            {
+                return specificMessage+" Check the PlayUR Configuration via PlayUR -> Plugin Configuration...";
+            }
+        }
+    }
 
     /// <summary>
     /// Thrown when a user attempts to open the game but they haven't been allocated to an ExperimentGroup

@@ -79,7 +79,7 @@ namespace PlayUR.Surveys
                 var question = survey.questions[i];
                 question.survey = survey;
 
-                var rowPrefab = PlayURPluginHelper.instance.defaultSurveyRowPrefab;
+                var rowPrefab = PlayURPlugin.Settings.defaultSurveyRowPrefab;
                 if (survey.rowPrefab != null) rowPrefab = survey.rowPrefab;
 
                 var row = Instantiate(rowPrefab);
