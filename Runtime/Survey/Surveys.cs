@@ -13,7 +13,7 @@ namespace PlayUR
         /// <returns>A reference to the instantiated survey popup gameobject.</returns>
         public SurveyPopup ShowSurveyPopup(Survey survey)
         {
-            var prefab = PlayURPluginHelper.instance.defaultSurveyPopupPrefab;
+            var prefab = PlayURPlugin.Settings.defaultSurveyPopupPrefab;
             if (survey.popupPrefab != null) prefab = survey.popupPrefab;
 
             var surveyGOInstance = Instantiate(prefab);

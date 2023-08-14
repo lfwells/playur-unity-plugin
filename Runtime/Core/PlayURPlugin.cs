@@ -101,7 +101,7 @@ namespace PlayUR
     {
         #region Configuration and Set Up
         static PlayURSettings _settings;
-        static PlayURSettings Settings
+        public static PlayURSettings Settings
         {
             get
             {
@@ -362,8 +362,8 @@ namespace PlayUR
             //if not found, try and get an experiment from the PluginHelper script
             if (Application.isEditor && experimentOverrideFound == false && PlayURPluginHelper.instance != null)
             {
-                experimentOverrideFound = PlayURPluginHelper.instance.forceToUseSpecificExperiment;
-                experiment = PlayURPluginHelper.instance.experimentToTestInEditor;
+                experimentOverrideFound = PlayURPlugin.Settings.forceToUseSpecificExperiment;
+                experiment = PlayURPlugin.Settings.experimentToTestInEditor;
             }
             if (experimentOverrideFound && experiment.HasValue)
             {
@@ -382,8 +382,8 @@ namespace PlayUR
             //if not found, try and get an experiment group from the PluginHelper script
             if (Application.isEditor && experimentGroupOverrideFound == false && PlayURPluginHelper.instance != null)
             {
-                experimentGroupOverrideFound = PlayURPluginHelper.instance.forceToUseSpecificGroup;
-                experimentGroup = PlayURPluginHelper.instance.groupToTestInEditor;
+                experimentGroupOverrideFound = PlayURPlugin.Settings.forceToUseSpecificGroup;
+                experimentGroup = PlayURPlugin.Settings.groupToTestInEditor;
             }
             if (experimentGroupOverrideFound && experimentGroup.HasValue)
             {
@@ -1082,7 +1082,7 @@ namespace PlayUR
             var endConfig = new Dictionary<string, string>() {
                 { "end", GetMysqlFormatTime() },
                 { "history", GetHistoryString() },
-                { "debugLog", GetDebugLogs(PlayURPluginHelper.instance.minimumLogLevelToStore) }
+                { "debugLog", GetDebugLogs(PlayURPlugin.Settings.minimumLogLevelToStore) }
             };
 
             StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) =>
@@ -1113,7 +1113,7 @@ namespace PlayUR
             var endConfig = new Dictionary<string, string>() {
                 { "end", GetMysqlFormatTime() },
                 { "history", GetHistoryString() },
-                { "debugLog", GetDebugLogs(PlayURPluginHelper.instance.minimumLogLevelToStore) }
+                { "debugLog", GetDebugLogs(PlayURPlugin.Settings.minimumLogLevelToStore) }
             };
 
             yield return StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) =>
@@ -1297,7 +1297,7 @@ namespace PlayUR
             KeyCode keyCodeForClose = KeyCode.None,
             HighScoreTable.CloseCallback closeCallback = null)
         {
-            var prefab = leaderboardPrefab ?? PlayURPluginHelper.instance.defaultHighScoreTablePrefab;
+            var prefab = leaderboardPrefab ?? PlayURPlugin.Settings.defaultHighScoreTablePrefab;
             var canvas = onCanvas ?? FindObjectOfType<Canvas>();
             var go = Instantiate(prefab, canvas.transform);
             var highScoreTableScript = go.GetComponent<HighScoreTable>();
@@ -1423,7 +1423,7 @@ namespace PlayUR
         {
             //TODO: handle null image
             var closeable = duration == -1;
-            var go = Instantiate(PlayURPluginHelper.instance.defaultPopupPrefab);
+            var go = Instantiate(PlayURPlugin.Settings.defaultPopupPrefab);
             DontDestroyOnLoad(go);
 
             go.transform.Find("Popup/Image").GetComponent<Image>().sprite = image;

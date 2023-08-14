@@ -39,9 +39,11 @@ namespace PlayUR
             public static GUIContent gameConfiguration = new GUIContent("Configuration Settings");
             public static GUIContent gameId = new GUIContent("Game ID");
             public static GUIContent clientSecret = new GUIContent("Client Secret");
-            public static GUIContent settings = new GUIContent("Settings");
+
+            public static GUIContent logging = new GUIContent("Logging");
             public static GUIContent logLevel = new GUIContent("Log Level");
-            public static GUIContent enums = new GUIContent("Enums");
+
+            public static GUIContent enums = new GUIContent("PlayUR Configuration");
             public static GUIContent generateEnums = new GUIContent("Generate Enums");
 
             public static GUIContent parameters = new GUIContent("Parameters");
@@ -75,7 +77,7 @@ namespace PlayUR
             // Load the default settings (or create a new one) when the settings window is first clicked.
             playurSettings = PlayURSettings.GetSerializedSettings();
             gameIdProperty = playurSettings.FindProperty("gameId");
-            logLevelProperty = playurSettings.FindProperty("logLevel");
+            logLevelProperty = playurSettings.FindProperty("minimumLogLevelToStore");
 
             playurClientSecretSettings = PlayURClientSecretSettings.GetSerializedSettings();
             clientSecretProperty = playurClientSecretSettings.FindProperty("clientSecret");
@@ -163,7 +165,7 @@ namespace PlayUR
             EditorGUI.indentLevel = 0;
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             {
-                GUILayout.Label(Labels.settings, EditorStyles.boldLabel);
+                GUILayout.Label(Labels.logging, EditorStyles.boldLabel);
                 EditorGUI.indentLevel = 1;
                 EditorGUILayout.PropertyField(logLevelProperty, Labels.logLevel);
             }
