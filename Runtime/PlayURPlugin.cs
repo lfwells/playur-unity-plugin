@@ -100,15 +100,36 @@ namespace PlayUR
     public partial class PlayURPlugin : UnitySingletonPersistent<PlayURPlugin>
     {
         #region Configuration and Set Up
+        static PlayURSettings _settings;
+        static PlayURSettings Settings
+        {
+            get
+            {
+                if (_settings == null)
+                    _settings = Resources.Load<PlayURSettings>(PlayURSettings.ResourcePath);
+                return _settings;
+            }
+        }
+        static PlayURClientSecretSettings _clientSecretSettings;
+        static PlayURClientSecretSettings ClientSecretSettings
+        {
+            get
+            {
+                if (_clientSecretSettings == null)
+                    _clientSecretSettings = Resources.Load<PlayURClientSecretSettings>(PlayURClientSecretSettings.ResourcePath);
+                return _clientSecretSettings;
+            }
+        }
+
         /// <summary>Matches the id field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
-        public int gameID;
+        public static int GameID => Settings.GameID;
 
         /// <summary>Matches the client_secret field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
-        public string clientSecret;
+        public static string ClientSecret => ClientSecretSettings.ClientSecret;
 
         /// <summary> The currently logged in user. Will be null before log in. </summary>
         public User user;
@@ -155,14 +176,14 @@ namespace PlayUR
         {
             if (exists && instance != this) { DestroyImmediate(this); return; }
 
-            if (gameID <= 0)
+            if (GameID <= 0)
             {
                 Debug.LogError("Game ID must be > 0");
                 Debug.Break();
                 Quit();
                 return;
             }
-            if (string.IsNullOrEmpty(clientSecret))
+            if (string.IsNullOrEmpty(ClientSecret))
             {
                 Debug.LogError("Client Secret ID must be set");
                 Debug.Break();
@@ -195,7 +216,7 @@ namespace PlayUR
                 SceneManager.LoadScene("PlayURLogin");
                 yield return new WaitForEndOfFrame();
                 PlayURLoginCanvas.instance.ShowError("Experiment has closed, please check with game owner for more details.");
-                throw new ExperimentGroupsFullException(user, gameID);
+                throw new ExperimentGroupsFullException(user, GameID);
             }
 
             else if (configuration == null)
@@ -203,7 +224,7 @@ namespace PlayUR
                 StartCoroutine(Init());
                 if (PlayURLoginCanvas.exists) PlayURLoginCanvas.instance.CancelLogin();
 
-                throw new GameNotOwnedException(user, gameID);
+                throw new GameNotOwnedException(user, GameID);
             }
             else
             {

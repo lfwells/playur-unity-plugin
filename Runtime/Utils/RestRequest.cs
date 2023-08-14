@@ -275,7 +275,7 @@ namespace PlayUR.Core
                 var dataset = new RestHistoryRecord()
                 {
                     Session = PlayURPlugin.instance.CurrentSession,
-                    GameID = PlayURPlugin.instance.gameID,
+                    GameID = PlayURPlugin.GameID,
                     User = PlayURPlugin.instance.user,
                     CreatedAt = DateTime.UtcNow,
                     PastRequests = _history.ToArray(),
