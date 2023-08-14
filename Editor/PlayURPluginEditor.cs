@@ -25,7 +25,7 @@ namespace PlayUR.Editor
             return Path.Combine(generatedFilesPath, subPath);
         }
 
-        [MenuItem("PlayUR/Set Up Plugin")]
+        [MenuItem("PlayUR/Plugin Configuration...",priority=1)]
         public static void ReSetUpPlugin()
         {
             SettingsService.OpenProjectSettings("Project/PlayUR");
@@ -68,7 +68,7 @@ namespace PlayUR.Editor
 
         }
 
-        [MenuItem("PlayUR/Re-generate Enums")]
+        [MenuItem("PlayUR/Re-generate Enums", secondaryPriority = 0)]
         public static void GenerateEnum()
         {
             var GET = "?gameID=" + PlayURPlugin.GameID + "&clientSecret=" + PlayURPlugin.ClientSecret;
@@ -221,19 +221,19 @@ namespace PlayUR.Editor
                                                         Application.dataPath + "/build/",
                                                         "");
         }
-        [MenuItem("PlayUR/Build Web Player")]
+        [MenuItem("PlayUR/Build Web Player", secondaryPriority = 2)]
         public static void BuildWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: false);
         }
-        [MenuItem("PlayUR/Build and Upload Web Player")]
+        [MenuItem("PlayUR/Build and Upload Web Player", secondaryPriority = 1)]
         public static void BuildAndUploadWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: true);
         }
-        [MenuItem("PlayUR/Upload Web Player")]
+        [MenuItem("PlayUR/Upload Web Player", secondaryPriority = 3)]
         public static void UploadWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
@@ -445,7 +445,7 @@ namespace PlayUR.Editor
         }
         #endregion
 
-        [MenuItem("PlayUR/Clear PlayerPrefs (Local Only)")] 
+        [MenuItem("PlayUR/Clear PlayerPrefs (Local Only)", secondaryPriority = 100)] 
         public static void ClearPlayerPrefs()
         {
             PlayerPrefs.Clear();
