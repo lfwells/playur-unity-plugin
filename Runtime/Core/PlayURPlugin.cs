@@ -178,17 +178,15 @@ namespace PlayUR
 
             if (GameID <= 0)
             {
-                Debug.LogError("Game ID must be > 0");
                 Debug.Break();
                 Quit();
-                return;
+                throw new PluginNotConfiguredException("Game ID must be set. ");
             }
             if (string.IsNullOrEmpty(ClientSecret))
             {
-                Debug.LogError("Client Secret ID must be set");
                 Debug.Break();
                 Quit();
-                return;
+                throw new PluginNotConfiguredException("Client Secret ID must be set");
             }
 
             base.Awake();
@@ -1585,6 +1583,21 @@ namespace PlayUR
 #region Exceptions
 namespace PlayUR.Exceptions
 {
+    /// <summary>
+    /// Thrown when attempting to run the game without having first set up the plugin
+    /// </summary>
+    public class PluginNotConfiguredException : System.Exception
+    {
+        string specificMessage;
+        public PluginNotConfiguredException(string specificMessage) { this.specificMessage = specificMessage; }
+        public override string Message
+        {
+            get
+            {
+                return specificMessage+" Check the PlayUR Configuration via PlayUR -> Plugin Configuration...";
+            }
+        }
+    }
 
     /// <summary>
     /// Thrown when a user attempts to open the game but they haven't been allocated to an ExperimentGroup
