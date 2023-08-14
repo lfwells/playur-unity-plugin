@@ -107,6 +107,14 @@ namespace PlayUR
                 settings = ScriptableObject.CreateInstance<PlayURSettings>();
                 settings.gameId = 0;
                 settings.minimumLogLevelToStore = PlayURPlugin.LogLevel.Log;
+#if UNITY_EDITOR
+                var runtimeFolder = Path.Combine("Packages","io.playur.unity", "Runtime");
+                settings.defaultHighScoreTablePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(Path.Combine(runtimeFolder, "HighScores", "HighScoreTable.prefab"));
+                settings.defaultPopupPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(Path.Combine(runtimeFolder, "Popups", "PopupCanvas.prefab"));
+                settings.defaultSurveyPopupPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(Path.Combine(runtimeFolder, "Survey", "SurveyPopupPrefab.prefab"));
+                settings.defaultSurveyRowPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(Path.Combine(runtimeFolder, "Survey", "SurveyRowPrefab.prefab"));
+                settings.mTurkLogo = AssetDatabase.LoadAssetAtPath<Sprite>(Path.Combine(runtimeFolder, "MTurk", "mturk.png"));
+#endif
 
                 Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath));
                 AssetDatabase.CreateAsset(settings, SettingsPath);

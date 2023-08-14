@@ -18,6 +18,7 @@ namespace PlayUR.Editor
     public class PlayURPluginEditor : MonoBehaviour
     {
         #region Initial Set Up
+        public static string PluginLocation = "Packages/io.playur.unity/";
         static string generatedFilesPath = Path.Combine("Assets", "PlayURPlugin");
         static string GeneratedFilesPath(string subPath)
         {
@@ -49,7 +50,7 @@ namespace PlayUR.Editor
         static string LoginScenePath => Path.Combine("Assets", "PlayURLogin.unity");
         public static void SetSceneBuildSettings()
         {
-            var scenePath = "Packages/io.playur.unity/Runtime/" + LoginScenePath;
+            var scenePath = PluginLocation + "Runtime/" + LoginScenePath;
             var scenes = new List<EditorBuildSettingsScene>();
             scenes.AddRange(EditorBuildSettings.scenes);
 

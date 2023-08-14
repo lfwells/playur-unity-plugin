@@ -198,6 +198,9 @@ namespace PlayUR
 
         public override void OnGUI(string searchContext)
         {
+            if (playurSettings.targetObject == null) { Debug.Log("u wat?"); OnActivate(null, null);  return; }
+            if (playurClientSecretSettings.targetObject == null) { OnActivate(null, null); return; }
+
             var originalLabelWidth = EditorGUIUtility.labelWidth;
             EditorGUIUtility.labelWidth = 250;
 
