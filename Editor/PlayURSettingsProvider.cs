@@ -32,21 +32,68 @@ namespace PlayUR
         private SerializedObject playurClientSecretSettings;
         private SerializedProperty clientSecretProperty;
 
-        private bool _foldout_checks = true;
+        private bool _foldout_checks {
+            get { return EditorPrefs.GetBool("_foldout_checks", true); }
+            set { EditorPrefs.SetBool("_foldout_checks", value); }
+        }
 
-        private bool _foldout_config = true;
-        private bool _foldout_general = false;
-        private bool _foldout_mturk = false;
-        private bool _foldout_editorSettings = false;
-        private bool _foldout_mobileDesktopSettings = false;
-        private bool _foldout_prefabs = false;
+        private bool _foldout_config
+        {
+            get { return EditorPrefs.GetBool("_foldout_config", true); }
+            set { EditorPrefs.SetBool("_foldout_config", value); }
+        }
+        private bool _foldout_general
+        {
+            get { return EditorPrefs.GetBool("_foldout_general", false); }
+            set { EditorPrefs.SetBool("_foldout_general", value); }
+        }
+        private bool _foldout_mturk
+        {
+            get { return EditorPrefs.GetBool("_foldout_mturk", false); }
+            set { EditorPrefs.SetBool("_foldout_mturk", value); }
+        }
+        private bool _foldout_editorSettings
+        {
+            get { return EditorPrefs.GetBool("_foldout_editorSettings", false); }
+            set { EditorPrefs.SetBool("_foldout_editorSettings", value); }
+        }
+        private bool _foldout_mobileDesktopSettings
+        {
+            get { return EditorPrefs.GetBool("_foldout_mobileDesktopSettings", false); }
+            set { EditorPrefs.SetBool("_foldout_mobileDesktopSettings", value); }
+        }
+        private bool _foldout_prefabs
+        {
+            get { return EditorPrefs.GetBool("_foldout_prefabs", false); }
+            set { EditorPrefs.SetBool("_foldout_prefabs", value); }
+        }
 
-        private bool _foldout_enums = true;
+        private bool _foldout_enums
+        {
+            get { return EditorPrefs.GetBool("_foldout_enums", true); }
+            set { EditorPrefs.SetBool("_foldout_enums", value); }
+        }
 
-        private bool _foldout_parameters = false;
-        private bool _foldout_experiments = false;
-        private bool _foldout_groups = false;
-        private bool _foldout_analytics = false;
+        private bool _foldout_parameters
+        {
+            get { return EditorPrefs.GetBool("_foldout_parameters", false); }
+            set { EditorPrefs.SetBool("_foldout_parameters", value); }
+        }
+        private bool _foldout_experiments
+        {
+            get { return EditorPrefs.GetBool("_foldout_experiments", false); }
+            set { EditorPrefs.SetBool("_foldout_experiments", value); }
+        }
+        private bool _foldout_groups
+        {
+            get { return EditorPrefs.GetBool("_foldout_groups", false); }
+            set { EditorPrefs.SetBool("_foldout_groups", value); }
+        }
+        private bool _foldout_analytics
+        {
+            get { return EditorPrefs.GetBool("_foldout_analytics", false); }
+            set { EditorPrefs.SetBool("_foldout_analytics", value); }
+        }
 
         private string[] _parameters;
 
@@ -343,10 +390,10 @@ namespace PlayUR
                 }
 
                 EditorGUILayout.Space();
-                EnumNameFoldout<PlayUR.Experiment>(ref _foldout_experiments, Labels.experiments);
-                EnumNameFoldout<PlayUR.ExperimentGroup>(ref _foldout_groups, Labels.groups);
-                StringListFoldout(ref _foldout_parameters, GetPlayURParameters(), Labels.parameters);
-                EnumNameFoldout<PlayUR.AnalyticsColumn>(ref _foldout_analytics, Labels.analyticColumns);
+                _foldout_experiments = EnumNameFoldout<PlayUR.Experiment>(_foldout_experiments, Labels.experiments);
+                _foldout_groups = EnumNameFoldout<PlayUR.ExperimentGroup>(_foldout_groups, Labels.groups);
+                _foldout_parameters = StringListFoldout(_foldout_parameters, GetPlayURParameters(), Labels.parameters);
+                _foldout_analytics = EnumNameFoldout<PlayUR.AnalyticsColumn>(_foldout_analytics, Labels.analyticColumns);
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
             EditorGUI.indentLevel = 0;
@@ -369,11 +416,11 @@ namespace PlayUR
             return new PlayURSettingsProvider("Project/PlayUR", SettingsScope.Project);
         }
 
-        private void EnumNameFoldout<T>(ref bool foldout, GUIContent label)
-            where T : System.Enum => StringListFoldout(ref foldout, System.Enum.GetNames(typeof(T)), label);
+        private bool EnumNameFoldout<T>(bool foldout, GUIContent label)
+            where T : System.Enum => StringListFoldout(foldout, System.Enum.GetNames(typeof(T)), label);
 
 
-        private void StringListFoldout(ref bool foldout, string[] values, GUIContent label)
+        private bool StringListFoldout(bool foldout, string[] values, GUIContent label)
         {
             foldout = EditorGUILayout.Foldout(foldout, label + " (" + values.Length + ")");
             if (foldout)
@@ -387,6 +434,7 @@ namespace PlayUR
                 EditorGUILayout.EndVertical();
                 EditorGUI.indentLevel = 1;
             }
+            return foldout;
         }
 
     }
