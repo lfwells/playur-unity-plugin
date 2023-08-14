@@ -1,9 +1,10 @@
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
 class PlayURSettings : ScriptableObject
 {
-    public const string k_MyCustomSettingsPath = "Assets/PlayURPlugin/PlayURSettings.asset";
+    public const string k_MyCustomSettingsPath = "Assets/PlayURPlugin/Resources/PlayURSettings.asset";
 
     [SerializeField]
     private int gameId;
@@ -26,6 +27,8 @@ class PlayURSettings : ScriptableObject
             settings = ScriptableObject.CreateInstance<PlayURSettings>();
             settings.gameId = 0;
             settings.logLevel = LogLevel.Info;
+
+            Directory.CreateDirectory(Path.GetDirectoryName(k_MyCustomSettingsPath));
             AssetDatabase.CreateAsset(settings, k_MyCustomSettingsPath);
             AssetDatabase.SaveAssets();
         }
@@ -41,7 +44,7 @@ class PlayURSettings : ScriptableObject
 //separate class for this, so that it doesn't get committed to source control
 class PlayURClientIDSettings : ScriptableObject
 {
-    public const string k_MyCustomSettingsPath = "Assets/PlayURPlugin/PlayURClientID.asset";
+    public const string k_MyCustomSettingsPath = "Assets/PlayURPlugin/Resources/PlayURClientID.asset";
     [SerializeField]
     private string clientSecret;
 
@@ -52,6 +55,8 @@ class PlayURClientIDSettings : ScriptableObject
         {
             settings = ScriptableObject.CreateInstance<PlayURClientIDSettings>();
             settings.clientSecret = "";
+
+            Directory.CreateDirectory(Path.GetDirectoryName(k_MyCustomSettingsPath));
             AssetDatabase.CreateAsset(settings, k_MyCustomSettingsPath);
             AssetDatabase.SaveAssets();
         }
