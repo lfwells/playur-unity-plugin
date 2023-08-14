@@ -10,8 +10,10 @@ public class PlayURSettingsProvider : SettingsProvider
     /// <summary>Current PlayUR settings</summary>
     private SerializedObject playurSettings;
     private SerializedProperty gameIdProperty;
-    private SerializedProperty clientSecretProperty;
     private SerializedProperty logLevelProperty;
+
+    private SerializedObject playurClientIDSettings;
+    private SerializedProperty clientSecretProperty;
 
     private bool _foldout_parameters = false;
     private bool _foldout_experiments = false;
@@ -60,8 +62,10 @@ public class PlayURSettingsProvider : SettingsProvider
         // Load the default settings (or create a new one) when the settings window is first clicked.
         playurSettings = PlayURSettings.GetSerializedSettings();
         gameIdProperty = playurSettings.FindProperty("gameId");
-        clientSecretProperty = playurSettings.FindProperty("clientSecret");
         logLevelProperty = playurSettings.FindProperty("logLevel");
+
+        playurClientIDSettings = PlayURClientIDSettings.GetSerializedSettings();
+        clientSecretProperty = playurClientIDSettings.FindProperty("clientSecret");
     }
 
     public override void OnGUI(string searchContext)
@@ -108,6 +112,7 @@ public class PlayURSettingsProvider : SettingsProvider
         EditorGUILayout.EndVertical();
 
         playurSettings.ApplyModifiedProperties();
+        playurClientIDSettings.ApplyModifiedProperties();
     }
 
     /// <summary>Initializes and creates the setting provider</summary>
