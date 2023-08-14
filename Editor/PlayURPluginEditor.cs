@@ -30,7 +30,7 @@ namespace PlayUR.Editor
         [MenuItem("PlayUR/Set Up Plugin")]
         public static void ReSetUpPlugin()
         {
-            SetUpPlugin(reset: true);
+            SettingsService.OpenProjectSettings("Project/PlayUR");
         }
         public static void SetUpPlugin(bool reset = false)
         {
