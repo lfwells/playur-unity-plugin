@@ -18,14 +18,11 @@ namespace PlayUR.Editor
     public class PlayURPluginEditor : MonoBehaviour
     {
         #region Initial Set Up
-        static string path;
-
-        const string GENERATED_FILES_PATH = "PlayURPlugin";
-
-        static string GeneratedFilesPath => Path.Combine(Application.dataPath, GENERATED_FILES_PATH);
-        static string GameIDPath => Path.Combine(Application.dataPath, GENERATED_FILES_PATH, "gameID.txt");
-        static string ClientSecretPath => Path.Combine(Application.dataPath, GENERATED_FILES_PATH, "clientSecret.txt");
-        static string LoginScenePath => Path.Combine(GENERATED_FILES_PATH, "PlayURLogin.unity");
+        static string generatedFilesPath = Path.Combine("Assets", "PlayURPlugin");
+        static string GeneratedFilesPath(string subPath)
+        {
+            return Path.Combine(generatedFilesPath, subPath);
+        }
 
         [MenuItem("PlayUR/Set Up Plugin")]
         public static void ReSetUpPlugin()
@@ -49,7 +46,8 @@ namespace PlayUR.Editor
 
 
         //add PlayURLogin to Build Settings
-        static void SetSceneBuildSettings()
+        static string LoginScenePath => Path.Combine("Assets", "PlayURLogin.unity");
+        public static void SetSceneBuildSettings()
         {
             var scenePath = "Packages/io.playur.unity/Runtime/" + LoginScenePath;
             var scenes = new List<EditorBuildSettingsScene>();
@@ -87,7 +85,7 @@ namespace PlayUR.Editor
                     text += "\t}\n}\n";
 
                     //write it out!
-                    File.WriteAllBytes(path.Replace("PlayURPlugin.cs", "Action.cs"), Encoding.UTF8.GetBytes(text));
+                    File.WriteAllBytes(GeneratedFilesPath("Action.cs"), Encoding.UTF8.GetBytes(text));
                     AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Actions Enum (" + actions.Count + " actions)");
@@ -109,7 +107,7 @@ namespace PlayUR.Editor
                     text += "\t}\n}\n";
 
                     //write it out!
-                    File.WriteAllBytes(path.Replace("PlayURPlugin.cs", "Element.cs"), Encoding.UTF8.GetBytes(text));
+                    File.WriteAllBytes(GeneratedFilesPath("Element.cs"), Encoding.UTF8.GetBytes(text));
                     AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Elements Enum (" + elements.Count + " actions)");
@@ -131,7 +129,7 @@ namespace PlayUR.Editor
                     text += "\t}\n}\n";
 
                     //write it out!
-                    File.WriteAllBytes(path.Replace("PlayURPlugin.cs", "Experiment.cs"), Encoding.UTF8.GetBytes(text));
+                    File.WriteAllBytes(GeneratedFilesPath("Experiment.cs"), Encoding.UTF8.GetBytes(text));
                     AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Experiments Enum (" + experiments.Count + " experiments)");
@@ -153,7 +151,7 @@ namespace PlayUR.Editor
                     text += "\t}\n}\n";
 
                     //write it out!
-                    File.WriteAllBytes(path.Replace("PlayURPlugin.cs", "ExperimentGroup.cs"), Encoding.UTF8.GetBytes(text));
+                    File.WriteAllBytes(GeneratedFilesPath("ExperimentGroup.cs"), Encoding.UTF8.GetBytes(text));
                     AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Experiment Groups Enum (" + experiments.Count + " groups)");
@@ -175,7 +173,7 @@ namespace PlayUR.Editor
                     text += "\t}\n}\n";
 
                     //write it out!
-                    File.WriteAllBytes(path.Replace("PlayURPlugin.cs", "AnalyticsColumns.cs"), Encoding.UTF8.GetBytes(text));
+                    File.WriteAllBytes(GeneratedFilesPath("AnalyticsColumns.cs"), Encoding.UTF8.GetBytes(text));
                     AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Analytics Columns Enum (" + columns.Count + " columns)");
@@ -197,7 +195,7 @@ namespace PlayUR.Editor
                     text += "\t}\n}\n";
 
                     //write it out!
-                    File.WriteAllBytes(path.Replace("PlayURPlugin.cs", "Parameter.cs"), Encoding.UTF8.GetBytes(text));
+                    File.WriteAllBytes(GeneratedFilesPath("Parameter.cs"), Encoding.UTF8.GetBytes(text));
                     AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Parameters Constants (" + parameters.Count + " parameters)");

@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using PlayUR.Editor;
+using System.Collections.Generic;
 
 namespace PlayUR
 {
@@ -26,7 +25,18 @@ namespace PlayUR
 
         private struct Labels
         {   // We define all the labels in a seperate class so we can automatically pull them as keywords
-            public static GUIContent gameConfiguration = new GUIContent("Game Setup");
+
+            public static GUIContent setUpChecks = new GUIContent("Setup Checks");
+            public static GUIContent gameIDSet = new GUIContent("Game ID Set");
+            public static GUIContent clientSecretSet = new GUIContent("Client Secret Set");
+            public static GUIContent buildSettingsSet = new GUIContent("Login Scene Set in Build Settings");
+            public static GUIContent enumsGenerated = new GUIContent("Enums Generated");
+
+            public static GUIContent fix = new GUIContent("Fix");
+            public static GUIContent done = new GUIContent("Done");
+            public static GUIContent fixBelow = new GUIContent("Fix Below");
+
+            public static GUIContent gameConfiguration = new GUIContent("Configuration Settings");
             public static GUIContent gameId = new GUIContent("Game ID");
             public static GUIContent clientSecret = new GUIContent("Client Secret");
             public static GUIContent settings = new GUIContent("Settings");
@@ -73,6 +83,71 @@ namespace PlayUR
 
         public override void OnGUI(string searchContext)
         {
+            var redStyle = new GUIStyle(EditorStyles.label);
+            redStyle.normal.textColor = Color.red;
+            var greenStyle = new GUIStyle(EditorStyles.label);
+            greenStyle.normal.textColor = Color.green;
+            var redButton = new GUIStyle(EditorStyles.iconButton);
+            redButton.normal.textColor = Color.red;
+
+            // Set-Up Checks
+            EditorGUI.indentLevel = 0;
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            
+            GUILayout.Label(Labels.setUpChecks, EditorStyles.boldLabel);
+            EditorGUI.indentLevel = 1;
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel(Labels.gameIDSet);
+            if (gameIdProperty.intValue > 0)
+                EditorGUILayout.LabelField(Labels.done, greenStyle);
+            else
+                EditorGUILayout.LabelField(Labels.fixBelow, redStyle);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel(Labels.clientSecret);
+            if (!string.IsNullOrEmpty(clientSecretProperty.stringValue))
+                EditorGUILayout.LabelField(Labels.done, greenStyle);
+            else
+                EditorGUILayout.LabelField(Labels.fixBelow, redStyle);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel(Labels.enumsGenerated);
+            if (System.Enum.GetValues(typeof(Experiment)).Length > 0)
+                EditorGUILayout.LabelField(Labels.done, greenStyle);
+            else
+            {
+                if (GUILayout.Button(Labels.fix, redButton))
+                {
+                    PlayURPluginEditor.GenerateEnum();
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel(Labels.buildSettingsSet);
+            var scenes = new List<EditorBuildSettingsScene>();
+            scenes.AddRange(EditorBuildSettings.scenes);
+            ;
+
+           
+            if (scenes.Where((scene) => scene.path.Contains("PlayURLogin")).Count() == 1)
+                EditorGUILayout.LabelField(Labels.done, greenStyle);
+            else
+            {
+                if (GUILayout.Button(Labels.fix))
+                {
+                    PlayURPluginEditor.SetSceneBuildSettings();
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUI.indentLevel = 0;
+            EditorGUILayout.EndVertical();
+
+
             // Game Configuration
             EditorGUI.indentLevel = 0;
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
