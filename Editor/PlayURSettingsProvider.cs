@@ -131,7 +131,7 @@ public class PlayURSettingsProvider : SettingsProvider
 
 
     private void StringListFoldout(ref bool foldout, string[] values, GUIContent label) { 
-        foldout = EditorGUILayout.BeginFoldoutHeaderGroup(foldout, label);
+        foldout = EditorGUILayout.BeginFoldoutHeaderGroup(foldout, label + " ("+values.Length+")");
         if (foldout)
         {
             foreach (var name in values)
