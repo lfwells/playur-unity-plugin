@@ -68,7 +68,7 @@ namespace PlayUR.Editor
 
         }
 
-        [MenuItem("PlayUR/Re-generate Enums", secondaryPriority = 0)]
+        [MenuItem("PlayUR/Re-generate Enums", priority = 0)]
         public static void GenerateEnum()
         {
             var GET = "?gameID=" + PlayURPlugin.GameID + "&clientSecret=" + PlayURPlugin.ClientSecret;
@@ -221,19 +221,19 @@ namespace PlayUR.Editor
                                                         Application.dataPath + "/build/",
                                                         "");
         }
-        [MenuItem("PlayUR/Build Web Player", secondaryPriority = 2)]
+        [MenuItem("PlayUR/Build Web Player", priority = 2)]
         public static void BuildWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: false);
         }
-        [MenuItem("PlayUR/Build and Upload Web Player", secondaryPriority = 1)]
+        [MenuItem("PlayUR/Build and Upload Web Player", priority = 1)]
         public static void BuildAndUploadWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: true);
         }
-        [MenuItem("PlayUR/Upload Web Player", secondaryPriority = 3)]
+        [MenuItem("PlayUR/Upload Web Player", priority = 3)]
         public static void UploadWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
@@ -445,7 +445,7 @@ namespace PlayUR.Editor
         }
         #endregion
 
-        [MenuItem("PlayUR/Clear PlayerPrefs (Local Only)", secondaryPriority = 100)] 
+        [MenuItem("PlayUR/Clear PlayerPrefs (Local Only)", priority = 100)] 
         public static void ClearPlayerPrefs()
         {
             PlayerPrefs.Clear();
