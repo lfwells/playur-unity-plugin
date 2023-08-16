@@ -19,7 +19,7 @@ namespace PlayUR.Editor
     {
         #region Initial Set Up
         public static string PluginLocation = "Packages/io.playur.unity/";
-        static string generatedFilesPath = Path.Combine("Assets", "PlayURPlugin");
+        static string generatedFilesPath = $"{PluginLocation}/runtime";
         static string GeneratedFilesPath(string subPath)
         {
             return Path.Combine(generatedFilesPath, subPath);
