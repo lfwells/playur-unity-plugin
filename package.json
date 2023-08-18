@@ -14,10 +14,50 @@
   "type": "tool",
   "samples": [
     {
-      "displayName": "Reading Parameters",
-      "description": "Shows how to read parameter values from PlayUR Configuration",
-      "path": "Samples~/ParameterTest"
-    }
+      "displayName": "Reading Game Elements",
+      "description": "In this sample, a blue sphere is always shown, however the two red spheres are only shown if a specific Game Element is enabled for this experiment.",
+      "path": "Samples~/Reading Elements"
+    },
+    {
+      "displayName": "Reading Game Parameters",
+      "description": "In this sample, a number of blue spheres are spawned, the number being set by a parameter. String parameter values are shown in a text box, and a random piece of text selected from a string parameter list when you click a button.",
+      "path": "Samples~/Reading Parameters"
+    },
+    {
+      "displayName": "Reading Experiments and Groups",
+      "description": "In this sample, the current experiment name and group is shown.",
+      "path": "Samples~/Reading Experiments and Groups"
+    },
+    {
+      "displayName": "Reading User and Build Info",
+      "description": "In this sample, the username and build info is shown. If the currently logged in user is an \"owner\" of the game, a special admin-only blue sphere appears.",
+      "path": "Samples~/Reading User and Build Info"
+    },
+    {
+      "displayName": "Recording Analytics",
+      "description": "In this sample, a blue sphere will bound back and forth, and on every collision record a new analytics action. A sample of sending multiple actions from code in quick succession (stress-test) is also shown.",
+      "path": "Samples~/Recording Analytics"
+    },
+    {
+      "displayName": "Saved Games",
+      "description": "This sample allows you to save some text entered in a text box. On load, the text box will contain the last saved message in the box. PlayUR overrides PlayerPrefs to accomplish this.",
+      "path": "Samples~/Saved Games"
+    },
+    {
+      "displayName": "Surveys",
+      "description": "Sample to show how to popup a survey. Data is set in a scriptable object in the sample. PlayUR also has a standard game experience survey, shown here.",
+      "path": "Samples~/Surveys"
+    },
+    {
+      "displayName": "Popups",
+      "description": "Sample that shows how to open up a popup in the bottom corner with custom text and an image. Useful for notifications, and custom achievement systems.",
+      "path": "Samples~/Popups"
+    },
+    {
+      "displayName": "Highscores",
+      "description": "Show and record highscores across players. Illustrates a few different variations on the code.",
+      "path": "Samples~/Highscores"
+    },
   ],
   "dependencies": {
     "com.unity.editorcoroutines": "1.0.0",
