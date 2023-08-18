@@ -195,7 +195,8 @@ namespace PlayUR
             playurClientSecretSettings = PlayURClientSecretSettings.GetSerializedSettings();
             clientSecretProperty = playurClientSecretSettings.FindProperty("clientSecret");
 
-            PlayURPluginEditor.CheckForUpdates();
+            //PlayURPluginEditor.CheckForUpdates();
+            PlayURPluginEditor.GetCurrentVersion();
         }
 
         public override void OnGUI(string searchContext)
@@ -232,7 +233,7 @@ namespace PlayUR
                 GUI.color = Color.red;
                 if (GUILayout.Button($"Update Available: Version: {PlayURPluginEditor.latestVersion}"))
                 {
-                    UnityEditor.PackageManager.UI.Window.Open("io.playur.unity");
+                    PlayUREditorUtils.OpenPackageManager();
                 }
                 GUI.color = oldColor;
             }

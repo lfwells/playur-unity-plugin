@@ -28,5 +28,10 @@ namespace PlayUR.Editor
             return 0;
 
         }
+
+        public static void OpenPackageManager()
+        {
+            UnityEditor.PackageManager.UI.Window.Open("io.playur.unity");
+        }
     }
 }

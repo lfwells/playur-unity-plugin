@@ -462,6 +462,9 @@ namespace PlayUR.Editor
         [MenuItem("PlayUR/Check for Updates...", priority = 200)]
         public static void CheckForUpdates()
         {
+            //this is a dumb solution now
+            PlayUREditorUtils.OpenPackageManager();
+            return;
             var runner = new CoroutineRunner();
             EditorCoroutineUtility.StartCoroutine(CheckUpdateRoutine(), runner);
         }
@@ -471,7 +474,7 @@ namespace PlayUR.Editor
 
             currentVersion = null;
             latestVersion = null;
-            print(UpdateAvailable);
+            //print(UpdateAvailable);
 
             var listResult = Client.List();
             while (listResult.IsCompleted == false) yield return 0;
@@ -481,13 +484,30 @@ namespace PlayUR.Editor
             latestVersion = package.versions.latestCompatible;
             if (string.IsNullOrEmpty(latestVersion)) latestVersion = "0.2.1";//just for testing when I have a local one
 
-            print(currentVersion);
-            print(latestVersion);
-            print(UpdateAvailable);
+            //print(currentVersion);
+            //print(latestVersion);
+            //print(UpdateAvailable);
 
             checkingForUpdate = false;
 
         }
+        public static void GetCurrentVersion()
+        {
+            var runner = new CoroutineRunner();
+            EditorCoroutineUtility.StartCoroutine(GetCurrentVersionRoutine(), runner);
+        }
+        static IEnumerator GetCurrentVersionRoutine()
+        {
+            currentVersion = null;
+
+            var listResult = Client.List();
+            while (listResult.IsCompleted == false) yield return 0;
+            var package = listResult.Result.FirstOrDefault(c => c.name == "io.playur.unity");
+
+            currentVersion = package.version;
+
+        }
+    
         public static string currentVersion, latestVersion;
         public static bool checkingForUpdate = false;
         public static bool? UpdateAvailable => (string.IsNullOrEmpty(currentVersion) || string.IsNullOrEmpty(latestVersion)) ? null : PlayUREditorUtils.CompareSemanticVersions(currentVersion, latestVersion) < 0;
