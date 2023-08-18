@@ -25,7 +25,7 @@ namespace PlayUR.Editor
             return Path.Combine(generatedFilesPath, subPath);
         }
 
-        [MenuItem("PlayUR/Plugin Configuration...",priority=1)]
+        [MenuItem("PlayUR/Plugin Configuration...",priority=0)]
         public static void ReSetUpPlugin()
         {
             SettingsService.OpenProjectSettings("Project/PlayUR");
@@ -68,7 +68,7 @@ namespace PlayUR.Editor
 
         }
 
-        [MenuItem("PlayUR/Re-generate Enums", priority = 0)]
+        [MenuItem("PlayUR/Re-generate Enums", priority = 11)]
         public static void GenerateEnum()
         {
             var GET = "?gameID=" + PlayURPlugin.GameID + "&clientSecret=" + PlayURPlugin.ClientSecret;
@@ -221,19 +221,19 @@ namespace PlayUR.Editor
                                                         Application.dataPath + "/build/",
                                                         "");
         }
-        [MenuItem("PlayUR/Build Web Player", priority = 2)]
+        [MenuItem("PlayUR/Build Web Player", priority = 22)]
         public static void BuildWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: false);
         }
-        [MenuItem("PlayUR/Build and Upload Web Player", priority = 1)]
+        [MenuItem("PlayUR/Build and Upload Web Player", priority = 23)]
         public static void BuildAndUploadWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: true);
         }
-        [MenuItem("PlayUR/Upload Web Player", priority = 3)]
+        [MenuItem("PlayUR/Upload Web Player", priority = 24)]
         public static void UploadWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
@@ -298,7 +298,7 @@ namespace PlayUR.Editor
 
             }
         }
-        [MenuItem("PlayUR/Run Game In Broswer")]
+        [MenuItem("PlayUR/Run Game In Broswer", priority = 25)]
         public static void OpenGameInBrowser()
         {
             //get the latest build id, so that we can open it up in unity
