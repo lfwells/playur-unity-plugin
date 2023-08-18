@@ -71,6 +71,7 @@ namespace PlayUR.Editor
         [MenuItem("PlayUR/Re-generate Enums", priority = 11)]
         public static void GenerateEnum()
         {
+            var runner = new CoroutineRunner();
             var GET = "?gameID=" + PlayURPlugin.GameID + "&clientSecret=" + PlayURPlugin.ClientSecret;
             //get actions from the server and populate an enum
             EditorCoroutineUtility.StartCoroutine(Rest.Get("Action/listForGame.php" + GET, null, (succ, json) =>
@@ -91,7 +92,7 @@ namespace PlayUR.Editor
 
                     PlayURPlugin.Log("Generated Actions Enum (" + actions.Count + " actions)");
                 }
-            }), new CoroutineRunner());
+            }), runner);
 
             //get elements from the server and populate an enum
             EditorCoroutineUtility.StartCoroutine(Rest.Get("Element/listForGame.php" + GET, null, (succ, json) =>
@@ -113,7 +114,7 @@ namespace PlayUR.Editor
 
                     PlayURPlugin.Log("Generated Elements Enum (" + elements.Count + " actions)");
                 }
-            }), new CoroutineRunner());
+            }), runner);
 
             //get experiments from the server and populate an enum
             EditorCoroutineUtility.StartCoroutine(Rest.Get("Experiment/listForGame.php" + GET, null, (succ, json) =>
@@ -135,7 +136,7 @@ namespace PlayUR.Editor
 
                     PlayURPlugin.Log("Generated Experiments Enum (" + experiments.Count + " experiments)");
                 }
-            }), new CoroutineRunner());
+            }), runner);
 
             //get experiment groups from the server and populate an enum
             EditorCoroutineUtility.StartCoroutine(Rest.Get("ExperimentGroup/listForGame.php" + GET, null, (succ, json) =>
@@ -157,7 +158,7 @@ namespace PlayUR.Editor
 
                     PlayURPlugin.Log("Generated Experiment Groups Enum (" + experiments.Count + " groups)");
                 }
-            }), new CoroutineRunner());
+            }), runner);
 
             //get analytics columns from the server and populate an enum
             EditorCoroutineUtility.StartCoroutine(Rest.Get("AnalyticsColumn/listForGame.php" + GET, null, (succ, json) =>
@@ -179,7 +180,7 @@ namespace PlayUR.Editor
 
                     PlayURPlugin.Log("Generated Analytics Columns Enum (" + columns.Count + " columns)");
                 }
-            }), new CoroutineRunner());
+            }), runner);
 
             //get all parameter keys from the server and populate an enum
             EditorCoroutineUtility.StartCoroutine(Rest.Get("GameParameter/listParameterKeys.php" + GET, null, (succ, json) =>
@@ -201,7 +202,7 @@ namespace PlayUR.Editor
 
                     PlayURPlugin.Log("Generated Parameters Constants (" + parameters.Count + " parameters)");
                 }
-            }), new CoroutineRunner());
+            }), runner);
         }
         static string PlatformNameToValidEnumValue(string input)
         {
