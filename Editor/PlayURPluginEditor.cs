@@ -12,6 +12,8 @@ using System.Text;
 using PlayUR.Core;
 using PlayUR.Exceptions;
 using System.Diagnostics;
+using UnityEditor.PackageManager;
+using System.Linq;
 
 namespace PlayUR.Editor
 {
@@ -299,7 +301,7 @@ namespace PlayUR.Editor
 
             }
         }
-        [MenuItem("PlayUR/Run Game In Broswer", priority = 25)]
+        [MenuItem("PlayUR/Run Game In Browser", priority = 25)]
         public static void OpenGameInBrowser()
         {
             //get the latest build id, so that we can open it up in unity
@@ -309,6 +311,16 @@ namespace PlayUR.Editor
                 int buildID = result["latestBuildID"];
                 Application.OpenURL(PlayURPlugin.SERVER_URL.Replace("/api/", "/games.php?/game/" + form["clientSecret"] + "/buildID/" + buildID));
             }, debugOutput: true), new CoroutineRunner());
+        }
+
+        [MenuItem("PlayUR/Re-generate Enums", isValidateFunction: true)]
+        [MenuItem("PlayUR/Build Web Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Build and Upload Web Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Upload Web Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Run Game In Browser", isValidateFunction: true)]
+        public static bool ValidateGameMenuFunctions()
+        {
+            return PlayURPlugin.GameID > 0 || string.IsNullOrEmpty(PlayURPlugin.ClientSecret);
         }
 
         static string[] GetScenePaths()
@@ -444,6 +456,41 @@ namespace PlayUR.Editor
             gameIDForm.Add("clientSecret", clientSecret);
             return gameIDForm;
         }
+        #endregion
+
+        #region Update Checking
+        [MenuItem("PlayUR/Check for Updates...", priority = 200)]
+        public static void CheckForUpdates()
+        {
+            var runner = new CoroutineRunner();
+            EditorCoroutineUtility.StartCoroutine(CheckUpdateRoutine(), runner);
+        }
+        static IEnumerator CheckUpdateRoutine()
+        {
+            checkingForUpdate = true;
+
+            currentVersion = null;
+            latestVersion = null;
+            print(UpdateAvailable);
+
+            var listResult = Client.List();
+            while (listResult.IsCompleted == false) yield return 0;
+            var package = listResult.Result.FirstOrDefault(c => c.name == "io.playur.unity");
+
+            currentVersion = package.version;
+            latestVersion = package.versions.latestCompatible;
+            if (string.IsNullOrEmpty(latestVersion)) latestVersion = "0.2.1";//just for testing when I have a local one
+
+            print(currentVersion);
+            print(latestVersion);
+            print(UpdateAvailable);
+
+            checkingForUpdate = false;
+
+        }
+        public static string currentVersion, latestVersion;
+        public static bool checkingForUpdate = false;
+        public static bool? UpdateAvailable => (string.IsNullOrEmpty(currentVersion) || string.IsNullOrEmpty(latestVersion)) ? null : PlayUREditorUtils.CompareSemanticVersions(currentVersion, latestVersion) < 0;
         #endregion
 
         [MenuItem("PlayUR/Clear PlayerPrefs (Local Only)", priority = 100)] 
