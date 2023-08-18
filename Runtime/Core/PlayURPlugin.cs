@@ -124,12 +124,12 @@ namespace PlayUR
         /// <summary>Matches the id field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
-        public static int GameID => Settings.GameID;
+        public static int GameID => Settings?.GameID ?? 0;
 
         /// <summary>Matches the client_secret field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
-        public static string ClientSecret => ClientSecretSettings.ClientSecret;
+        public static string ClientSecret => ClientSecretSettings?.ClientSecret ?? string.Empty;
 
         /// <summary> The currently logged in user. Will be null before log in. </summary>
         public User user;
@@ -358,10 +358,10 @@ namespace PlayUR
             }
 #endif
             //if not found, try and get an experiment from the PluginHelper script
-            if (Application.isEditor && experimentOverrideFound == false && PlayURPluginHelper.instance != null)
+            if (Application.isEditor && Settings != null && experimentOverrideFound == false && PlayURPluginHelper.instance != null)
             {
-                experimentOverrideFound = PlayURPlugin.Settings.forceToUseSpecificExperiment;
-                experiment = PlayURPlugin.Settings.experimentToTestInEditor;
+                experimentOverrideFound = Settings.forceToUseSpecificExperiment;
+                experiment = Settings.experimentToTestInEditor;
             }
             if (experimentOverrideFound && experiment.HasValue)
             {
@@ -378,10 +378,10 @@ namespace PlayUR
                 experimentGroup = requestedExperimentGroup;
             }
             //if not found, try and get an experiment group from the PluginHelper script
-            if (Application.isEditor && experimentGroupOverrideFound == false && PlayURPluginHelper.instance != null)
+            if (Application.isEditor && Settings != null && experimentGroupOverrideFound == false && PlayURPluginHelper.instance != null)
             {
-                experimentGroupOverrideFound = PlayURPlugin.Settings.forceToUseSpecificGroup;
-                experimentGroup = PlayURPlugin.Settings.groupToTestInEditor;
+                experimentGroupOverrideFound = Settings.forceToUseSpecificGroup;
+                experimentGroup = Settings.groupToTestInEditor;
             }
             if (experimentGroupOverrideFound && experimentGroup.HasValue)
             {
@@ -1080,7 +1080,7 @@ namespace PlayUR
             var endConfig = new Dictionary<string, string>() {
                 { "end", GetMysqlFormatTime() },
                 { "history", GetHistoryString() },
-                { "debugLog", GetDebugLogs(PlayURPlugin.Settings.minimumLogLevelToStore) }
+                { "debugLog", GetDebugLogs(Settings?.minimumLogLevelToStore ?? LogLevel.Log) }
             };
 
             StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) =>
@@ -1111,7 +1111,7 @@ namespace PlayUR
             var endConfig = new Dictionary<string, string>() {
                 { "end", GetMysqlFormatTime() },
                 { "history", GetHistoryString() },
-                { "debugLog", GetDebugLogs(PlayURPlugin.Settings.minimumLogLevelToStore) }
+                { "debugLog", GetDebugLogs(Settings?.minimumLogLevelToStore ?? LogLevel.Log) }
             };
 
             yield return StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) =>
@@ -1295,7 +1295,11 @@ namespace PlayUR
             KeyCode keyCodeForClose = KeyCode.None,
             HighScoreTable.CloseCallback closeCallback = null)
         {
-            var prefab = leaderboardPrefab ?? PlayURPlugin.Settings.defaultHighScoreTablePrefab;
+            var prefab = leaderboardPrefab ?? Settings?.defaultHighScoreTablePrefab;
+            if (prefab == null)
+            {
+                return null; //TODO: throw exception for prefab not found
+            }
             var canvas = onCanvas ?? FindObjectOfType<Canvas>();
             var go = Instantiate(prefab, canvas.transform);
             var highScoreTableScript = go.GetComponent<HighScoreTable>();
@@ -1421,7 +1425,11 @@ namespace PlayUR
         {
             //TODO: handle null image
             var closeable = duration == -1;
-            var go = Instantiate(PlayURPlugin.Settings.defaultPopupPrefab);
+            var go = Instantiate(Settings?.defaultPopupPrefab);
+            if (go == null)
+            {
+                return; //TODO: throw prefab not found exception
+            }
             DontDestroyOnLoad(go);
 
             go.transform.Find("Popup/Image").GetComponent<Image>().sprite = image;
