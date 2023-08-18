@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6db49ee0f33e5c641b9e04e00d8d5170, type: 3}
+  m_Name: SampleSurvey
+  m_EditorClassIdentifier: 
+  titleText: Survey
+  instructionsText: Please indicate how much you agree with each statement below.
+  nextPageText: Next Page
+  finishText: Finish Survey
+  questions:
+  - {fileID: 11400000, guid: cca0ab3ccccd54f4bb1f307798879258, type: 2}
+  - {fileID: 11400000, guid: fcbdb59693a312e409adf9b9fcc86015, type: 2}
+  questionsPerPage: 2
+  popupPrefab: {fileID: 0}
+  rowPrefab: {fileID: 0}
+  analyticsActionToRecordWith: 76
+  analyticsQuestionColumn: 43
+  analyticsAnswerColumn: 44
