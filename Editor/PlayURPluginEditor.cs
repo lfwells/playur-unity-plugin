@@ -12,6 +12,8 @@ using System.Text;
 using PlayUR.Core;
 using PlayUR.Exceptions;
 using System.Diagnostics;
+using UnityEditor.PackageManager;
+using System.Linq;
 
 namespace PlayUR.Editor
 {
@@ -299,7 +301,7 @@ namespace PlayUR.Editor
 
             }
         }
-        [MenuItem("PlayUR/Run Game In Broswer", priority = 25)]
+        [MenuItem("PlayUR/Run Game In Browser", priority = 25)]
         public static void OpenGameInBrowser()
         {
             //get the latest build id, so that we can open it up in unity
@@ -309,6 +311,16 @@ namespace PlayUR.Editor
                 int buildID = result["latestBuildID"];
                 Application.OpenURL(PlayURPlugin.SERVER_URL.Replace("/api/", "/games.php?/game/" + form["clientSecret"] + "/buildID/" + buildID));
             }, debugOutput: true), new CoroutineRunner());
+        }
+
+        [MenuItem("PlayUR/Re-generate Enums", isValidateFunction: true)]
+        [MenuItem("PlayUR/Build Web Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Build and Upload Web Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Upload Web Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Run Game In Browser", isValidateFunction: true)]
+        public static bool ValidateGameMenuFunctions()
+        {
+            return PlayURPlugin.GameID > 0 || string.IsNullOrEmpty(PlayURPlugin.ClientSecret);
         }
 
         static string[] GetScenePaths()
@@ -443,6 +455,23 @@ namespace PlayUR.Editor
             gameIDForm.Add("gameID", gameID.ToString());
             gameIDForm.Add("clientSecret", clientSecret);
             return gameIDForm;
+        }
+        #endregion
+
+        #region Update Checking
+        [MenuItem("PlayUR/Check for Updates...", priority = 200)]
+        public static void CheckForUpdates()
+        {
+            var runner = new CoroutineRunner();
+            EditorCoroutineUtility.StartCoroutine(CheckUpdateRoutine(), runner);
+        }
+        static IEnumerator CheckUpdateRoutine()
+        {
+            var listResult = Client.List();
+            while (listResult.IsCompleted == false) yield return 0;
+            var package = listResult.Result.FirstOrDefault(c => c.name == "io.playur.unity");
+            print(package.version);
+            print(package.versions.latestCompatible);
         }
         #endregion
 
