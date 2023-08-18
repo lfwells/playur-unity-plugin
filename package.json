@@ -1,6 +1,6 @@
 {
   "name": "io.playur.unity",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "displayName": "PlayUR Plugin",
   "description": "Unity plugin wrapper for the PlayUR platform (https://playur.io).",
   "unity": "2019.4",
@@ -57,7 +57,7 @@
       "displayName": "Highscores",
       "description": "Show and record highscores across players. Illustrates a few different variations on the code.",
       "path": "Samples~/Highscores"
-    },
+    }
   ],
   "dependencies": {
     "com.unity.editorcoroutines": "1.0.0",
