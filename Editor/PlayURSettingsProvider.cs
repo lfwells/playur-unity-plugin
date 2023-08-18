@@ -194,6 +194,8 @@ namespace PlayUR
 
             playurClientSecretSettings = PlayURClientSecretSettings.GetSerializedSettings();
             clientSecretProperty = playurClientSecretSettings.FindProperty("clientSecret");
+
+            PlayURPluginEditor.CheckForUpdates();
         }
 
         public override void OnGUI(string searchContext)
@@ -210,6 +212,36 @@ namespace PlayUR
             greenStyle.normal.textColor = Color.green;
             var redButton = new GUIStyle(EditorStyles.iconButton);
             redButton.normal.textColor = Color.red;
+
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            GUILayout.Label($"Plugin Version: {PlayURPluginEditor.currentVersion}");
+            if (PlayURPluginEditor.UpdateAvailable == null)
+            {
+                if (PlayURPluginEditor.checkingForUpdate)
+                {
+                    GUILayout.Label("Checking...");
+                }
+                else if (GUILayout.Button("Check for Update"))
+                {
+                    PlayURPluginEditor.CheckForUpdates();
+                }
+            }
+            else if (PlayURPluginEditor.UpdateAvailable == true)
+            {
+                var oldColor = GUI.color;
+                GUI.color = Color.red;
+                if (GUILayout.Button($"Update Available: Version: {PlayURPluginEditor.latestVersion}"))
+                {
+                    UnityEditor.PackageManager.UI.Window.Open("io.playur.unity");
+                }
+                GUI.color = oldColor;
+            }
+            else
+            {
+                GUILayout.Label("Plugin is at Latest Version", greenStyle);
+            }
+            EditorGUILayout.EndHorizontal();
+            
 
             // Set-Up Checks
             EditorGUI.indentLevel = 0;
