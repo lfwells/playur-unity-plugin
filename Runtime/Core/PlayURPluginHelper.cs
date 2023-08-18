@@ -56,19 +56,21 @@ namespace PlayUR
         {
             //store current scene so we can return later
             var currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-            startedFromScene = currentSceneIndex;
-
-            //if already on the login page, can  skip login
-            if (currentSceneIndex == 0)
+            if (startedFromScene == -1)
             {
-                startedFromScene = 0;
-            }
-            else
-            {
-                //login (if required...)
-                while (PlayURLoginCanvas.LoggedIn == false)
+                startedFromScene = currentSceneIndex;
+                //if already on the login page, can  skip login
+                if (currentSceneIndex == 0)
                 {
-                    yield return PlayURPlugin.GetLogin();
+                    startedFromScene = 0;
+                }
+                else
+                {
+                    //login (if required...)
+                    while (PlayURLoginCanvas.LoggedIn == false)
+                    {
+                        yield return PlayURPlugin.GetLogin();
+                    }
                 }
             }
 
