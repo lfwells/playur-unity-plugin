@@ -467,12 +467,23 @@ namespace PlayUR.Editor
         }
         static IEnumerator CheckUpdateRoutine()
         {
+            currentVersion = null;
+            latestVersion = null;
+            print(UpdateAvailable);
+
             var listResult = Client.List();
             while (listResult.IsCompleted == false) yield return 0;
             var package = listResult.Result.FirstOrDefault(c => c.name == "io.playur.unity");
-            print(package.version);
-            print(package.versions.latestCompatible);
+
+            currentVersion = package.version;
+            latestVersion = package.versions.latestCompatible;
+            latestVersion ??= "0.2.1";//just for testing when I have a local one
+
+            print(UpdateAvailable);
+
         }
+        public static string currentVersion, latestVersion;
+        public static bool? UpdateAvailable => string.IsNullOrEmpty(currentVersion) || string.IsNullOrEmpty(latestVersion) ? null : PlayUREditorUtils.CompareSemanticVersions(currentVersion, latestVersion) < 0;
         #endregion
 
         [MenuItem("PlayUR/Clear PlayerPrefs (Local Only)", priority = 100)] 
