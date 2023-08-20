@@ -15,6 +15,7 @@ namespace PlayUR
 
         public string ClientSecret => clientSecret;
 
+#if UNITY_EDITOR
         internal static PlayURClientSecretSettings GetOrCreateSettings()
         {
             var settings = AssetDatabase.LoadAssetAtPath<PlayURClientSecretSettings>(SettingsPath);
@@ -29,10 +30,10 @@ namespace PlayUR
             }
             return settings;
         }
-
         public static SerializedObject GetSerializedSettings()
         {
             return new SerializedObject(GetOrCreateSettings());
         }
+#endif
     }
 }
