@@ -832,7 +832,7 @@ namespace PlayUR
             }
             catch (ParameterNotFoundException)
             {
-                if (warn) Debug.LogWarning("Parameter " + key + " not found, using default value");
+                if (warn) PlayURPlugin.LogWarning("Parameter " + key + " not found, using default value");
                 return defaultValue;
             }
         }
@@ -874,7 +874,7 @@ namespace PlayUR
             }
             catch (ParameterNotFoundException)
             {
-                if (warn) Debug.LogWarning("Parameter " + key + " not found, using default value");
+                if (warn) PlayURPlugin.LogWarning("Parameter " + key + " not found, using default value");
                 return defaultValue;
             }
             catch (ArgumentNullException) //thrown if int.Parse fails
@@ -920,7 +920,7 @@ namespace PlayUR
             }
             catch (ParameterNotFoundException)
             {
-                if (warn) Debug.LogWarning("Parameter " + key + " not found, using default value");
+                if (warn) PlayURPlugin.LogWarning("Parameter " + key + " not found, using default value");
                 return defaultValue;
             }
             catch (ArgumentNullException) //thrown if int.Parse fails
@@ -966,7 +966,7 @@ namespace PlayUR
             }
             catch (ParameterNotFoundException)
             {
-                if (warn) Debug.LogWarning("Parameter " + key + " not found, using default value");
+                if (warn) PlayURPlugin.LogWarning("Parameter " + key + " not found, using default value");
                 return defaultValue;
             }
             catch (ArgumentNullException) //thrown if int.Parse fails
@@ -1273,7 +1273,7 @@ namespace PlayUR
                 {
                     int highlightRowID = -1;
                     if (data != null) int.TryParse(data["id"], out highlightRowID);
-                    //Debug.Log("highlight row "+highlightRowID+ "("+data["id"].ToString()+")");
+                    //PlayURPlugin.Log("highlight row "+highlightRowID+ "("+data["id"].ToString()+")");
                     ShowHighScoreTable(leaderboardID, configuration, highlightRowID, leaderboardPrefab, onCanvas, height, showCloseButton, keyCodeForClose, closeCallback);
                 }
             }, extraFields);
