@@ -126,6 +126,7 @@ namespace PlayUR
         /// </summary>
         public static int GameID => Settings?.GameID ?? 0;
 
+
         /// <summary>Matches the client_secret field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
@@ -1528,6 +1529,9 @@ namespace PlayUR
         /// <param name="context">The context object that Unity uses for highlighting when you click on the log message (optional).</param>
         public static void Log(object o, UnityEngine.Object context = null)
         {
+            if (Settings?.logLevel > LogLevel.Log)
+                return;
+
             if (o == null)
                 Debug.Log("[PlayUR] NULL", context);
             else
@@ -1541,6 +1545,9 @@ namespace PlayUR
         /// <param name="context">The context object that Unity uses for highlighting when you click on the log message (optional).</param>
         public static void LogError(object o, UnityEngine.Object context = null, bool breakCode = false)
         {
+            if (Settings?.logLevel > LogLevel.Error)
+                return;
+
             if (o == null)
                 Debug.LogError("[PlayUR] NULL", context);
             else
@@ -1559,6 +1566,9 @@ namespace PlayUR
         /// <param name="context">The context object that Unity uses for highlighting when you click on the log message (optional).</param>
         public static void LogWarning(object o, UnityEngine.Object context = null)
         {
+            if (Settings?.logLevel > LogLevel.Warning)
+                return;
+
             if (o == null)
                 Debug.LogWarning("[PlayUR] NULL", context);
             else

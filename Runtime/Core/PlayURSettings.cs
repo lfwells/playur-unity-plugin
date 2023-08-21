@@ -99,6 +99,11 @@ namespace PlayUR
         /// </summary>
         public PlayURPlugin.LogLevel minimumLogLevelToStore = PlayURPlugin.LogLevel.Log;
 
+        /// <summary>
+        /// The minimum level to log to the console.
+        /// </summary>
+        public PlayURPlugin.LogLevel logLevel = PlayURPlugin.LogLevel.Log;
+
 #if UNITY_EDITOR
         internal static PlayURSettings GetOrCreateSettings()
         {
@@ -108,6 +113,7 @@ namespace PlayUR
                 settings = ScriptableObject.CreateInstance<PlayURSettings>();
                 settings.gameId = 0;
                 settings.minimumLogLevelToStore = PlayURPlugin.LogLevel.Log;
+                settings.logLevel = PlayURPlugin.LogLevel.Log;
 
                 var runtimeFolder = Path.Combine("Packages","io.playur.unity", "Runtime");
                 settings.defaultHighScoreTablePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(Path.Combine(runtimeFolder, "HighScores", "HighScoreTable.prefab"));
