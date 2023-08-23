@@ -32,10 +32,12 @@ jobs:
           dotnet tools/UnityPackageExporter.dll \
             ./ \
             PlayUR.unitypackage \
-            --exclude "Documentation" \
+            --sub-folder "PlayUR" \
             --exclude "tools" \
+            --exclude "*~" \
             --exclude ".*" \
-            --assets "**/*" \
+            --exclude "*.unitypackage" \
+            --skip-dependency-check \
             -r .
         
       # Upload artifact
