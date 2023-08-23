@@ -27,7 +27,8 @@ namespace PlayUR
         private SerializedProperty defaultSurveyPopupPrefab;
         private SerializedProperty defaultSurveyRowPrefab;
         private SerializedProperty mTurkLogo;
-        private SerializedProperty logLevelProperty;
+        private SerializedProperty logLevel;
+        private SerializedProperty logLevelToStore;
 
         private SerializedObject playurClientSecretSettings;
         private SerializedProperty clientSecretProperty;
@@ -117,6 +118,7 @@ namespace PlayUR
             public static GUIContent generalSettings = new GUIContent("General Settings");
             public static GUIContent standardSessionTracking = new GUIContent("Use Standard Session Tracking");
             public static GUIContent logLevel = new GUIContent("Log Level");
+            public static GUIContent logLevelToStore = new GUIContent("Storage Log Level");
 
             public static GUIContent mTurk = new GUIContent("MTurk Settings");
             public static GUIContent mTurkCompletionMessage = new GUIContent("MTurk Completion Message");
@@ -190,7 +192,8 @@ namespace PlayUR
             defaultSurveyRowPrefab = playurSettings.FindProperty("defaultSurveyRowPrefab");
             forceMTurkIDInEditor = playurSettings.FindProperty("forceMTurkIDInEditor");
             mTurkLogo = playurSettings.FindProperty("mTurkLogo");
-            logLevelProperty = playurSettings.FindProperty("minimumLogLevelToStore");
+            logLevel = playurSettings.FindProperty("logLevel");
+            logLevelToStore = playurSettings.FindProperty("minimumLogLevelToStore");
 
             playurClientSecretSettings = PlayURClientSecretSettings.GetSerializedSettings();
             clientSecretProperty = playurClientSecretSettings.FindProperty("clientSecret");
@@ -325,7 +328,8 @@ namespace PlayUR
             {
                 EditorGUI.indentLevel = 1;
                 EditorGUILayout.PropertyField(standardSessionTracking, Labels.standardSessionTracking);
-                EditorGUILayout.PropertyField(logLevelProperty, Labels.logLevel);
+                EditorGUILayout.PropertyField(logLevelToStore, Labels.logLevelToStore);
+                EditorGUILayout.PropertyField(logLevel, Labels.logLevel);
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
             EditorGUI.indentLevel = 0;

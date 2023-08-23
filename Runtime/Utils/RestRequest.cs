@@ -152,7 +152,7 @@ namespace PlayUR.Core
         public void ProcessImmediate()
         {
             // Suggestion by https://stackoverflow.com/a/60447131/5010271
-            Debug.Log("<color=#FF0000>WARNING: Request has been set to immedaite! This will break unity for a short while!!!</color>");
+            PlayURPlugin.Log("<color=#FF0000>WARNING: Request has been set to immedaite! This will break unity for a short while!!!</color>");
             IsProcessing = false;
 
             while (_pending.Count > 0)

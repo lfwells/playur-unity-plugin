@@ -126,6 +126,7 @@ namespace PlayUR
         /// </summary>
         public static int GameID => Settings?.GameID ?? 0;
 
+
         /// <summary>Matches the client_secret field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
@@ -831,7 +832,7 @@ namespace PlayUR
             }
             catch (ParameterNotFoundException)
             {
-                if (warn) Debug.LogWarning("Parameter " + key + " not found, using default value");
+                if (warn) PlayURPlugin.LogWarning("Parameter " + key + " not found, using default value");
                 return defaultValue;
             }
         }
@@ -873,7 +874,7 @@ namespace PlayUR
             }
             catch (ParameterNotFoundException)
             {
-                if (warn) Debug.LogWarning("Parameter " + key + " not found, using default value");
+                if (warn) PlayURPlugin.LogWarning("Parameter " + key + " not found, using default value");
                 return defaultValue;
             }
             catch (ArgumentNullException) //thrown if int.Parse fails
@@ -919,7 +920,7 @@ namespace PlayUR
             }
             catch (ParameterNotFoundException)
             {
-                if (warn) Debug.LogWarning("Parameter " + key + " not found, using default value");
+                if (warn) PlayURPlugin.LogWarning("Parameter " + key + " not found, using default value");
                 return defaultValue;
             }
             catch (ArgumentNullException) //thrown if int.Parse fails
@@ -965,7 +966,7 @@ namespace PlayUR
             }
             catch (ParameterNotFoundException)
             {
-                if (warn) Debug.LogWarning("Parameter " + key + " not found, using default value");
+                if (warn) PlayURPlugin.LogWarning("Parameter " + key + " not found, using default value");
                 return defaultValue;
             }
             catch (ArgumentNullException) //thrown if int.Parse fails
@@ -1272,7 +1273,7 @@ namespace PlayUR
                 {
                     int highlightRowID = -1;
                     if (data != null) int.TryParse(data["id"], out highlightRowID);
-                    //Debug.Log("highlight row "+highlightRowID+ "("+data["id"].ToString()+")");
+                    //PlayURPlugin.Log("highlight row "+highlightRowID+ "("+data["id"].ToString()+")");
                     ShowHighScoreTable(leaderboardID, configuration, highlightRowID, leaderboardPrefab, onCanvas, height, showCloseButton, keyCodeForClose, closeCallback);
                 }
             }, extraFields);
@@ -1528,6 +1529,9 @@ namespace PlayUR
         /// <param name="context">The context object that Unity uses for highlighting when you click on the log message (optional).</param>
         public static void Log(object o, UnityEngine.Object context = null)
         {
+            if (Settings?.logLevel > LogLevel.Log)
+                return;
+
             if (o == null)
                 Debug.Log("[PlayUR] NULL", context);
             else
@@ -1541,6 +1545,9 @@ namespace PlayUR
         /// <param name="context">The context object that Unity uses for highlighting when you click on the log message (optional).</param>
         public static void LogError(object o, UnityEngine.Object context = null, bool breakCode = false)
         {
+            if (Settings?.logLevel > LogLevel.Error)
+                return;
+
             if (o == null)
                 Debug.LogError("[PlayUR] NULL", context);
             else
@@ -1559,6 +1566,9 @@ namespace PlayUR
         /// <param name="context">The context object that Unity uses for highlighting when you click on the log message (optional).</param>
         public static void LogWarning(object o, UnityEngine.Object context = null)
         {
+            if (Settings?.logLevel > LogLevel.Warning)
+                return;
+
             if (o == null)
                 Debug.LogWarning("[PlayUR] NULL", context);
             else
