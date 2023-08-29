@@ -75,18 +75,22 @@ namespace PlayUR.Editor
         {
             var runner = new CoroutineRunner();
             var GET = "?gameID=" + PlayURPlugin.GameID + "&clientSecret=" + PlayURPlugin.ClientSecret;
+
+            var GENERATED_FILE_HEADER = "// GENERATED CODE, DO NOT MODIFY\n\n\n#if PLAYUR_GENERATED //this comment is a safeguard to only use this file if enums have been properly generated for the project.\nnamespace PlayUR\n{\n";
+            var GENERATED_FILE_FOOTER = "\n}\n#endif";
+
             //get actions from the server and populate an enum
             EditorCoroutineUtility.StartCoroutine(Rest.Get("Action/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
                     var actions = json["records"].AsArray;
-                    string text = "namespace PlayUR\n{\n\t///<summary>Enum generated from server representing possible user actions. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Action\n\t{\n";
+                    string text = GENERATED_FILE_HEADER+"\t///<summary>Enum generated from server representing possible user actions. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Action\n\t{\n";
                     foreach (var action in actions.Values)
                     {
                         text += "\t\t" + PlatformNameToValidEnumValue(action["name"].Value) + " = " + action["id"] + ",\n";
                     }
-                    text += "\t}\n}\n";
+                    text += "\t}"+GENERATED_FILE_FOOTER;
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("Action.cs"), Encoding.UTF8.GetBytes(text));
@@ -102,13 +106,12 @@ namespace PlayUR.Editor
                 if (succ)
                 {
                     var elements = json["records"].AsArray;
-                    Debug.Log(elements);
-                    string text = "namespace PlayUR\n{\n\t///<summary>Enum generated from server representing top-level game elements. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Element\n\t{\n";
+                    string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing top-level game elements. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Element\n\t{\n";
                     foreach (var element in elements.Values)
                     {
                         text += "\t\t" + PlatformNameToValidEnumValue(element["name"].Value) + " = " + element["id"] + ",\n";
                     }
-                    text += "\t}\n}\n";
+                    text += "\t}" + GENERATED_FILE_FOOTER;
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("Element.cs"), Encoding.UTF8.GetBytes(text));
@@ -124,13 +127,12 @@ namespace PlayUR.Editor
                 if (succ)
                 {
                     var experiments = json["records"].AsArray;
-                    Debug.Log(experiments);
-                    string text = "namespace PlayUR\n{\n\t///<summary>Enum generated from server representing experiments for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Experiment\n\t{\n";
+                    string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing experiments for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Experiment\n\t{\n";
                     foreach (var experiment in experiments.Values)
                     {
                         text += "\t\t" + PlatformNameToValidEnumValue(experiment["name"].Value) + " = " + experiment["id"] + ",\n";
                     }
-                    text += "\t}\n}\n";
+                    text += "\t}" + GENERATED_FILE_FOOTER;
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("Experiment.cs"), Encoding.UTF8.GetBytes(text));
@@ -146,13 +148,12 @@ namespace PlayUR.Editor
                 if (succ)
                 {
                     var experiments = json["records"].AsArray;
-                    Debug.Log(experiments);
-                    string text = "namespace PlayUR\n{\n\t///<summary>Enum generated from server representing experiment groups for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum ExperimentGroup\n\t{\n";
+                    string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing experiment groups for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum ExperimentGroup\n\t{\n";
                     foreach (var experiment in experiments.Values)
                     {
                         text += "\t\t" + PlatformNameToValidEnumValue(experiment["experiment"].Value) + "_" + experiment["name"].Value.Replace(" ", "") + " = " + experiment["id"] + ",\n";
                     }
-                    text += "\t}\n}\n";
+                    text += "\t}" + GENERATED_FILE_FOOTER;
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("ExperimentGroup.cs"), Encoding.UTF8.GetBytes(text));
@@ -168,13 +169,12 @@ namespace PlayUR.Editor
                 if (succ)
                 {
                     var columns = json["records"].AsArray;
-                    Debug.Log(columns);
-                    string text = "namespace PlayUR\n{\n\t///<summary>Enum generated from server representing the extra analytics columns used for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum AnalyticsColumn\n\t{\n";
+                    string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing the extra analytics columns used for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum AnalyticsColumn\n\t{\n";
                     foreach (var column in columns.Values)
                     {
                         text += "\t\t" + PlatformNameToValidEnumValue(column["name"].Value) + " = " + column["id"] + ",\n";
                     }
-                    text += "\t}\n}\n";
+                    text += "\t}" + GENERATED_FILE_FOOTER;
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("AnalyticsColumns.cs"), Encoding.UTF8.GetBytes(text));
@@ -190,13 +190,12 @@ namespace PlayUR.Editor
                 if (succ)
                 {
                     var parameters = json["records"].AsArray;
-                    Debug.Log(parameters);
-                    string text = "namespace PlayUR\n{\n\t///<summary>Constant Strings generated from server representing the parameter keys for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic static class Parameter\n\t{\n";
+                    string text = GENERATED_FILE_HEADER + "\t///<summary>Constant Strings generated from server representing the parameter keys for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic static class Parameter\n\t{\n";
                     foreach (var parameter in parameters.Values)
                     {
                         text += "\t\tpublic static string " + PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + " = \"" + PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + "\";\n";
                     }
-                    text += "\t}\n}\n";
+                    text += "\t}" + GENERATED_FILE_FOOTER;
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("Parameter.cs"), Encoding.UTF8.GetBytes(text));
@@ -205,6 +204,9 @@ namespace PlayUR.Editor
                     PlayURPlugin.Log("Generated Parameters Constants (" + parameters.Count + " parameters)");
                 }
             }), runner);
+
+            //tell the code to now use the generated files instead of the ones that are used on plugin set up
+            PlayUREditorUtils.AddScriptingDefinesForAllPlatforms("PLAYUR_GENEREATED");
         }
         static string PlatformNameToValidEnumValue(string input)
         {
