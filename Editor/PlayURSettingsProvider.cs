@@ -277,10 +277,13 @@ namespace PlayUR
                     EditorGUILayout.LabelField(Labels.done, greenStyle);
                 else
                 {
-                    if (GUILayout.Button(Labels.fix, redButton))
+                    var oldColor = GUI.color;
+                    GUI.color = Color.red;
+                    if (GUILayout.Button(Labels.fix))
                     {
                         PlayURPluginEditor.GenerateEnum();
                     }
+                    GUI.color = oldColor;
                 }
                 EditorGUILayout.EndHorizontal();
 
@@ -293,10 +296,13 @@ namespace PlayUR
                     EditorGUILayout.LabelField(Labels.done, greenStyle);
                 else
                 {
+                    var oldColor = GUI.color;
+                    GUI.color = Color.red;
                     if (GUILayout.Button(Labels.fix))
                     {
                         PlayURPluginEditor.SetSceneBuildSettings();
                     }
+                    GUI.color = oldColor;
                 }
                 EditorGUILayout.EndHorizontal();
             }
