@@ -1,9 +1,9 @@
+#if !PLAYUR_GENERATED //this is a safeguard used to ensure that the playur plugin compiles upon being added to a project. You will generate a new file in your assets file that overrides this one, and this flag is used to ensure that this file is ignored.
 namespace PlayUR
 {
 	///<summary>Enum generated from server representing possible user actions. To update use PlayUR\Re-generate Enums.</summary>
 	public enum Action
 	{
-		TestAction = 68,
-		SurveyResponse = 76,
 	}
 }
+#endif
