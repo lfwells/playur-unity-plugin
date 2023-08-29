@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEditor;
+using System.Linq;
 
 namespace PlayUR.Editor
 {
@@ -32,6 +34,29 @@ namespace PlayUR.Editor
         public static void OpenPackageManager()
         {
             UnityEditor.PackageManager.UI.Window.Open("io.playur.unity");
+        }
+
+
+        static UnityEditor.Build.NamedBuildTarget[] platforms = new UnityEditor.Build.NamedBuildTarget[] {
+            UnityEditor.Build.NamedBuildTarget.Android,
+            UnityEditor.Build.NamedBuildTarget.iOS,
+            UnityEditor.Build.NamedBuildTarget.Standalone,
+            UnityEditor.Build.NamedBuildTarget.WindowsStoreApps,
+            UnityEditor.Build.NamedBuildTarget.WebGL
+        };
+        public static void AddScriptingDefinesForAllPlatforms(string define)
+        {
+            foreach (var platform in platforms)
+            {
+                AddScriptingDefineForPlatform(platform, define);
+            }
+        }
+        static void AddScriptingDefineForPlatform(UnityEditor.Build.NamedBuildTarget buildTarget, string define)
+        {
+            var defines = PlayerSettings.GetScriptingDefineSymbols(buildTarget).Split(";").ToList();
+            if (defines.Contains(define)) return;
+            defines.Add(define);
+            PlayerSettings.SetScriptingDefineSymbols(buildTarget, string.Join(";", defines));
         }
     }
 }
