@@ -14,6 +14,7 @@ using PlayUR.Exceptions;
 using System.Diagnostics;
 using UnityEditor.PackageManager;
 using System.Linq;
+using UnityEditorInternal;
 
 namespace PlayUR.Editor
 {
@@ -21,7 +22,7 @@ namespace PlayUR.Editor
     {
         #region Initial Set Up
         public static string PluginLocation = "Packages/io.playur.unity/";
-        static string generatedFilesPath = $"{PluginLocation}/runtime";
+        static string generatedFilesPath => Path.Combine("Assets","PlayURPlugin");
         static string GeneratedFilesPath(string subPath)
         {
             return Path.Combine(generatedFilesPath, subPath);
@@ -79,24 +80,26 @@ namespace PlayUR.Editor
             var GENERATED_FILE_HEADER = "// GENERATED CODE, DO NOT MODIFY\n\n\n#if PLAYUR_GENERATED //this comment is a safeguard to only use this file if enums have been properly generated for the project.\nnamespace PlayUR\n{\n";
             var GENERATED_FILE_FOOTER = "\n}\n#endif";
 
+            completeCount = 0;
+
             //get actions from the server and populate an enum
             EditorCoroutineUtility.StartCoroutine(Rest.Get("Action/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
                     var actions = json["records"].AsArray;
-                    string text = GENERATED_FILE_HEADER+"\t///<summary>Enum generated from server representing possible user actions. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Action\n\t{\n";
+                    string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing possible user actions. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Action\n\t{\n";
                     foreach (var action in actions.Values)
                     {
                         text += "\t\t" + PlatformNameToValidEnumValue(action["name"].Value) + " = " + action["id"] + ",\n";
                     }
-                    text += "\t}"+GENERATED_FILE_FOOTER;
+                    text += "\t}" + GENERATED_FILE_FOOTER;
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("Action.cs"), Encoding.UTF8.GetBytes(text));
-                    AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Actions Enum (" + actions.Count + " actions)");
+                    completeCount++;
                 }
             }), runner);
 
@@ -115,9 +118,9 @@ namespace PlayUR.Editor
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("Element.cs"), Encoding.UTF8.GetBytes(text));
-                    AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Elements Enum (" + elements.Count + " actions)");
+                    completeCount++;
                 }
             }), runner);
 
@@ -136,9 +139,9 @@ namespace PlayUR.Editor
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("Experiment.cs"), Encoding.UTF8.GetBytes(text));
-                    AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Experiments Enum (" + experiments.Count + " experiments)");
+                    completeCount++;
                 }
             }), runner);
 
@@ -157,9 +160,9 @@ namespace PlayUR.Editor
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("ExperimentGroup.cs"), Encoding.UTF8.GetBytes(text));
-                    AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Experiment Groups Enum (" + experiments.Count + " groups)");
+                    completeCount++;
                 }
             }), runner);
 
@@ -178,9 +181,9 @@ namespace PlayUR.Editor
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("AnalyticsColumns.cs"), Encoding.UTF8.GetBytes(text));
-                    AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Analytics Columns Enum (" + columns.Count + " columns)");
+                    completeCount++;
                 }
             }), runner);
 
@@ -199,14 +202,34 @@ namespace PlayUR.Editor
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("Parameter.cs"), Encoding.UTF8.GetBytes(text));
-                    AssetDatabase.Refresh();
 
                     PlayURPlugin.Log("Generated Parameters Constants (" + parameters.Count + " parameters)");
+                    completeCount++;
                 }
             }), runner);
 
+            EditorCoroutineUtility.StartCoroutine(AwaitGeneratedEnums(), runner);
+        }
+        static int completeCount;
+        static IEnumerator AwaitGeneratedEnums()
+        {
+            while (completeCount < 6)
+            {
+                EditorUtility.DisplayProgressBar("Generating Enums", $"{completeCount}/6", completeCount / 6f);
+                yield return 0;
+            }
+            EditorUtility.ClearProgressBar();
+
             //tell the code to now use the generated files instead of the ones that are used on plugin set up
-            PlayUREditorUtils.AddScriptingDefinesForAllPlatforms("PLAYUR_GENEREATED");
+            PlayUREditorUtils.AddScriptingDefinesForAllPlatforms("PLAYUR_GENERATED");
+
+            //create an assembly definition
+            var path = GeneratedFilesPath("AssemblyReference.asmref");
+            AssetDatabase.DeleteAsset(path);
+            File.WriteAllBytes(path, Encoding.UTF8.GetBytes("{\n\"reference\": \"PlayUR\"\n}"));
+
+
+            AssetDatabase.Refresh();
         }
         static string PlatformNameToValidEnumValue(string input)
         {
