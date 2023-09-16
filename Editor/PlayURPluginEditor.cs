@@ -202,7 +202,14 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Constant Strings generated from server representing the parameter keys for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic static class Parameter\n\t{\n";
                     foreach (var parameter in parameters.Values)
                     {
-                        text += "\t\tpublic static string " + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + " = \"" + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + "\";\n";
+
+                        string c = null;
+                        if (!string.IsNullOrEmpty(parameter["type"]))
+                        {
+                            c = $"{parameter["description"].Value}. Expected type: {parameter["typeString"].Value}";
+                        }
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(c, indent: 2);
+                        text += "\t\tpublic static string " + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter["parameter"].ToString().Replace("[]", "")) + " = \"" + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + "\";\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
 
