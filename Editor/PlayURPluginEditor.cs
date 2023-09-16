@@ -489,7 +489,7 @@ namespace PlayUR.Editor
             //find the helper prefab using asset database
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PluginLocation + "Runtime/Assets/PlayURPluginHelper.prefab");
             //instantiate the prefab
-            GameObject go = Instantiate(prefab);
+            GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
             go.name = "PlayURPluginHelper";
             // Ensure it gets reparented if this was a context click (otherwise does nothing)
             GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);

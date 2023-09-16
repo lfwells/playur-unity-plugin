@@ -771,10 +771,21 @@ namespace PlayUR
         public bool GetBoolParam(string key)
         {
             bool result = false;
-            if (bool.TryParse(GetParam(key), out result))
+            string paramValue = GetParam(key);
+            if (bool.TryParse(paramValue, out result))
             {
                 return result;
             }
+            //special case, handle 0 and 1 for booleans
+            if (paramValue == "0")
+            {
+                return false;
+            }
+            else if (paramValue == "1")
+            {
+                return true;
+            }
+
             throw new InvalidParamFormatException(key, typeof(bool));
         }
 
