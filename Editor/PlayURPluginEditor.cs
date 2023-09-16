@@ -15,6 +15,7 @@ using System.Diagnostics;
 using UnityEditor.PackageManager;
 using System.Linq;
 using UnityEditorInternal;
+using System.ComponentModel.Design;
 
 namespace PlayUR.Editor
 {
@@ -402,7 +403,7 @@ namespace PlayUR.Editor
         }
         #endregion
 
-        #region utils
+        #region Utils
         static IEnumerator UploadFile(string endPoint, string filePath, string fileName, string mimeType, JSONObject additionalRequest = null, Rest.ServerCallback callback = null)
         {
             WWWForm form = new WWWForm();
@@ -480,6 +481,21 @@ namespace PlayUR.Editor
             gameIDForm.Add("gameID", gameID.ToString());
             gameIDForm.Add("clientSecret", clientSecret);
             return gameIDForm;
+        }
+
+        [MenuItem("GameObject/PlayUR/PlayUR Plugin Helper Prefab")]
+        public static void CreatePlayurHelper(UnityEditor.MenuCommand menuCommand)
+        {
+            //find the helper prefab using asset database
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PluginLocation + "Runtime/Assets/PlayURPluginHelper.prefab");
+            //instantiate the prefab
+            GameObject go = Instantiate(prefab);
+            go.name = "PlayURPluginHelper";
+            // Ensure it gets reparented if this was a context click (otherwise does nothing)
+            GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
+            // Register the creation in the undo system
+            Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
+            Selection.activeObject = go;
         }
         #endregion
 
