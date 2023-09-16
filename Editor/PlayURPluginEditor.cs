@@ -92,7 +92,8 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing possible user actions. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Action\n\t{\n";
                     foreach (var action in actions.Values)
                     {
-                        text += "\t\t" + PlatformNameToValidEnumValue(action["name"].Value) + " = " + action["id"] + ",\n";
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(action["description"], indent: 2);
+                        text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(action["name"].Value) + " = " + action["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
 
@@ -113,7 +114,8 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing top-level game elements. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Element\n\t{\n";
                     foreach (var element in elements.Values)
                     {
-                        text += "\t\t" + PlatformNameToValidEnumValue(element["name"].Value) + " = " + element["id"] + ",\n";
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(element["description"], indent: 2);
+                        text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(element["name"].Value) + " = " + element["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
 
@@ -134,7 +136,8 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing experiments for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Experiment\n\t{\n";
                     foreach (var experiment in experiments.Values)
                     {
-                        text += "\t\t" + PlatformNameToValidEnumValue(experiment["name"].Value) + " = " + experiment["id"] + ",\n";
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(experiment["description"], indent: 2);
+                        text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(experiment["name"].Value) + " = " + experiment["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
 
@@ -155,7 +158,8 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing experiment groups for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum ExperimentGroup\n\t{\n";
                     foreach (var experiment in experiments.Values)
                     {
-                        text += "\t\t" + PlatformNameToValidEnumValue(experiment["experiment"].Value) + "_" + experiment["name"].Value.Replace(" ", "") + " = " + experiment["id"] + ",\n";
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(experiment["description"], indent: 2);
+                        text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(experiment["experiment"].Value) + "_" + experiment["name"].Value.Replace(" ", "") + " = " + experiment["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
 
@@ -176,7 +180,8 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing the extra analytics columns used for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum AnalyticsColumn\n\t{\n";
                     foreach (var column in columns.Values)
                     {
-                        text += "\t\t" + PlatformNameToValidEnumValue(column["name"].Value) + " = " + column["id"] + ",\n";
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(column["description"], indent: 2);
+                        text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(column["name"].Value) + " = " + column["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
 
@@ -197,7 +202,14 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Constant Strings generated from server representing the parameter keys for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic static class Parameter\n\t{\n";
                     foreach (var parameter in parameters.Values)
                     {
-                        text += "\t\tpublic static string " + PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + " = \"" + PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + "\";\n";
+
+                        string c = null;
+                        if (!string.IsNullOrEmpty(parameter["type"]))
+                        {
+                            c = $"{parameter["description"].Value}. Expected type: {parameter["typeString"].Value}";
+                        }
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(c, indent: 2);
+                        text += "\t\tpublic static string " + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter["parameter"].ToString().Replace("[]", "")) + " = \"" + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + "\";\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
 
@@ -231,14 +243,6 @@ namespace PlayUR.Editor
 
 
             AssetDatabase.Refresh();
-        }
-        static string PlatformNameToValidEnumValue(string input)
-        {
-            var rgx = new System.Text.RegularExpressions.Regex("[^a-zA-Z0-9_]");
-            input = rgx.Replace(input, "");
-            input = input.Replace(" ", "");
-            if (!char.IsLetter(input[0])) input = "_" + input;
-            return input;
         }
         #endregion
 
