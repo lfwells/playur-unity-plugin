@@ -9,7 +9,7 @@ namespace PlayUR
     {
         public new void AddListener(UnityAction action)
         {
-            if (PlayURPlugin.instance.IsReady)
+            if (PlayURPlugin.IsReady)
                 action.Invoke();
             else
                 base.AddListener(action);

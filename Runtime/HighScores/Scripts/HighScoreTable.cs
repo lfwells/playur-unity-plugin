@@ -152,7 +152,7 @@ namespace PlayUR
             }
 
             rowsParent.gameObject.SetActive(false);
-            if (PlayURPlugin.instance.IsReady && initOnStart)
+            if (PlayURPlugin.IsReady && initOnStart)
                 Init();
         }
         public void Init()

@@ -154,9 +154,9 @@ namespace PlayUR
         /// <summary>Used to determine if the plugin is ready for normal use (i.e. the user has logged in, and a configuration has been obtained.</summary>
         /// <value><c>true</c> if the user has logged in, and the configuration has been set.
         /// <c>false</c> if the user has not logged in yet, or a configuration could not be found.</value>
-        public bool IsReady => inited;
+        public static bool IsReady => available && instance.inited;
 
-        [Obsolete("Use PlayURPlugin.instance.IsReady instead.")]
+        [Obsolete("Use PlayURPlugin.IsReady instead.")]
         /// <summary>Used to determine if the plugin is ready for normal use (i.e. the user has logged in, and a configuration has been obtained.</summary>
         /// <value><c>true</c> if the user has logged in, and the configuration has been set.
         /// <c>false</c> if the user has not logged in yet, or a configuration could not be found.</value>

@@ -10,13 +10,21 @@ namespace PlayUR
         /// <summary>
         /// Helper: The singleton instance of the <see cref="PlayURPlugin"/>.
         /// </summary>
-        public PlayURPlugin PlayURPlugin => PlayURPlugin.instance;
+        public PlayURPlugin PlayURPlugin => PlayURPlugin.available ? PlayURPlugin.instance : null;
 
         /// <summary>
         /// Helper: The current configuration of the plugin. Contains the current experiment, experiment group, and active elements and parameters.
         /// However it is recommended to use the <see cref="CurrentExperiment"/>, <see cref="CurrentExperimentGroup"/>, <see cref="CurrentElements"/> and <see cref="CurrentParameters"/> properties instead.
         /// </summary>
-        public Configuration Configuration => PlayURPlugin.Configuration;
+        public Configuration Configuration 
+        {
+            get
+            {
+                var config = PlayURPlugin?.Configuration;
+                if (config == null) throw new PlayUR.Exceptions.ConfigurationNotReadyException();
+                return config;
+            }
+        }
 
         /// <summary>Used to determine if the plugin is ready for normal use (i.e. the user has logged in, and a configuration has been obtained.</summary>
         /// <value><c>true</c> if the user has logged in, and the configuration has been set.
