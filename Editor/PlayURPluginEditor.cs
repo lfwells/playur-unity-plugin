@@ -209,7 +209,7 @@ namespace PlayUR.Editor
                             c = $"{parameter["description"].Value}. Expected type: {parameter["typeString"].Value}";
                         }
                         text += PlayUREditorUtils.DescriptionToCommentSafe(c, indent: 2);
-                        text += "\t\tpublic static string " + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter["parameter"].ToString().Replace("[]", "")) + " = \"" + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter.ToString().Replace("[]", "")) + "\";\n";
+                        text += "\t\tpublic static string " + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter["parameter"].Value.Replace("[]", "")) + " = \"" + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter["parameter"].Value.Replace("[]", "")) + "\";\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
 
