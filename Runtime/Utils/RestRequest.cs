@@ -206,6 +206,8 @@ namespace PlayUR.Core
         /// <summary>Starts a loop trying to process requests</summary>
         public IEnumerator StartProcessing()
         {
+            if (IsProcessing) yield break;
+
             IsProcessing = true;
             while (IsProcessing)
             {

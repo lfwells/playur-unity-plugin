@@ -525,8 +525,9 @@ namespace PlayUR
             return configuration.elements.Contains(element);
         }
 
-        /// <summary>Currently running experiment.</summary>
+        /// <summary>Currently running experiment. Note this can be set at runtime as well, which will re-call <see cref="Init"/> and trigger OnReady.</summary>
         /// <exception cref="ConfigurationNotReadyException">thrown if configuration is not previously obtained</exception>
+        /// <exception cref="SessionAlreadyStartedException">thrown if trying to change experiment during a running session</exception>
         public Experiment CurrentExperiment
         {
             get
@@ -537,10 +538,20 @@ namespace PlayUR
                 }
                 return configuration.experiment;
             }
+            set
+            {
+                if (inSession)
+                    throw new SessionAlreadyStartedException();
+
+                didRequestExperiment = true;
+                requestedExperiment = value;
+                StartCoroutine(Init());
+            }
         }
 
-        /// <summary>Currently running experiment group.</summary>
+        /// <summary>Currently running experiment group.Note this can be set at runtime as well, which will re-call <see cref="Init"/> and trigger OnReady.</summary>
         /// <exception cref="ConfigurationNotReadyException">thrown if configuration is not previously obtained</exception>
+        /// <exception cref="SessionAlreadyStartedException">thrown if trying to change experiment group during a running session</exception>
         public ExperimentGroup CurrentExperimentGroup
         {
             get
@@ -550,6 +561,15 @@ namespace PlayUR
                     throw new ConfigurationNotReadyException();
                 }
                 return configuration.experimentGroup;
+            }
+            set
+            {
+                if (inSession)
+                    throw new SessionAlreadyStartedException();
+
+                didRequestExperimentGroup = true;
+                requestedExperimentGroup = value;
+                StartCoroutine(Init());
             }
         }
 
@@ -1739,7 +1759,7 @@ namespace PlayUR.Exceptions
         {
             get
             {
-                return "Cannot perform operation on Session as no Session has started";
+                return "Cannot perform operation as no Session has been started yet";
             }
         }
     }
@@ -1753,7 +1773,7 @@ namespace PlayUR.Exceptions
         {
             get
             {
-                return "Cannot perform operation on Session as Session has already started";
+                return "Cannot perform operation as Session has already started";
             }
         }
     }
