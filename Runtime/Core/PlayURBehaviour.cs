@@ -63,14 +63,7 @@ namespace PlayUR
         {
             if (PlayURPlugin.available)
             {
-                if (PlayURPlugin.IsReady)
-                {
-                    OnReady();
-                }
-                else
-                {
-                    PlayURPlugin.instance.OnReady.AddListener(OnReady);
-                }
+                PlayURPlugin.instance.OnReady.AddListener(OnReady);
             }
         }
 
