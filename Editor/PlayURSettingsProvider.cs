@@ -16,6 +16,7 @@ namespace PlayUR
         private SerializedProperty mobileExperiment;
         private SerializedProperty useSpecificExperimentForDesktopBuild;
         private SerializedProperty desktopExperiment;
+        private SerializedProperty mTurkStartMessage;
         private SerializedProperty mTurkCompletionMessage;
         private SerializedProperty forceToUseSpecificExperiment;
         private SerializedProperty experimentToTestInEditor;
@@ -121,6 +122,7 @@ namespace PlayUR
             public static GUIContent logLevelToStore = new GUIContent("Storage Log Level");
 
             public static GUIContent mTurk = new GUIContent("MTurk Settings");
+            public static GUIContent mTurkStartMessage = new GUIContent("MTurk Start Message");
             public static GUIContent mTurkCompletionMessage = new GUIContent("MTurk Completion Message");
             public static GUIContent mTurkSprite = new GUIContent("MTurk Sprite");
             public static GUIContent mTurkForceID = new GUIContent("Force MTurk ID in Editor");
@@ -181,6 +183,7 @@ namespace PlayUR
             mobileExperiment = playurSettings.FindProperty("playurSettings");
             useSpecificExperimentForDesktopBuild = playurSettings.FindProperty("useSpecificExperimentForDesktopBuild");
             desktopExperiment = playurSettings.FindProperty("desktopExperiment");
+            mTurkStartMessage = playurSettings.FindProperty("mTurkStartMessage");
             mTurkCompletionMessage = playurSettings.FindProperty("mTurkCompletionMessage");
             forceToUseSpecificExperiment = playurSettings.FindProperty("forceToUseSpecificExperiment");
             experimentToTestInEditor = playurSettings.FindProperty("experimentToTestInEditor");
@@ -413,6 +416,7 @@ namespace PlayUR
             if (_foldout_mturk)
             {
                 EditorGUI.indentLevel = 1;
+                EditorGUILayout.PropertyField(mTurkStartMessage, Labels.mTurkStartMessage);
                 EditorGUILayout.PropertyField(mTurkCompletionMessage, Labels.mTurkCompletionMessage);
                 EditorGUILayout.PropertyField(forceMTurkIDInEditor, Labels.mTurkForceID);
                 EditorGUILayout.PropertyField(mTurkLogo, Labels.mTurkSprite);

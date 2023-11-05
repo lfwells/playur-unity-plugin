@@ -44,7 +44,8 @@ namespace PlayUR
             if (HasMTurkID)
             {
                 var form = Rest.GetWWWFormWithExperimentInfo();
-                form.Add(MTURK_URL_PARAM, MTurkID.ToString());
+                //no longer store the id -- the user id is enough
+                //form.Add(MTURK_URL_PARAM, MTurkID.ToString());
                 
                 yield return Rest.EnqueuePost(MTURK_API_ENDPOINT, form, (succ, result) =>
                 {
@@ -91,9 +92,11 @@ namespace PlayUR
             }
         }
 
+        //update: no longer showing this, as we dont store id
         void ShowMTurkStartPopup()
         {
-            ShowPopup("MTurk Participant:\n"+MTurkID, PlayURPlugin.Settings.mTurkLogo);
+            //ShowPopup("MTurk Participant:\n"+MTurkID, PlayURPlugin.Settings.mTurkLogo);
+            ShowPopup(PlayURPlugin.Settings.mTurkStartMessage, PlayURPlugin.Settings.mTurkLogo);
         }
         void ShowMTurkCompletePopup()
         {

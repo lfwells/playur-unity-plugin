@@ -37,6 +37,14 @@ namespace PlayUR
         /// The experiment to choose if <see cref="useSpecificExperimentForDesktopBuild"/> is true.
         /// </summary>
         public Experiment desktopExperiment;
+
+        [TextArea(3, 3)]
+        /// <summary>
+        /// What message should be shown to the user when they start the game as a Amazon Mechanical Turk user. \
+        /// This value can (and should) be set at any time.
+        /// </summary>
+        public string mTurkStartMessage = "HiT Started";
+
         [TextArea(3, 3)]
         /// <summary>
         /// What message should be shown to the user when they complete the game as a Amazon Mechanical Turk user. \
