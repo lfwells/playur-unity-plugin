@@ -6,6 +6,7 @@ namespace PlayUR
     public partial class PlayURPlugin : UnitySingletonPersistent<PlayURPlugin>
     {
         public const string MTURK_URL_PARAM = "mTurkID";
+        public const string MTURK_URL_PARAM_ALT = "mTurk";
         public const string MTURK_API_ENDPOINT = "MTurkCompletion";
 
         /// <summary>
@@ -27,13 +28,15 @@ namespace PlayUR
         public string MTurkID
         {
             get {
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                     return PlayURPlugin.Settings.forceMTurkIDInEditor;
-                #else
+#else
                     string result = null;
                     URLParameters.GetSearchParameters().TryGetValue(MTURK_URL_PARAM, out result);
+                    if (result == null)
+                        URLParameters.GetSearchParameters().TryGetValue(MTURK_URL_PARAM_ALT, out result);
                     return result;
-                #endif
+#endif
             }
         }
 
