@@ -231,6 +231,7 @@ namespace PlayUR
                 StartCoroutine(InitMTurk());
 
                 inited = true;
+                Parameters.Load();
 
                 DebugConfiguration();
             }

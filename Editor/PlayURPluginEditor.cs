@@ -218,6 +218,33 @@ namespace PlayUR.Editor
 
                     PlayURPlugin.Log("Generated Parameters Constants (" + parameters.Count + " parameters)");
                     completeCount++;
+
+                    //also generate a structure
+                    text = GENERATED_FILE_HEADER + "\t///<summary>A generated datastructure containing all known parameters. Values are populated at runtime when plugin is Ready. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic static partial class Parameters\n\t{\n";
+                    foreach (var parameter in parameters.Values)
+                    {
+
+                        string type = "string";
+                        if (!string.IsNullOrEmpty(parameter["type"]))
+                        {
+                            type = parameter["typeString"].Value.ToLower();
+                            if (type == "boolean") type = "bool";
+
+                            if (parameter["parameter"].Value.EndsWith("[]"))
+                            {
+                                type += "[]";
+                            }
+                        }
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(parameter["description"].Value, indent: 2);
+                        text += $"\t\tpublic static {type} {PlayUREditorUtils.PlatformNameToValidEnumValue(parameter["parameter"].Value.Replace("[]", ""))};\n";
+                    }
+                    text += "\t}" + GENERATED_FILE_FOOTER;
+
+                    //write it out!
+                    File.WriteAllBytes(GeneratedFilesPath("Parameters.cs"), Encoding.UTF8.GetBytes(text));
+
+                    PlayURPlugin.Log("Generated Configuration Structure (" + parameters.Count + " parameters)");
+                    completeCount++;
                 }
             }), runner);
 
@@ -226,9 +253,9 @@ namespace PlayUR.Editor
         static int completeCount;
         static IEnumerator AwaitGeneratedEnums()
         {
-            while (completeCount < 6)
+            while (completeCount < 7)
             {
-                EditorUtility.DisplayProgressBar("Generating Enums", $"{completeCount}/6", completeCount / 6f);
+                EditorUtility.DisplayProgressBar("Generating Enums", $"{completeCount}/7", completeCount / 7f);
                 yield return 0;
             }
             EditorUtility.ClearProgressBar();
