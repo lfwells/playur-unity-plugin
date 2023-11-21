@@ -3,11 +3,13 @@ using System.Reflection;
 
 namespace PlayUR
 {
+    //TODO: documentation
     public class PlayURParameterAttribute : Attribute
     {
         public string key;
         public object defaultValue;
         public bool warn = true;
+        public bool crash = false;
 
         public PlayURParameterAttribute(string key)
         {
@@ -16,6 +18,11 @@ namespace PlayUR
 
         public void Apply(FieldInfo field, object obj)
         {
+            if (crash && PlayURPlugin.instance.ParamExists(key) == false) 
+            {
+                throw new PlayUR.Exceptions.ParameterNotFoundException(key);
+            }
+
             if (field.FieldType == typeof(string))
             {
                 ApplyString(field, obj);
