@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -74,7 +74,23 @@ namespace PlayUR
         /// </summary>
         public virtual void OnReady()
         {
+            LoadParameters();
+        }
 
+        void LoadParameters()
+        {
+            //get all attribute fields on this instance
+            var fields = GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var field in fields)
+            {
+                //get all PlayURParameterAttributes on this field
+                var attributes = field.GetCustomAttributes(typeof(PlayURStringParameterAttribute), true);
+                foreach (var attribute in attributes)
+                {
+                    //apply the attribute
+                    ((PlayURStringParameterAttribute)attribute).Apply(field, this);
+                }
+            }
         }
         #endregion
     }
