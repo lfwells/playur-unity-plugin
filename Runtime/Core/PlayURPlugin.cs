@@ -859,7 +859,7 @@ namespace PlayUR
         {
             try
             {
-                return GetStringParamList(key + PARAM_LIST_KEY_APPEND);
+                return GetStringParamList(key);
             }
             catch (ParameterNotFoundException)
             {
@@ -901,7 +901,7 @@ namespace PlayUR
         {
             try
             {
-                return GetIntParamList(key + PARAM_LIST_KEY_APPEND);
+                return GetIntParamList(key);
             }
             catch (ParameterNotFoundException)
             {
@@ -947,7 +947,7 @@ namespace PlayUR
         {
             try
             {
-                return GetFloatParamList(key + PARAM_LIST_KEY_APPEND);
+                return GetFloatParamList(key);
             }
             catch (ParameterNotFoundException)
             {
@@ -993,7 +993,7 @@ namespace PlayUR
         {
             try
             {
-                return GetBoolParamList(key + PARAM_LIST_KEY_APPEND);
+                return GetBoolParamList(key);
             }
             catch (ParameterNotFoundException)
             {
