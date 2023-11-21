@@ -84,11 +84,11 @@ namespace PlayUR
             foreach (var field in fields)
             {
                 //get all PlayURParameterAttributes on this field
-                var attributes = field.GetCustomAttributes(typeof(PlayURStringParameterAttribute), true);
+                var attributes = field.GetCustomAttributes(typeof(PlayURParameterAttribute), true);
                 foreach (var attribute in attributes)
                 {
                     //apply the attribute
-                    ((PlayURStringParameterAttribute)attribute).Apply(field, this);
+                    ((PlayURParameterAttribute)attribute).Apply(field, this);
                 }
             }
         }
