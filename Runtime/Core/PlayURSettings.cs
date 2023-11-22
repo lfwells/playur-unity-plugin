@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -113,6 +114,7 @@ namespace PlayUR
         /// </summary>
         public PlayURPlugin.LogLevel logLevel = PlayURPlugin.LogLevel.Log;
 
+        #region Editor Overrides
         /// <summary>
         /// A set of element overrides that apply to the editor only. This allows you to test the game with different elements in the editor, without using the PlayUR back-end.
         /// </summary>
@@ -122,6 +124,7 @@ namespace PlayUR
         /// A set of parameter overrides that apply to the editor only. This allows you to test the game with different parameters in the editor, without using the PlayUR back-end.
         /// </summary>
         public List<ParameterOverride> editorParameterOverrides = new List<ParameterOverride>();
+        #endregion
 
 #if UNITY_EDITOR
         internal static PlayURSettings GetOrCreateSettings()

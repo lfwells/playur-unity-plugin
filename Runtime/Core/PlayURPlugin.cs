@@ -418,12 +418,37 @@ namespace PlayUR
                         configuration.elements.Add((Element)element.Value["id"].AsInt);
                     }
 
+#if UNITY_EDITOR
+                    //add in the overrides from settings for the editor
+                    foreach (var o in Settings.editorElementOverrides)
+                    {
+                        if (o.overrideValue)
+                        {
+                            configuration.elements.Add(o.element);
+                        }
+                        else
+                        {
+                            configuration.elements.Remove(o.element);
+                        }
+                    }
+#endif
+
                     var parameters = result["parameters"];
                     configuration.parameters = new Dictionary<string, string>();
                     foreach (var p in parameters)
                     {
                         configuration.parameters.Add(p.Key, p.Value);
                     }
+
+#if UNITY_EDITOR
+                    //add in the overrides from settings for the editor
+                    foreach (var o in Settings.editorParameterOverrides)
+                    {
+                        if (configuration.parameters.ContainsKey(o.parameter) == false)
+                            configuration.parameters.Add(o.parameter, o.overrideValue);
+                        configuration.parameters[o.parameter] = o.overrideValue;
+                    }
+#endif
 
                     configuration.analyticsColumnsOrder = new List<AnalyticsColumn>();
                     var inColumns = new List<JSONNode>();
