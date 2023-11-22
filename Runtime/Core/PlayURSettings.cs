@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -112,6 +113,16 @@ namespace PlayUR
         /// </summary>
         public PlayURPlugin.LogLevel logLevel = PlayURPlugin.LogLevel.Log;
 
+        /// <summary>
+        /// A set of element overrides that apply to the editor only. This allows you to test the game with different elements in the editor, without using the PlayUR back-end.
+        /// </summary>
+        public List<ElementOverride> editorElementOverrides = new List<ElementOverride>();
+
+        /// <summary>
+        /// A set of parameter overrides that apply to the editor only. This allows you to test the game with different parameters in the editor, without using the PlayUR back-end.
+        /// </summary>
+        public List<ParameterOverride> editorParameterOverrides = new List<ParameterOverride>();
+
 #if UNITY_EDITOR
         internal static PlayURSettings GetOrCreateSettings()
         {
@@ -142,5 +153,19 @@ namespace PlayUR
             return new SerializedObject(GetOrCreateSettings());
         }
 #endif
+    }
+
+    [System.Serializable]
+    public struct ElementOverride
+    {
+        public Element element;
+        public bool overrideValue;
+    }
+
+    [System.Serializable]
+    public struct ParameterOverride
+    {
+        public string parameter;
+        public string overrideValue;
     }
 }
