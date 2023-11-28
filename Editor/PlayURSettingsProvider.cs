@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using PlayUR.Editor;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace PlayUR
 {
@@ -81,6 +82,11 @@ namespace PlayUR
             get { return EditorPrefs.GetBool("_foldout_parameters", false); }
             set { EditorPrefs.SetBool("_foldout_parameters", value); }
         }
+        private bool _foldout_elements
+        {
+            get { return EditorPrefs.GetBool("_elements_parameters", false); }
+            set { EditorPrefs.SetBool("_elements_parameters", value); }
+        }
         private bool _foldout_experiments
         {
             get { return EditorPrefs.GetBool("_foldout_experiments", false); }
@@ -97,7 +103,7 @@ namespace PlayUR
             set { EditorPrefs.SetBool("_foldout_analytics", value); }
         }
 
-        private string[] _parameters;
+        private string[] _parameters, _elements;
 
         private struct Labels
         {   // We define all the labels in a seperate class so we can automatically pull them as keywords
@@ -147,6 +153,7 @@ namespace PlayUR
             public static GUIContent enums = new GUIContent("Debug PlayUR Configuration");
             public static GUIContent generateEnums = new GUIContent("Generate Enums");
 
+            public static GUIContent elements = new GUIContent("Elements");
             public static GUIContent parameters = new GUIContent("Parameters");
             public static GUIContent experiments = new GUIContent("Experiments");
             public static GUIContent groups = new GUIContent("Groups");
@@ -171,6 +178,17 @@ namespace PlayUR
                 .Select(field => field.Name)
                 .ToArray();
             return _parameters;
+        }
+
+        private string[] GetPlayURElements()
+        {
+            if (_elements != null) return _elements;
+
+            _elements = typeof(PlayUR.Element)
+                .GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
+                .Select(field => field.Name)
+                .ToArray();
+            return _elements;
         }
 
         public override void OnActivate(string searchContext, UnityEngine.UIElements.VisualElement rootElement)
@@ -442,6 +460,7 @@ namespace PlayUR
                 EditorGUILayout.Space();
                 _foldout_experiments = EnumNameFoldout<PlayUR.Experiment>(_foldout_experiments, Labels.experiments);
                 _foldout_groups = EnumNameFoldout<PlayUR.ExperimentGroup>(_foldout_groups, Labels.groups);
+                _foldout_elements = StringListFoldout(_foldout_elements, GetPlayURElements(), Labels.elements);
                 _foldout_parameters = StringListFoldout(_foldout_parameters, GetPlayURParameters(), Labels.parameters);
                 _foldout_analytics = EnumNameFoldout<PlayUR.AnalyticsColumn>(_foldout_analytics, Labels.analyticColumns);
             }
