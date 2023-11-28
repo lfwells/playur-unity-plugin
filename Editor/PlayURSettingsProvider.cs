@@ -362,6 +362,10 @@ namespace PlayUR
                 EditorGUI.indentLevel = 1;
                 EditorGUILayout.PropertyField(gameIdProperty, Labels.gameId);
                 EditorGUILayout.PropertyField(clientSecretProperty, Labels.clientSecret);
+                if (GUILayout.Button("Open Game Config on Dashboard"))
+                {
+                    Application.OpenURL(PlayURPlugin.DASHBOARD_URL+"Game/"+gameIdProperty.intValue);
+                }
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
             EditorGUI.indentLevel = 0;
