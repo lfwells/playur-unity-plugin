@@ -85,7 +85,7 @@ namespace PlayUR.Core
 
                 if (debugOutput) PlayURPlugin.Log(www.downloadHandler.text);
 
-                if (json["success"])
+                if (json != null && json["success"])
                 {
                     if (json["success"].AsBool != true)
                     {
@@ -253,7 +253,7 @@ namespace PlayUR.Core
         public static Dictionary<string, string> GetWWWForm()
         {
             var form = new Dictionary<string, string>();
-            if (PlayURPlugin.instance.user != null) form.Add("userID", PlayURPlugin.instance.user.id.ToString());
+            if (PlayURPlugin.exists && PlayURPlugin.instance.user != null) form.Add("userID", PlayURPlugin.instance.user.id.ToString());
             form.Add("gameID", PlayURPlugin.GameID.ToString());
             form.Add("clientSecret", PlayURPlugin.ClientSecret);
             return form;

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,18 +40,6 @@ namespace PlayUR
         /// <summary>Currently running experiment group.</summary>
         /// <exception cref="ConfigurationNotReadyException">thrown if configuration is not previously obtained</exception>
         public ExperimentGroup CurrentExperimentGroup => PlayURPlugin.CurrentExperimentGroup;
-
-        /// <summary>Gets all enabled Game Elements from the current configuration.</summary>
-        /// <returns>a list of the active Game Elements.</returns>
-        /// <exception cref="ConfigurationNotReadyException">thrown if configuration is not previously obtained</exception>
-        public List<Element> Elements => PlayURPlugin.ListElements();
-
-        /// <summary>
-        /// Return a list of all parameters defined in the <see cref="Configuration"/>.
-        /// </summary>
-        /// <returns>The parameters in Dictionary format, keys are parameter names, values are the associated values.</returns>
-        /// <exception cref="ConfigurationNotReadyException"></exception>
-        public Dictionary<string, string> Parameters => PlayURPlugin.ListParameters();
         #endregion
 
         #region Startup
@@ -74,7 +62,23 @@ namespace PlayUR
         /// </summary>
         public virtual void OnReady()
         {
+            LoadParameters();
+        }
 
+        void LoadParameters()
+        {
+            //get all attribute fields on this instance
+            var fields = GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var field in fields)
+            {
+                //get all PlayURParameterAttributes on this field
+                var attributes = field.GetCustomAttributes(typeof(PlayURParameterAttribute), true);
+                foreach (var attribute in attributes)
+                {
+                    //apply the attribute
+                    ((PlayURParameterAttribute)attribute).Apply(field, this);
+                }
+            }
         }
         #endregion
     }

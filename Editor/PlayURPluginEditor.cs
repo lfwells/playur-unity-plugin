@@ -92,7 +92,7 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing possible user actions. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Action\n\t{\n";
                     foreach (var action in actions.Values)
                     {
-                        text += PlayUREditorUtils.DescriptionToCommentSafe(action["description"], indent: 2);
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(action["description"], indent: 2, id: action["id"], "Action", "Game/"+PlayURPlugin.GameID);
                         text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(action["name"].Value) + " = " + action["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
@@ -114,7 +114,7 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing top-level game elements. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Element\n\t{\n";
                     foreach (var element in elements.Values)
                     {
-                        text += PlayUREditorUtils.DescriptionToCommentSafe(element["description"], indent: 2);
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(element["description"], indent: 2, id: element["id"], "GameElement", "Game/" + PlayURPlugin.GameID);
                         text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(element["name"].Value) + " = " + element["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
@@ -136,7 +136,7 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing experiments for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Experiment\n\t{\n";
                     foreach (var experiment in experiments.Values)
                     {
-                        text += PlayUREditorUtils.DescriptionToCommentSafe(experiment["description"], indent: 2);
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(experiment["description"], indent: 2, id: experiment["id"], "Experiment", "Game/" + PlayURPlugin.GameID);
                         text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(experiment["name"].Value) + " = " + experiment["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
@@ -154,19 +154,19 @@ namespace PlayUR.Editor
             {
                 if (succ)
                 {
-                    var experiments = json["records"].AsArray;
+                    var groups = json["records"].AsArray;
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing experiment groups for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum ExperimentGroup\n\t{\n";
-                    foreach (var experiment in experiments.Values)
+                    foreach (var group in groups.Values)
                     {
-                        text += PlayUREditorUtils.DescriptionToCommentSafe(experiment["description"], indent: 2);
-                        text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(experiment["experiment"].Value) + "_" + experiment["name"].Value.Replace(" ", "") + " = " + experiment["id"] + ",\n";
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(group["description"], indent: 2, id: group["id"], "ExperimentGroup", "Game/" + PlayURPlugin.GameID +"/"+ group["experimentID"].Value);
+                        text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(group["experiment"].Value) + "_" + group["name"].Value.Replace(" ", "") + " = " + group["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
 
                     //write it out!
                     File.WriteAllBytes(GeneratedFilesPath("ExperimentGroup.cs"), Encoding.UTF8.GetBytes(text));
 
-                    PlayURPlugin.Log("Generated Experiment Groups Enum (" + experiments.Count + " groups)");
+                    PlayURPlugin.Log("Generated Experiment Groups Enum (" + groups.Count + " groups)");
                     completeCount++;
                 }
             }), runner);
@@ -180,7 +180,7 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing the extra analytics columns used for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum AnalyticsColumn\n\t{\n";
                     foreach (var column in columns.Values)
                     {
-                        text += PlayUREditorUtils.DescriptionToCommentSafe(column["description"], indent: 2);
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(column["description"], indent: 2, id: column["id"], "AnalyticsColumn", "Game/" + PlayURPlugin.GameID);
                         text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(column["name"].Value) + " = " + column["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
@@ -208,7 +208,7 @@ namespace PlayUR.Editor
                         {
                             c = $"{parameter["description"].Value}. Expected type: {parameter["typeString"].Value}";
                         }
-                        text += PlayUREditorUtils.DescriptionToCommentSafe(c, indent: 2);
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(c, indent: 2, id: -1, "Parameter", "Game/" + PlayURPlugin.GameID);
                         text += "\t\tpublic static string " + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter["parameter"].Value.Replace("[]", "")) + " = \"" + PlayUREditorUtils.PlatformNameToValidEnumValue(parameter["parameter"].Value.Replace("[]", "")) + "\";\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
@@ -218,6 +218,33 @@ namespace PlayUR.Editor
 
                     PlayURPlugin.Log("Generated Parameters Constants (" + parameters.Count + " parameters)");
                     completeCount++;
+
+                    //also generate a structure
+                    text = GENERATED_FILE_HEADER + "\t///<summary>A generated datastructure containing all known parameters. Values are populated at runtime when plugin is Ready. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic static partial class Parameters\n\t{\n";
+                    foreach (var parameter in parameters.Values)
+                    {
+
+                        string type = "string";
+                        if (!string.IsNullOrEmpty(parameter["type"]))
+                        {
+                            type = parameter["typeString"].Value.ToLower();
+                            if (type == "boolean") type = "bool";
+
+                            if (parameter["parameter"].Value.EndsWith("[]"))
+                            {
+                                type += "[]";
+                            }
+                        }
+                        text += PlayUREditorUtils.DescriptionToCommentSafe(parameter["description"].Value, indent: 2, id: 0, "GameParameter", "Game/" + PlayURPlugin.GameID);
+                        text += $"\t\tpublic static {type} {PlayUREditorUtils.PlatformNameToValidEnumValue(parameter["parameter"].Value.Replace("[]", ""))};\n";
+                    }
+                    text += "\t}" + GENERATED_FILE_FOOTER;
+
+                    //write it out!
+                    File.WriteAllBytes(GeneratedFilesPath("Parameters.cs"), Encoding.UTF8.GetBytes(text));
+
+                    PlayURPlugin.Log("Generated Configuration Structure (" + parameters.Count + " parameters)");
+                    completeCount++;
                 }
             }), runner);
 
@@ -226,9 +253,9 @@ namespace PlayUR.Editor
         static int completeCount;
         static IEnumerator AwaitGeneratedEnums()
         {
-            while (completeCount < 6)
+            while (completeCount < 7)
             {
-                EditorUtility.DisplayProgressBar("Generating Enums", $"{completeCount}/6", completeCount / 6f);
+                EditorUtility.DisplayProgressBar("Generating Enums", $"{completeCount}/7", completeCount / 7f);
                 yield return 0;
             }
             EditorUtility.ClearProgressBar();
@@ -552,7 +579,38 @@ namespace PlayUR.Editor
             currentVersion = package.version;
 
         }
-    
+
+        public delegate void WarningsDelegate(string[] warnings);
+        public static void CheckForWarnings(int gameID, WarningsDelegate callback)
+        {
+            var runner = new CoroutineRunner();
+            var form = GetGameIDForm();
+            EditorCoroutineUtility.StartCoroutine(Rest.Get("game/warnings.php", form, (succ, message) => {
+                if (succ)
+                {
+                    var json = message;
+                    if (json["success"].AsBool)
+                    {
+                        var warnings = json["warnings"].AsArray;
+                        string[] warningStrings = new string[warnings.Count];
+                        for (int i = 0; i < warnings.Count; i++)
+                        {
+                            warningStrings[i] = warnings[i];
+                        }
+                        callback(warningStrings);
+                    }
+                    else
+                    {
+                        callback(null);
+                    }
+                }
+                else
+                {
+                    callback(null);
+                }   
+            }), runner);
+        }
+
         public static string currentVersion, latestVersion;
         public static bool checkingForUpdate = false;
         public static bool? UpdateAvailable => (string.IsNullOrEmpty(currentVersion) || string.IsNullOrEmpty(latestVersion)) ? null : PlayUREditorUtils.CompareSemanticVersions(currentVersion, latestVersion) < 0;

@@ -141,6 +141,11 @@ namespace PlayUR
         /// </summary>
         public const string SERVER_URL = "https://playur.io/api/";
 
+        /// <summary>The base url of the dashboard, used for user-facing links. 
+        /// Should point to the "api" sub-directory on the server.
+        /// </summary>
+        public const string DASHBOARD_URL = "https://playur.io/dashboard.php#/";
+
         /// <summary>The prefix to use for all stored client-side PlayerPrefs information. 
         /// Used to avoid clashes with user-defined PlayerPrefs.
         /// </summary>
@@ -231,6 +236,7 @@ namespace PlayUR
                 StartCoroutine(InitMTurk());
 
                 inited = true;
+                Parameters.Load();
 
                 DebugConfiguration();
             }
@@ -391,72 +397,99 @@ namespace PlayUR
             }
 
             //go ahead and get config now
-            yield return StartCoroutine(Rest.EnqueueGet("Configuration", form, (succ, result) =>
+            yield return StartCoroutine(Rest.EnqueueGet("Configuration", form, (succ, result) => configuration = ParseConfigurationResult(succ, result, this), debugOutput: false));
+        }
+        public static Configuration ParseConfigurationResult(bool succ, JSONNode result = null, PlayURPlugin instance = null)
+    {
+            if (succ)
             {
-                if (succ)
+                var configuration = new Configuration();
+                /* format:
+                    * elements [string array]
+                    * parameters [object array; fields are key,value]
+                */
+                var elements = result["elements"];
+
+                configuration.experimentID = result["experiment"]["id"];
+                configuration.experimentGroupID = result["group"]["id"];
+
+                configuration.experiment = (Experiment)configuration.experimentID;
+                configuration.experimentGroup = (ExperimentGroup)configuration.experimentGroupID;
+
+                configuration.branch = result["branch"];
+                configuration.buildID = result["buildID"];
+
+                configuration.elements = new List<Element>();
+                foreach (var element in elements)
                 {
-                    configuration = new Configuration();
-                    /* format:
-                     * elements [string array]
-                     * parameters [object array; fields are key,value]
-                    */
-                    var elements = result["elements"];
-
-                    configuration.experimentID = result["experiment"]["id"];
-                    configuration.experimentGroupID = result["group"]["id"];
-
-                    configuration.experiment = (Experiment)configuration.experimentID;
-                    configuration.experimentGroup = (ExperimentGroup)configuration.experimentGroupID;
-
-                    configuration.branch = result["branch"];
-                    configuration.buildID = result["buildID"];
-
-                    configuration.elements = new List<Element>();
-                    foreach (var element in elements)
-                    {
-                        configuration.elements.Add((Element)element.Value["id"].AsInt);
-                    }
-
-                    var parameters = result["parameters"];
-                    configuration.parameters = new Dictionary<string, string>();
-                    foreach (var p in parameters)
-                    {
-                        configuration.parameters.Add(p.Key, p.Value);
-                    }
-
-                    configuration.analyticsColumnsOrder = new List<AnalyticsColumn>();
-                    var inColumns = new List<JSONNode>();
-                    foreach (var column in result["analyticsColumns"])
-                    {
-                        inColumns.Add(column.Value);
-                    }
-                    inColumns.Sort((a, b) =>
-                    {
-                        if (a["sort"].AsInt == b["sort"].AsInt)
-                        {
-                            return a["id"].AsInt.CompareTo(b["id"].AsInt);
-                        }
-                        return a["sort"].AsInt.CompareTo(b["sort"].AsInt);
-                    });
-                    foreach (var column in inColumns)
-                    {
-                        var columnAsEnum = (AnalyticsColumn)(column["id"].AsInt);
-                        configuration.analyticsColumnsOrder.Add(columnAsEnum);
-                    }
-
-                    if (result.HasKey("accessLevel"))
-                        user.accessLevel = result["accessLevel"].AsInt;
+                    configuration.elements.Add((Element)element.Value["id"].AsInt);
                 }
-                else
+
+#if UNITY_EDITOR
+                //add in the overrides from settings for the editor
+                foreach (var o in Settings.editorElementOverrides)
                 {
-                    if (result != null && result.HasKey("closed") && result["closed"].AsBool == true)
+                    if (o.overrideValue)
                     {
-                        LogError("No experiment group left with enough spots to allocate user! Check max members setting on experiment group. This error can also occur if you don't have any Experiment Groups configured for an Experiment.", breakCode: true);
-                        experimentFull = true;
+                        configuration.elements.Add(o.element);
                     }
-                    configuration = null;
+                    else
+                    {
+                        configuration.elements.Remove(o.element);
+                    }
                 }
-            }, debugOutput: false));
+#endif
+
+                var parameters = result["parameters"];
+                configuration.parameters = new Dictionary<string, string>();
+                foreach (var p in parameters)
+                {
+                    configuration.parameters.Add(p.Key, p.Value);
+                }
+
+#if UNITY_EDITOR
+                //add in the overrides from settings for the editor
+                foreach (var o in Settings.editorParameterOverrides)
+                {
+                    if (configuration.parameters.ContainsKey(o.parameter) == false)
+                        configuration.parameters.Add(o.parameter, o.overrideValue);
+                    configuration.parameters[o.parameter] = o.overrideValue;
+                }
+#endif
+
+                configuration.analyticsColumnsOrder = new List<AnalyticsColumn>();
+                var inColumns = new List<JSONNode>();
+                foreach (var column in result["analyticsColumns"])
+                {
+                    inColumns.Add(column.Value);
+                }
+                inColumns.Sort((a, b) =>
+                {
+                    if (a["sort"].AsInt == b["sort"].AsInt)
+                    {
+                        return a["id"].AsInt.CompareTo(b["id"].AsInt);
+                    }
+                    return a["sort"].AsInt.CompareTo(b["sort"].AsInt);
+                });
+                foreach (var column in inColumns)
+                {
+                    var columnAsEnum = (AnalyticsColumn)(column["id"].AsInt);
+                    configuration.analyticsColumnsOrder.Add(columnAsEnum);
+                }
+
+                if (result.HasKey("accessLevel") && instance != null)
+                    instance.user.accessLevel = result["accessLevel"].AsInt;
+                return configuration;
+            }
+            else
+            {
+                if (result != null && result.HasKey("closed") && result["closed"].AsBool == true)
+                {
+                    LogError("No experiment group left with enough spots to allocate user! Check max members setting on experiment group. This error can also occur if you don't have any Experiment Groups configured for an Experiment.", breakCode: true);
+                    if (instance != null) instance.experimentFull = true;
+                }
+                return null;
+            }
         }
         /// <summary>used for debugging to the Unity console the elements included and the key value pair parameters.</summary>
         void DebugConfiguration()
@@ -859,7 +892,7 @@ namespace PlayUR
         {
             try
             {
-                return GetStringParamList(key + PARAM_LIST_KEY_APPEND);
+                return GetStringParamList(key);
             }
             catch (ParameterNotFoundException)
             {
@@ -901,7 +934,7 @@ namespace PlayUR
         {
             try
             {
-                return GetIntParamList(key + PARAM_LIST_KEY_APPEND);
+                return GetIntParamList(key);
             }
             catch (ParameterNotFoundException)
             {
@@ -947,7 +980,7 @@ namespace PlayUR
         {
             try
             {
-                return GetFloatParamList(key + PARAM_LIST_KEY_APPEND);
+                return GetFloatParamList(key);
             }
             catch (ParameterNotFoundException)
             {
@@ -993,7 +1026,7 @@ namespace PlayUR
         {
             try
             {
-                return GetBoolParamList(key + PARAM_LIST_KEY_APPEND);
+                return GetBoolParamList(key);
             }
             catch (ParameterNotFoundException)
             {
@@ -1986,32 +2019,32 @@ public static class Debug
 
     public static void Log(object message)
     {
-        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Log, message = message.ToString() });
+        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Log, message = message?.ToString() });
         UnityEngine.Debug.Log(message);
     }
     public static void Log(object message, UnityEngine.Object context)
     {
-        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Log, message = message.ToString() });
+        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Log, message = message?.ToString() });
         UnityEngine.Debug.Log(message, context);
     }
     public static void LogError(object message)
     {
-        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Error, message = message.ToString() });
+        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Error, message = message?.ToString() });
         UnityEngine.Debug.LogError(message);
     }
     public static void LogError(object message, UnityEngine.Object context)
     {
-        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Error, message = message.ToString() });
+        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Error, message = message?.ToString() });
         UnityEngine.Debug.LogError(message, context);
     }
     public static void LogWarning(object message)
     {
-        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Warning, message = message.ToString() });
+        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Warning, message = message?.ToString() });
         UnityEngine.Debug.LogWarning(message);
     }
     public static void LogWarning(object message, UnityEngine.Object context)
     {
-        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Warning, message = message.ToString() });
+        debug.Add(new DebugMessage { timestamp = GetTimestamp(), level = PlayURPlugin.LogLevel.Warning, message = message?.ToString() });
         UnityEngine.Debug.LogWarning(message, context);
     }
     public static void LogException(System.Exception exception)
