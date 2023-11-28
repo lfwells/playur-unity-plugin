@@ -4,6 +4,9 @@ using UnityEngine;
 using PlayUR.Editor;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using PlayUR.Core;
+using static PlasticGui.PlasticTableColumn;
+using Unity.EditorCoroutines.Editor;
 
 namespace PlayUR
 {
@@ -459,9 +462,14 @@ namespace PlayUR
 
                 EditorGUILayout.Space();
                 _foldout_experiments = EnumNameFoldout<PlayUR.Experiment>(_foldout_experiments, Labels.experiments);
-                _foldout_groups = EnumNameFoldout<PlayUR.ExperimentGroup>(_foldout_groups, Labels.groups);
-                _foldout_elements = StringListFoldout(_foldout_elements, GetPlayURElements(), Labels.elements);
-                _foldout_parameters = StringListFoldout(_foldout_parameters, GetPlayURParameters(), Labels.parameters);
+                _foldout_groups = GroupListItemFoldout(_foldout_groups, Labels.groups);
+
+                EditorGUILayout.Space();
+                GUILayout.Label("Previewing Values for Experiment: " + (previewGroup?.ToString() ?? "NONE" + (loadingConfig ? "(Loading...)" : "")), EditorStyles.boldLabel);
+                _foldout_elements = ElementListFoldout(_foldout_elements, GetPlayURElements(), Labels.elements);
+                _foldout_parameters = ParameterListFoldout(_foldout_parameters, GetPlayURParameters(), Labels.parameters);
+
+                EditorGUILayout.Space();
                 _foldout_analytics = EnumNameFoldout<PlayUR.AnalyticsColumn>(_foldout_analytics, Labels.analyticColumns);
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
@@ -489,9 +497,55 @@ namespace PlayUR
             where T : System.Enum => StringListFoldout(foldout, System.Enum.GetNames(typeof(T)), label);
 
 
+        class CoroutineRunner { }
+        private bool GroupListItemFoldout(bool foldout, GUIContent label)
+        {
+            var values = System.Enum.GetNames(typeof(ExperimentGroup));
+            //foldout = EditorGUILayout.Foldout(foldout, label + " (" + values.Length + ")");
+            GUILayout.Label(label + " (" + values.Length + ")", EditorStyles.boldLabel);
+            foldout = true;
+            if (foldout)
+            {
+                EditorGUI.indentLevel = 2;
+                EditorGUILayout.BeginVertical();
+                foreach (var name in values)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.SelectableLabel(name, EditorStyles.wordWrappedMiniLabel, GUILayout.MaxHeight(15));
+                    if (GUILayout.Button("Preview Values", EditorStyles.miniButton, GUILayout.Width(150)))
+                    {
+                        previewGroup = (ExperimentGroup)System.Enum.Parse(typeof(ExperimentGroup), name);
+
+
+                        PlayURPlugin.Log("Getting Configuration...");
+                        loadingConfig = true;
+                        var form = Rest.GetWWWForm();
+                        form.Add("experimentGroupID", ((int)previewGroup.Value).ToString());
+
+                        var runner = new CoroutineRunner();
+                        EditorCoroutineUtility.StartCoroutine(Rest.Get("Configuration/debug.php", form, (succ, result) => {
+                            configuration = PlayURPlugin.ParseConfigurationResult(succ, result);
+                            loadingConfig = false;
+                        }, debugOutput: true), runner);
+
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.EndVertical();
+                EditorGUI.indentLevel = 1;
+            }
+            return foldout;
+        }
+
+        public ExperimentGroup? previewGroup;
+        public Configuration configuration;
+        public bool loadingConfig = false;
+
         private bool StringListFoldout(bool foldout, string[] values, GUIContent label)
         {
-            foldout = EditorGUILayout.Foldout(foldout, label + " (" + values.Length + ")");
+            //foldout = EditorGUILayout.Foldout(foldout, label + " (" + values.Length + ")");
+            GUILayout.Label(label + " (" + values.Length + ")", EditorStyles.boldLabel);
+            foldout= true;
             if (foldout)
             {
                 EditorGUI.indentLevel = 2;
@@ -505,6 +559,60 @@ namespace PlayUR
             }
             return foldout;
         }
+
+
+
+        private bool ParameterListFoldout(bool foldout, string[] values, GUIContent label)
+        {
+            //foldout = EditorGUILayout.Foldout(foldout, label + " (" + values.Length + ")");
+            GUILayout.Label(label + " (" + values.Length + ")", EditorStyles.boldLabel);
+            foldout = true;
+            if (foldout)
+            {
+                EditorGUI.indentLevel = 2;
+                EditorGUILayout.BeginVertical();
+                foreach (var name in values)
+                {
+                    var value = loadingConfig ? "" : "NOT SET";
+                    configuration?.parameters.TryGetValue(name, out value);
+
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.SelectableLabel(name, EditorStyles.wordWrappedMiniLabel, GUILayout.MaxHeight(15), GUILayout.Width(150));
+                    if (previewGroup != null)
+                        GUILayout.Label(value, GUILayout.MaxHeight(15));
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.EndVertical();
+                EditorGUI.indentLevel = 1;
+            }
+            return foldout;
+        }
+
+        private bool ElementListFoldout(bool foldout, string[] values, GUIContent label)
+        {
+            //foldout = EditorGUILayout.Foldout(foldout, label + " (" + values.Length + ")");
+            GUILayout.Label(label + " (" + values.Length + ")", EditorStyles.boldLabel);
+            foldout = true;
+            if (foldout)
+            {
+                EditorGUI.indentLevel = 2;
+                EditorGUILayout.BeginVertical();
+                foreach (var name in values)
+                {
+                    var value = configuration?.elements.FindIndex(e => e == System.Enum.Parse<Element>(name)) >= 0;
+
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.SelectableLabel(name, EditorStyles.wordWrappedMiniLabel, GUILayout.MaxHeight(15));
+                    if (previewGroup != null)
+                        GUILayout.Label(value ? "ENABLED" : "");
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.EndVertical();
+                EditorGUI.indentLevel = 1;
+            }
+            return foldout;
+        }
+
 
     }
 }
