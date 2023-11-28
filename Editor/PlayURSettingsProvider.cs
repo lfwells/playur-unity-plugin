@@ -111,7 +111,7 @@ namespace PlayUR
         private struct Labels
         {   // We define all the labels in a seperate class so we can automatically pull them as keywords
 
-            public static GUIContent setUpChecks = new GUIContent("Setup Checks");
+            public static GUIContent setUpChecks = new GUIContent("Setup Checks and Warnings");
             public static GUIContent gameIDSet = new GUIContent("Game ID Set");
             public static GUIContent clientSecretSet = new GUIContent("Client Secret Set");
             public static GUIContent buildSettingsSet = new GUIContent("Login Scene Set in Build Settings");
@@ -172,6 +172,8 @@ namespace PlayUR
         /// <summary>Shows or Hides the settings based of the return value</summary>
         public static bool IsSettingsAvailable() => true;
 
+        string[] warnings = new string[0];
+
         private string[] GetPlayURParameters()
         {
             if (_parameters != null) return _parameters;
@@ -224,6 +226,8 @@ namespace PlayUR
 
             //PlayURPluginEditor.CheckForUpdates();
             PlayURPluginEditor.GetCurrentVersion();
+
+            PlayURPluginEditor.CheckForWarnings(gameIdProperty.intValue, w => warnings = w);
         }
 
         public override void OnGUI(string searchContext)
@@ -238,6 +242,8 @@ namespace PlayUR
             redStyle.normal.textColor = Color.red;
             var greenStyle = new GUIStyle(EditorStyles.label);
             greenStyle.normal.textColor = Color.green;
+            var yellowStyle = new GUIStyle(EditorStyles.label);
+            yellowStyle.normal.textColor = Color.yellow;
             var redButton = new GUIStyle(EditorStyles.iconButton);
             redButton.normal.textColor = Color.red;
 
@@ -330,6 +336,17 @@ namespace PlayUR
                 }
                 EditorGUILayout.EndHorizontal();
             }
+
+            if (warnings != null)
+            {
+                foreach (var warning in warnings)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField(new GUIContent(warning), yellowStyle);
+                    EditorGUILayout.EndHorizontal();
+                }
+            }
+
             EditorGUILayout.EndFoldoutHeaderGroup();
             EditorGUI.indentLevel = 0;
             EditorGUILayout.EndVertical();
@@ -488,6 +505,8 @@ namespace PlayUR
         {
             if (!IsSettingsAvailable())
                 return null;
+
+            Debug.Log("create?");
 
             // Create a provider and automatically pull out the keywords
             return new PlayURSettingsProvider("Project/PlayUR", SettingsScope.Project);

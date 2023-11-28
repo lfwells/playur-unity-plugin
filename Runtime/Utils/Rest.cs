@@ -85,7 +85,6 @@ namespace PlayUR.Core
 
                 if (debugOutput) PlayURPlugin.Log(www.downloadHandler.text);
 
-                Debug.Log(json);
                 if (json != null && json["success"])
                 {
                     if (json["success"].AsBool != true)

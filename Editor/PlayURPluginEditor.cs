@@ -579,7 +579,38 @@ namespace PlayUR.Editor
             currentVersion = package.version;
 
         }
-    
+
+        public delegate void WarningsDelegate(string[] warnings);
+        public static void CheckForWarnings(int gameID, WarningsDelegate callback)
+        {
+            var runner = new CoroutineRunner();
+            var form = GetGameIDForm();
+            EditorCoroutineUtility.StartCoroutine(Rest.Get("game/warnings.php", form, (succ, message) => {
+                if (succ)
+                {
+                    var json = message;
+                    if (json["success"].AsBool)
+                    {
+                        var warnings = json["warnings"].AsArray;
+                        string[] warningStrings = new string[warnings.Count];
+                        for (int i = 0; i < warnings.Count; i++)
+                        {
+                            warningStrings[i] = warnings[i];
+                        }
+                        callback(warningStrings);
+                    }
+                    else
+                    {
+                        callback(null);
+                    }
+                }
+                else
+                {
+                    callback(null);
+                }   
+            }), runner);
+        }
+
         public static string currentVersion, latestVersion;
         public static bool checkingForUpdate = false;
         public static bool? UpdateAvailable => (string.IsNullOrEmpty(currentVersion) || string.IsNullOrEmpty(latestVersion)) ? null : PlayUREditorUtils.CompareSemanticVersions(currentVersion, latestVersion) < 0;
