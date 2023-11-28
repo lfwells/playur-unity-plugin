@@ -141,6 +141,11 @@ namespace PlayUR
         /// </summary>
         public const string SERVER_URL = "https://playur.io/api/";
 
+        /// <summary>The base url of the dashboard, used for user-facing links. 
+        /// Should point to the "api" sub-directory on the server.
+        /// </summary>
+        public const string DASHBOARD_URL = "https://playur.io/dashboard.php#/";
+
         /// <summary>The prefix to use for all stored client-side PlayerPrefs information. 
         /// Used to avoid clashes with user-defined PlayerPrefs.
         /// </summary>

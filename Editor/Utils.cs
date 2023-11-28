@@ -76,14 +76,22 @@ namespace PlayUR.Editor
         /// <summary>test 
         /// hjh
         /// </summary>
-        public static string DescriptionToCommentSafe(string input, int indent = 0)
+        public static string DescriptionToCommentSafe(string input, int indent = 0, int id = -1, string table = null, string prePath = null)
         {
-            if (string.IsNullOrEmpty(input)) return string.Empty;
+            string url = PlayURPlugin.DASHBOARD_URL + prePath + "/" + table + "/" + ((id == 0) ? "" : id);
+            string URL = id >= 0 ? "\n<para><see href=\"" + url + "\">" + url + "</see></para>\n" : "";
 
+            if (string.IsNullOrEmpty(input))
+            {
+                input = "<summary>" + URL + "</summary>";
+            }
+            else
+            {
+                input = "<summary>" + input + URL + "</summary>";
+            }
             string[] indents = new string[indent];
             Array.Fill(indents, "\t");
 
-            input = "<summary>" + input + "</summary>";
             return string.Join("\n", input.Split("\n").Select(s => string.Join("", indents)+"/// " + s)) + "\n";
         }
         #endregion
