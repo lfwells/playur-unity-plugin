@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 
 namespace PlayUR
 {
     //TODO: documentation
     //TODO: inspector for this
-    public class PlayURParameterAttribute : Attribute
+    public class PlayURParameterAttribute : PropertyAttribute
     {
         public string key;
         public object defaultValue;
