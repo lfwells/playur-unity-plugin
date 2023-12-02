@@ -286,13 +286,14 @@ namespace PlayUR
                 {
                     user = new User();
                     user.name = username;
+                    if (result["username"]) user.name = result["username"];
                     user.id = result["id"];
 
                     PlayerPrefs.Load(callback);
                     StartCoroutine(PlayerPrefs.PeriodicallySavePlayerPrefs());
                 }
                 callback(succ, result);
-            }, debugOutput: false));
+            }, debugOutput: true));
         }
 
         /// <summary>Performs a register request to the server.
