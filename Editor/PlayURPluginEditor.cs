@@ -285,6 +285,17 @@ namespace PlayUR.Editor
                 //append the exe name to the path
                 path += "/" + PlayerSettings.productName + ".exe";
             }
+            else if (buildTarget == BuildTarget.StandaloneOSX)
+            {
+                //append the app name to the path
+                path += "/" + PlayerSettings.productName + ".app";
+            }
+            else if (buildTarget == BuildTarget.Android)
+            {
+                //append the app name to the path
+                path += "/" + PlayerSettings.productName + ".apk";
+            }
+
             return path;
         }
         [MenuItem("PlayUR/Build Web Player", priority = 22)]
@@ -311,24 +322,63 @@ namespace PlayUR.Editor
         public static void BuildWindowsPlayer()
         {
             string path = GetBuildPath(BuildTarget.StandaloneWindows64); if (string.IsNullOrEmpty(path)) return;
-            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: false, upload: false, PlayURPlatformID: 2);
+            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: false, upload: false, PlayURPlatformID: 2, PlayURDownloadablePlatformID: 0);
         }
         [MenuItem("PlayUR/Build and Upload Windows Player", priority = 101)]
         public static void BuildAndUploadWindowsPlayer()
         {
             string path = GetBuildPath(BuildTarget.StandaloneWindows64); if (string.IsNullOrEmpty(path)) return;
-            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: false, upload: true, PlayURPlatformID: 2);
+            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: false, upload: true, PlayURPlatformID: 2, PlayURDownloadablePlatformID: 0);
         }
         [MenuItem("PlayUR/Upload Windows Player", priority = 102)]
         public static void UploadWindowsPlayer()
         {
             string path = GetBuildPath(BuildTarget.StandaloneWindows64); if (string.IsNullOrEmpty(path)) return;
-            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: true, upload: true, PlayURPlatformID: 2);
+            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: true, upload: true, PlayURPlatformID: 2, PlayURDownloadablePlatformID: 0);
+        }
+
+        [MenuItem("PlayUR/Build MacOS Player", priority = 200)]
+        public static void BuildMacOSPlayer()
+        {
+            string path = GetBuildPath(BuildTarget.StandaloneOSX); if (string.IsNullOrEmpty(path)) return;
+            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneOSX, path, onlyUpload: false, upload: false, PlayURPlatformID: 2, PlayURDownloadablePlatformID: 1);
+        }
+        [MenuItem("PlayUR/Build and Upload MacOS Player", priority = 201)]
+        public static void BuildAndUploadMacOSPlayer()
+        {
+            string path = GetBuildPath(BuildTarget.StandaloneOSX); if (string.IsNullOrEmpty(path)) return;
+            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneOSX, path, onlyUpload: false, upload: true, PlayURPlatformID: 2, PlayURDownloadablePlatformID: 1);
+        }
+        [MenuItem("PlayUR/Upload MacOS Player", priority = 202)]
+        public static void UploadMacOSPlayer()
+        {
+            string path = GetBuildPath(BuildTarget.StandaloneOSX); if (string.IsNullOrEmpty(path)) return;
+            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneOSX, path, onlyUpload: true, upload: true, PlayURPlatformID: 2, PlayURDownloadablePlatformID: 1);
+        }
+
+
+        [MenuItem("PlayUR/Build Android Player", priority = 300)]
+        public static void BuildAndroidPlayer()
+        {
+            string path = GetBuildPath(BuildTarget.Android); if (string.IsNullOrEmpty(path)) return;
+            BuildPlayer(BuildTargetGroup.Android, BuildTarget.Android, path, onlyUpload: false, upload: false, PlayURPlatformID: 2, PlayURDownloadablePlatformID: 2);
+        }
+        [MenuItem("PlayUR/Build and Upload Android Player", priority = 301)]
+        public static void BuildAndUploadAndroidPlayer()
+        {
+            string path = GetBuildPath(BuildTarget.Android); if (string.IsNullOrEmpty(path)) return;
+            BuildPlayer(BuildTargetGroup.Android, BuildTarget.Android, path, onlyUpload: false, upload: true, PlayURPlatformID: 2, PlayURDownloadablePlatformID: 2);
+        }
+        [MenuItem("PlayUR/Upload Android Player", priority = 302)]
+        public static void UploadAndroidPlayer()
+        {
+            string path = GetBuildPath(BuildTarget.Android); if (string.IsNullOrEmpty(path)) return;
+            BuildPlayer(BuildTargetGroup.Android, BuildTarget.Android, path, onlyUpload: true, upload: true, PlayURPlatformID: 2, PlayURDownloadablePlatformID: 2);
         }
 
 
         // this is the main player builder function
-        static void BuildPlayer(BuildTargetGroup buildTargetGroup, BuildTarget buildTarget, string buildPath, bool onlyUpload = false, bool upload = true, int PlayURPlatformID = 0)
+        static void BuildPlayer(BuildTargetGroup buildTargetGroup, BuildTarget buildTarget, string buildPath, bool onlyUpload = false, bool upload = true, int PlayURPlatformID = 0, int PlayURDownloadablePlatformID = -1)
         {
             Debug.ClearDeveloperConsole();
             if (onlyUpload == false)
@@ -387,7 +437,7 @@ namespace PlayUR.Editor
                                 PlayURPlugin.LogError(json.ToString());
                                 EditorUtility.DisplayDialog("PlayUR Plugin", "Build Failed. " + json.ToString(), "OK");
                             }
-                        }, PlayURPlatformID), new CoroutineRunner());
+                        }, PlayURPlatformID, PlayURDownloadablePlatformID), new CoroutineRunner());
                     }
 
                 }, defaultText: "main");//TODO: remember last time a branch was used?
@@ -442,7 +492,7 @@ namespace PlayUR.Editor
             }
             EditorUtility.ClearProgressBar();
         }
-        static IEnumerator UploadBuild(string zipPath, string branch, Rest.ServerCallback callback, int PlayURPlatformID = 0)
+        static IEnumerator UploadBuild(string zipPath, string branch, Rest.ServerCallback callback, int PlayURPlatformID = 0, int PlayURDownloadablePlatformID = -1)
         {
             var form = GetGameIDForm();
             form.Add("branch", branch);
@@ -451,10 +501,10 @@ namespace PlayUR.Editor
             yield return EditorCoroutineUtility.StartCoroutine(Rest.Get("Build/latestBuildID.php", form, (succ, result) =>
             {
                 var newBuildID = int.Parse(result["latestBuildID"]) + 1;
-                EditorCoroutineUtility.StartCoroutine(UploadBuildPart2(zipPath, branch, callback, form["gameID"], form["clientSecret"], newBuildID, PlayURPlatformID), new CoroutineRunner());
+                EditorCoroutineUtility.StartCoroutine(UploadBuildPart2(zipPath, branch, callback, form["gameID"], form["clientSecret"], newBuildID, PlayURPlatformID, PlayURDownloadablePlatformID), new CoroutineRunner());
             }), new CoroutineRunner());
         }
-        static IEnumerator UploadBuildPart2(string zipPath, string branch, Rest.ServerCallback callback, string gameID, string clientSecret, int newBuildID, int PlayURPlatformID = 0)
+        static IEnumerator UploadBuildPart2(string zipPath, string branch, Rest.ServerCallback callback, string gameID, string clientSecret, int newBuildID, int PlayURPlatformID = 0, int PlayURDownloadablePlatformID = -1)
         {
             PlayURPlugin.Log("New Build ID: " + newBuildID);
             PlayURPlugin.Log("Branch: " + branch);
@@ -466,6 +516,7 @@ namespace PlayUR.Editor
             jsonSend["buildID"] = newBuildID;
             jsonSend["branch"] = branch;
             jsonSend["platform"] = PlayURPlatformID;
+            jsonSend["downloadablePlatform"] = PlayURDownloadablePlatformID;
             //PlayURPlugin.Log("JSON: " + jsonSend.ToString());
 
             yield return EditorCoroutineUtility.StartCoroutine(UploadFile("Build/", zipPath, "index.zip", "application/zip", jsonSend, callback), new CoroutineRunner());
