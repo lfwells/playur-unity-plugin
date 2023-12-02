@@ -26,7 +26,7 @@ namespace PlayUR.Core
         #region GUI Links
         public InputField username, password;
         public Text feedback;
-        public Button submit, register;
+        public Button submit, register, loginWithBrowser;
         public GameObject loginScreen, registerScreen;
         public GameObject fullscreenError;
         public Text errorText, errorTitle;
@@ -65,6 +65,8 @@ namespace PlayUR.Core
             register.onClick.AddListener(() => { OpenRegister(); });
             registerCancel.onClick.AddListener(() => { CloseRegister(); });
             registerSubmit.onClick.AddListener(() => { Register(); });
+
+            loginWithBrowser.onClick.AddListener(() => new PlayURLoginWebServer(StandaloneLogin));
 
             if (ENABLE_PERSISTENCE && autoLogin)
             {
