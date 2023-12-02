@@ -2,6 +2,8 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
+using JetBrains.Annotations;
 
 namespace PlayUR.Core
 {
@@ -24,7 +26,7 @@ namespace PlayUR.Core
         #region GUI Links
         public InputField username, password;
         public Text feedback;
-        public Button submit, register;
+        public Button submit, register, loginWithBrowser;
         public GameObject loginScreen, registerScreen;
         public GameObject fullscreenError;
         public Text errorText, errorTitle;
@@ -40,8 +42,9 @@ namespace PlayUR.Core
         /// Returns if we have successfully logged in or not
         /// </summary>
         public static bool LoggedIn { get; private set; }
-        
+
         //this var either contains the text put in the password field, or is populated by the auto-login process.
+        string usr;
         string pwd;
 
         //should we attempt to auto login? turn this flag off once we fail on an auto
@@ -58,21 +61,35 @@ namespace PlayUR.Core
             if (!string.IsNullOrEmpty(persistFeedbackMessage))
                 feedback.text = persistFeedbackMessage;
 
-            submit.onClick.AddListener(() => { pwd = password.text; Login(); });
+            submit.onClick.AddListener(() => { usr = username.text;  pwd = password.text; Login(); });
             register.onClick.AddListener(() => { OpenRegister(); });
             registerCancel.onClick.AddListener(() => { CloseRegister(); });
             registerSubmit.onClick.AddListener(() => { Register(); });
 
+            loginWithBrowser.onClick.AddListener(() => new PlayURLoginWebServer(StandaloneLogin));
+
             if (ENABLE_PERSISTENCE && autoLogin)
             {
                 if (UnityEngine.PlayerPrefs.HasKey(PlayURPlugin.PERSIST_KEY_PREFIX + "username"))
+                {
                     username.text = UnityEngine.PlayerPrefs.GetString(PlayURPlugin.PERSIST_KEY_PREFIX + "username");
+                    usr = username.text;
+                }
 
                 if (UnityEngine.PlayerPrefs.HasKey(PlayURPlugin.PERSIST_KEY_PREFIX + "password"))
                 {
                     pwd = UnityEngine.PlayerPrefs.GetString(PlayURPlugin.PERSIST_KEY_PREFIX + "password");
-                    PlayURPlugin.Log("Auto-login...");
-                    Login();
+                    if (pwd.StartsWith("___TOKEN") == false)
+                    {
+                        PlayURPlugin.Log("Auto-login..." + pwd);
+                        Login();
+                    }
+                }
+                else
+                {
+#if UNITY_EDITOR || !UNITY_WEBGL
+                    var webService = new PlayURLoginWebServer(StandaloneLogin);
+#endif
                 }
             }
 
@@ -86,6 +103,15 @@ namespace PlayUR.Core
             #endif
         }
 
+        bool scheduleALoginOnNextFrame = false; //used to return to main thread on server info obtained
+        private void Update()
+        {
+            if (scheduleALoginOnNextFrame)
+            {
+                scheduleALoginOnNextFrame = false;
+                Login();
+            }    
+        }
         /// <summary>
         /// Triggers a login request with whatever username and password has been entered.
         /// </summary>
@@ -94,19 +120,24 @@ namespace PlayUR.Core
             feedback.text = "Logging in... ";
             if (ENABLE_PERSISTENCE)
             {
-                UnityEngine.PlayerPrefs.SetString(PlayURPlugin.PERSIST_KEY_PREFIX + "username", username.text);
+                UnityEngine.PlayerPrefs.SetString(PlayURPlugin.PERSIST_KEY_PREFIX + "username", usr);
             }
 
-            PlayURPlugin.instance.Login(username.text, pwd, (succ, result) =>
+            Debug.Log("login called" + pwd);
+            PlayURPlugin.instance.Login(usr, pwd, (succ, result) =>
             {
                 password.text = string.Empty;
                 PlayURPlugin.Log("Login Success: "+ succ);
                 if (succ)
                 {
                     //TODO: security ??
-                    if (ENABLE_PERSISTENCE)
+                    if (ENABLE_PERSISTENCE && (result["token_login"]?.AsBool ?? false) == false)
                     {
                         UnityEngine.PlayerPrefs.SetString(PlayURPlugin.PERSIST_KEY_PREFIX + "password", pwd);
+                    }
+                    if (ENABLE_PERSISTENCE && result["username"] != null)
+                    {
+                        UnityEngine.PlayerPrefs.SetString(PlayURPlugin.PERSIST_KEY_PREFIX + "username", result["username"].Value);
                     }
                     LoggedIn = true;
                     if (PlayURPluginHelper.startedFromScene > 0)
@@ -186,6 +217,7 @@ namespace PlayUR.Core
                     {
                         username.text = registerUsername.text;
                         password.text = registerPassword.text;
+                        usr = registerUsername.text;
                         pwd = password.text;
                         registerScreen.SetActive(false);
                         Login();
@@ -198,9 +230,9 @@ namespace PlayUR.Core
                 });
             }
         }
-        #endregion
+#endregion
 
-        #region WebGLLinkage
+#region WebGL and Standalone Linkage
         /// <summary>
         /// This function has a matching JavaScript function on the website which gets called when we call this function from C#
         /// Slightly convoluated set up uses this, as the webpage otherwise doesn't know when the <see cref="PlayURLoginCanvas"/>
@@ -216,7 +248,10 @@ namespace PlayUR.Core
         public void WebGLLogin(string jsonInput)
         {
             var jsonData = JSON.Parse(jsonInput);
+#if UNITY_WEBGL
             username.text = jsonData["username"];
+#endif
+            usr = jsonData["username"];
             pwd = jsonData["password"];
 
             PlayURPlugin.browserInfo = jsonData["browserInfo"];
@@ -237,11 +272,20 @@ namespace PlayUR.Core
                 PlayURPlugin.instance.didRequestExperimentGroup = true;
                 PlayURPlugin.instance.requestedExperimentGroup = (ExperimentGroup)i;
             }
-
-            //attempt to login with the info given by the site!
-            Login();
+            scheduleALoginOnNextFrame = true;
         }
 
+        /// <summary>
+        /// Function called by standalone builds upon callback from PlayUR login page
+        /// </summary>
+        /// <param name="jsonInput">The username and password of the user.</param>
+        public void StandaloneLogin(string authInput)
+        {
+            usr = "___TOKEN";
+            pwd = "___TOKEN" + authInput;
+
+            scheduleALoginOnNextFrame = true;
+        }
         #endregion
 
         #region Error Display
@@ -261,7 +305,7 @@ namespace PlayUR.Core
             errorTitle.text = title;
             errorText.text = message;
         }
-        #endregion
+#endregion
     }
 
 
