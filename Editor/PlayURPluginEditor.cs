@@ -275,28 +275,28 @@ namespace PlayUR.Editor
 
         #region BuildTools
         class CoroutineRunner { }
-        static string GetBuildPath()
+        static string GetBuildPath(BuildTarget buildTarget)
         {
-            return EditorUtility.SaveFolderPanel("Build out WebGL to...",
+            return EditorUtility.SaveFolderPanel("Build "+buildTarget+" to...",
                                                         Application.dataPath + "/build/",
                                                         "");
         }
         [MenuItem("PlayUR/Build Web Player", priority = 22)]
         public static void BuildWebPlayer()
         {
-            string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
+            string path = GetBuildPath(BuildTarget.WebGL); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: false, PlayURPlatformID: 0);
         }
         [MenuItem("PlayUR/Build and Upload Web Player", priority = 23)]
         public static void BuildAndUploadWebPlayer()
         {
-            string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
+            string path = GetBuildPath(BuildTarget.WebGL); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: true, PlayURPlatformID: 0);
         }
         [MenuItem("PlayUR/Upload Web Player", priority = 24)]
         public static void UploadWebPlayer()
         {
-            string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
+            string path = GetBuildPath(BuildTarget.WebGL); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: true, upload: true, PlayURPlatformID: 0);
         }
 
@@ -304,19 +304,19 @@ namespace PlayUR.Editor
         [MenuItem("PlayUR/Build Windows Player", priority = 100)]
         public static void BuildWindowsPlayer()
         {
-            string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
+            string path = GetBuildPath(BuildTarget.StandaloneWindows64); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: false, upload: false, PlayURPlatformID: 2);
         }
         [MenuItem("PlayUR/Build and Upload Windows Player", priority = 101)]
         public static void BuildAndUploadWindowsPlayer()
         {
-            string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
+            string path = GetBuildPath(BuildTarget.StandaloneWindows64); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: false, upload: true, PlayURPlatformID: 2);
         }
         [MenuItem("PlayUR/Upload Windows Player", priority = 102)]
         public static void UploadWindowsPlayer()
         {
-            string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
+            string path = GetBuildPath(BuildTarget.StandaloneWindows64); if (string.IsNullOrEmpty(path)) return;
             BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: true, upload: true, PlayURPlatformID: 2);
         }
 
