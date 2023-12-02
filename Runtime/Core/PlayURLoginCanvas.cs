@@ -77,8 +77,11 @@ namespace PlayUR.Core
                 if (UnityEngine.PlayerPrefs.HasKey(PlayURPlugin.PERSIST_KEY_PREFIX + "password"))
                 {
                     pwd = UnityEngine.PlayerPrefs.GetString(PlayURPlugin.PERSIST_KEY_PREFIX + "password");
-                    PlayURPlugin.Log("Auto-login...");
-                    Login();
+                    if (pwd.StartsWith("___TOKEN") == false)
+                    {
+                        PlayURPlugin.Log("Auto-login..." + pwd);
+                        Login();
+                    }
                 }
                 else
                 {
@@ -118,6 +121,7 @@ namespace PlayUR.Core
                 UnityEngine.PlayerPrefs.SetString(PlayURPlugin.PERSIST_KEY_PREFIX + "username", usr);
             }
 
+            Debug.Log("login called" + pwd);
             PlayURPlugin.instance.Login(usr, pwd, (succ, result) =>
             {
                 password.text = string.Empty;
@@ -226,7 +230,7 @@ namespace PlayUR.Core
         }
 #endregion
 
-#region WebGLLinkage
+#region WebGL and Standalone Linkage
         /// <summary>
         /// This function has a matching JavaScript function on the website which gets called when we call this function from C#
         /// Slightly convoluated set up uses this, as the webpage otherwise doesn't know when the <see cref="PlayURLoginCanvas"/>
@@ -276,7 +280,7 @@ namespace PlayUR.Core
         public void StandaloneLogin(string authInput)
         {
             usr = "___TOKEN";
-            pwd = authInput;
+            pwd = "___TOKEN" + authInput;
 
             scheduleALoginOnNextFrame = true;
         }

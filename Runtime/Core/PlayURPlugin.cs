@@ -293,7 +293,7 @@ namespace PlayUR
                     StartCoroutine(PlayerPrefs.PeriodicallySavePlayerPrefs());
                 }
                 callback(succ, result);
-            }, debugOutput: true));
+            }));
         }
 
         /// <summary>Performs a register request to the server.
