@@ -277,9 +277,15 @@ namespace PlayUR.Editor
         class CoroutineRunner { }
         static string GetBuildPath(BuildTarget buildTarget)
         {
-            return EditorUtility.SaveFolderPanel("Build "+buildTarget+" to...",
+            var path = EditorUtility.SaveFolderPanel("Build "+buildTarget+" to...",
                                                         Application.dataPath + "/build/",
                                                         "");
+            if (buildTarget == BuildTarget.StandaloneWindows || buildTarget == BuildTarget.StandaloneWindows64)
+            { 
+                //append the exe name to the path
+                path += "/" + PlayerSettings.productName + ".exe";
+            }
+            return path;
         }
         [MenuItem("PlayUR/Build Web Player", priority = 22)]
         public static void BuildWebPlayer()
@@ -341,7 +347,16 @@ namespace PlayUR.Editor
                 }
             }
             // ZIP everything
-            CompressDirectory(buildPath + "/", buildPath + "/index.zip");
+            if (buildTarget == BuildTarget.StandaloneWindows || buildTarget == BuildTarget.StandaloneWindows64)
+            {
+                //get a build path minus the exe filename
+                buildPath = buildPath.Substring(0, buildPath.LastIndexOf('/'));
+                CompressDirectory(buildPath + "/", buildPath + "/index.zip");
+            }
+            else
+            {
+                CompressDirectory(buildPath + "/", buildPath + "/index.zip");
+            }
 
             if (upload || onlyUpload)
             {
