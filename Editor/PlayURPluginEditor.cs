@@ -285,24 +285,44 @@ namespace PlayUR.Editor
         public static void BuildWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
-            BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: false);
+            BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: false, PlayURPlatformID: 0);
         }
         [MenuItem("PlayUR/Build and Upload Web Player", priority = 23)]
         public static void BuildAndUploadWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
-            BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: true);
+            BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: false, upload: true, PlayURPlatformID: 0);
         }
         [MenuItem("PlayUR/Upload Web Player", priority = 24)]
         public static void UploadWebPlayer()
         {
             string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
-            BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: true, upload: true);
+            BuildPlayer(BuildTargetGroup.WebGL, BuildTarget.WebGL, path, onlyUpload: true, upload: true, PlayURPlatformID: 0);
+        }
+
+
+        [MenuItem("PlayUR/Build Windows Player", priority = 100)]
+        public static void BuildWindowsPlayer()
+        {
+            string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
+            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: false, upload: false, PlayURPlatformID: 2);
+        }
+        [MenuItem("PlayUR/Build and Upload Windows Player", priority = 101)]
+        public static void BuildAndUploadWindowsPlayer()
+        {
+            string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
+            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: false, upload: true, PlayURPlatformID: 2);
+        }
+        [MenuItem("PlayUR/Upload Windows Player", priority = 102)]
+        public static void UploadWindowsPlayer()
+        {
+            string path = GetBuildPath(); if (string.IsNullOrEmpty(path)) return;
+            BuildPlayer(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64, path, onlyUpload: true, upload: true, PlayURPlatformID: 2);
         }
 
 
         // this is the main player builder function
-        static void BuildPlayer(BuildTargetGroup buildTargetGroup, BuildTarget buildTarget, string buildPath, bool onlyUpload = false, bool upload = true)
+        static void BuildPlayer(BuildTargetGroup buildTargetGroup, BuildTarget buildTarget, string buildPath, bool onlyUpload = false, bool upload = true, int PlayURPlatformID = 0)
         {
             Debug.ClearDeveloperConsole();
             if (onlyUpload == false)
@@ -351,14 +371,14 @@ namespace PlayUR.Editor
                                 PlayURPlugin.LogError(json.ToString());
                                 EditorUtility.DisplayDialog("PlayUR Plugin", "Build Failed. " + json.ToString(), "OK");
                             }
-                        }), new CoroutineRunner());
+                        }, PlayURPlatformID), new CoroutineRunner());
                     }
 
                 }, defaultText: "main");//TODO: remember last time a branch was used?
 
             }
         }
-        [MenuItem("PlayUR/Run Game In Browser", priority = 25)]
+        [MenuItem("PlayUR/Run Game In Browser", priority = 45)]
         public static void OpenGameInBrowser()
         {
             //get the latest build id, so that we can open it up in unity
@@ -406,18 +426,19 @@ namespace PlayUR.Editor
             }
             EditorUtility.ClearProgressBar();
         }
-        static IEnumerator UploadBuild(string zipPath, string branch, Rest.ServerCallback callback)
+        static IEnumerator UploadBuild(string zipPath, string branch, Rest.ServerCallback callback, int PlayURPlatformID = 0)
         {
             var form = GetGameIDForm();
             form.Add("branch", branch);
+            form.Add("platform", PlayURPlatformID.ToString());
 
             yield return EditorCoroutineUtility.StartCoroutine(Rest.Get("Build/latestBuildID.php", form, (succ, result) =>
             {
                 var newBuildID = int.Parse(result["latestBuildID"]) + 1;
-                EditorCoroutineUtility.StartCoroutine(UploadBuildPart2(zipPath, branch, callback, form["gameID"], form["clientSecret"], newBuildID), new CoroutineRunner());
+                EditorCoroutineUtility.StartCoroutine(UploadBuildPart2(zipPath, branch, callback, form["gameID"], form["clientSecret"], newBuildID, PlayURPlatformID), new CoroutineRunner());
             }), new CoroutineRunner());
         }
-        static IEnumerator UploadBuildPart2(string zipPath, string branch, Rest.ServerCallback callback, string gameID, string clientSecret, int newBuildID)
+        static IEnumerator UploadBuildPart2(string zipPath, string branch, Rest.ServerCallback callback, string gameID, string clientSecret, int newBuildID, int PlayURPlatformID = 0)
         {
             PlayURPlugin.Log("New Build ID: " + newBuildID);
             PlayURPlugin.Log("Branch: " + branch);
@@ -428,6 +449,7 @@ namespace PlayUR.Editor
             jsonSend["clientSecret"] = clientSecret;
             jsonSend["buildID"] = newBuildID;
             jsonSend["branch"] = branch;
+            jsonSend["platform"] = PlayURPlatformID;
             //PlayURPlugin.Log("JSON: " + jsonSend.ToString());
 
             yield return EditorCoroutineUtility.StartCoroutine(UploadFile("Build/", zipPath, "index.zip", "application/zip", jsonSend, callback), new CoroutineRunner());
@@ -531,7 +553,7 @@ namespace PlayUR.Editor
         #endregion
 
         #region Update Checking
-        [MenuItem("PlayUR/Check for Updates...", priority = 200)]
+        [MenuItem("PlayUR/Check for Updates...", priority = 500)]
         public static void CheckForUpdates()
         {
             //this is a dumb solution now
@@ -616,7 +638,7 @@ namespace PlayUR.Editor
         public static bool? UpdateAvailable => (string.IsNullOrEmpty(currentVersion) || string.IsNullOrEmpty(latestVersion)) ? null : PlayUREditorUtils.CompareSemanticVersions(currentVersion, latestVersion) < 0;
         #endregion
 
-        [MenuItem("PlayUR/Clear PlayerPrefs (Local Only)", priority = 100)] 
+        [MenuItem("PlayUR/Clear PlayerPrefs (Local Only)", priority = 400)] 
         public static void ClearPlayerPrefs()
         {
             PlayerPrefs.Clear();
