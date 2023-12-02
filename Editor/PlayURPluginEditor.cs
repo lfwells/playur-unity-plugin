@@ -349,8 +349,9 @@ namespace PlayUR.Editor
             // ZIP everything
             if (buildTarget == BuildTarget.StandaloneWindows || buildTarget == BuildTarget.StandaloneWindows64)
             {
-                //get a build path minus the exe filename
-                buildPath = buildPath.Substring(0, buildPath.LastIndexOf('/'));
+                //get a build path minus the exe filename IF there is a .exe in teh path
+                if (buildPath.Contains(".exe"))
+                    buildPath = buildPath.Substring(0, buildPath.LastIndexOf('/'));
                 CompressDirectory(buildPath + "/", buildPath + "/index.zip");
             }
             else
@@ -474,6 +475,9 @@ namespace PlayUR.Editor
         #region Utils
         static IEnumerator UploadFile(string endPoint, string filePath, string fileName, string mimeType, JSONObject additionalRequest = null, Rest.ServerCallback callback = null)
         {
+            //display a progress bar -- for whatever reason it doesn't close though so nah
+            //EditorUtility.DisplayProgressBar("UPLOADING... please wait", fileName, 0.38f);
+
             WWWForm form = new WWWForm();
             form.AddField("gameID", PlayURPlugin.GameID);
             form.AddField("clientSecret", PlayURPlugin.ClientSecret);
@@ -484,19 +488,31 @@ namespace PlayUR.Editor
             using (var www = UnityWebRequest.Post(PlayURPlugin.SERVER_URL + endPoint, form))
             {
                 yield return www.SendWebRequest();
+                    //kill progress bar
+                    EditorUtility.ClearProgressBar();
 
                 JSONNode json;
-                if (www.isNetworkError)
+                if (www.result == UnityWebRequest.Result.ConnectionError)
                 {
+                    //kill progress bar
+                    EditorUtility.ClearProgressBar();
                     throw new ServerCommunicationException(www.error);
                 }
-                else if (www.isHttpError)
+                else if (www.result == UnityWebRequest.Result.ProtocolError)
                 {
                     json = JSON.Parse(www.downloadHandler.text);
                     PlayURPlugin.LogError("Response Code: " + www.responseCode);
                     PlayURPlugin.LogError(json);
+                    //kill progress bar
+                    EditorUtility.ClearProgressBar();
                     //if (callback != null) callback(false, json["message"]);
                     //yield break;
+                }
+                else if (www.result != UnityWebRequest.Result.Success)
+                {
+                    PlayURPlugin.LogError(www.result.ToString());
+                    //kill progress bar
+                    EditorUtility.ClearProgressBar();
                 }
                 PlayURPlugin.Log(www.downloadHandler.text);
 
@@ -506,6 +522,9 @@ namespace PlayUR.Editor
                 }
                 catch (System.Exception e)
                 {
+                    //kill progress bar
+                    EditorUtility.ClearProgressBar();
+
                     throw new ServerCommunicationException("JSON Parser Error: " + e.Message);
                 }
 
@@ -514,6 +533,9 @@ namespace PlayUR.Editor
                 {
                     PlayURPlugin.Log("json == null, Response Code: " + www.responseCode);
                     if (callback != null) callback(false, "Unknown error: " + www.downloadHandler.text);
+                    //kill progress bar
+                    EditorUtility.ClearProgressBar();
+
                     yield break;
                 }
                 if (json["success"] != null)
@@ -521,13 +543,21 @@ namespace PlayUR.Editor
                     if (json["success"].AsBool != true)
                     {
                         if (callback != null) callback(false, json["message"]);
+                        //kill progress bar
+                        EditorUtility.ClearProgressBar();
+
                         yield break;
                     }
                 }
 
+                //kill progress bar
+                EditorUtility.ClearProgressBar();
                 if (callback != null) callback(true, json);
 
             }
+            //kill progress bar
+            EditorUtility.ClearProgressBar();
+
         }
 
         static Dictionary<string, string> GetGameIDForm()
