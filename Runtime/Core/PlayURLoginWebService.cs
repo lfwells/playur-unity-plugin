@@ -79,7 +79,10 @@ namespace PlayUR
                     }
                 }
 
+
                 client.Close();
+                //keep this thread alive just a little while before spinning down server
+                //Thread.Sleep(5000);
             }
             myListener.Stop();
         }
@@ -91,7 +94,8 @@ namespace PlayUR
             callback(text);
 
             //convert text to byte array
-            byte[] file = Encoding.UTF8.GetBytes(text);
+            var redirect = "<html><head><meta http-equiv=\"refresh\" content=\"0; url=https://playur.io/standaloneLoggedIn.php\" /></head><body>Redirecting...</body></html>";
+            byte[] file = Encoding.UTF8.GetBytes(redirect);
             return file;
 
         }
@@ -104,11 +108,7 @@ namespace PlayUR
             responseHeaderBuffer = $"HTTP/1.1 {statusCode} {statusMsg}\r\n" +
                 $"Connection: Keep-Alive\r\n" +
                 $"Date: {DateTime.UtcNow.ToString()}\r\n" +
-                $"Server: MacOs PC \r\n" +
-                //$"Etag: \"{serverEtag}\"\r\n" +
-                $"Content-Encoding: {contentEncoding}\r\n" +
-                "X-Content-Type-Options: nosniff" +
-                $"Content-Type: application/signed-exchange;v=b3\r\n\r\n";
+                $"Location: https://playur.io/standaloneLoggedIn.php\r\n\r\n";
 
             byte[] responseBytes = Encoding.UTF8.GetBytes(responseHeaderBuffer);
             networkStream.Write(responseBytes, 0, responseBytes.Length);
