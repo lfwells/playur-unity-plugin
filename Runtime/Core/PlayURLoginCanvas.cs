@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using System.Collections;
 
 namespace PlayUR.Core
 {
@@ -106,7 +107,7 @@ namespace PlayUR.Core
         bool scheduleALoginOnNextFrame = false; //used to return to main thread on server info obtained
         private void Update()
         {
-            if (scheduleALoginOnNextFrame)
+            if (scheduleALoginOnNextFrame && Application.isFocused)
             {
                 scheduleALoginOnNextFrame = false;
                 Login();

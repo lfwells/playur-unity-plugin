@@ -535,6 +535,7 @@ namespace PlayUR.Editor
             jsonSend["buildID"] = newBuildID;
             jsonSend["branch"] = branch;
             jsonSend["platform"] = PlayURPlatformID;
+            jsonSend["current"] = true;
             PlayURPlugin.Log("JSON: " + jsonSend.ToString());
 
             //get the filename from the zipPath
