@@ -27,11 +27,13 @@ namespace PlayUR.Core
         #region GUI Links
         public InputField username, password;
         public Text feedback;
-        public Button submit, register, loginWithBrowser;
+        public Button submit, register, loginWithBrowser, loginWithBrowser2, loginPassword, register2;
         public GameObject loginScreen, registerScreen;
         public GameObject fullscreenError;
         public Text errorText, errorTitle;
         public Button errorOK;
+
+        public GameObject panelBrowser, panelLogin;
 
         public InputField registerUsername, registerPassword, registerConfirmPassword, registerEmail, registerFirstName, registerLastName;
         public Button registerSubmit, registerCancel;
@@ -64,10 +66,14 @@ namespace PlayUR.Core
 
             submit.onClick.AddListener(() => { usr = username.text;  pwd = password.text; Login(); });
             register.onClick.AddListener(() => { OpenRegister(); });
+            register2.onClick.AddListener(() => { OpenRegister(); });
             registerCancel.onClick.AddListener(() => { CloseRegister(); });
             registerSubmit.onClick.AddListener(() => { Register(); });
 
             loginWithBrowser.onClick.AddListener(() => new PlayURLoginWebServer(StandaloneLogin));
+            loginWithBrowser2.onClick.AddListener(() => new PlayURLoginWebServer(StandaloneLogin));
+
+            loginPassword.onClick.AddListener(() => { panelLogin.SetActive(true); panelBrowser.SetActive(false); }); 
 
             if (ENABLE_PERSISTENCE && autoLogin)
             {
