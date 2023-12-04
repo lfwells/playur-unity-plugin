@@ -3,9 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using PlayUR.Editor;
 using System.Collections.Generic;
-using System.Xml.Linq;
 using PlayUR.Core;
-using static PlasticGui.PlasticTableColumn;
 using Unity.EditorCoroutines.Editor;
 
 namespace PlayUR
