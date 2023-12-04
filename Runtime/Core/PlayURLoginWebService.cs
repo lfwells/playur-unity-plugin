@@ -67,7 +67,7 @@ namespace PlayUR
                     if (requestedPath.StartsWith("/?auth"))
                     {
                         var fileContent = GetContent(requestedPath);
-                        if (fileContent is not null)
+                        if (fileContent != null)
                         {
                             SendHeaders(httpVersion, 200, "OK", contentType, contentEncoding, 0, ref stream);
                             stream.Write(fileContent, 0, fileContent.Length);
