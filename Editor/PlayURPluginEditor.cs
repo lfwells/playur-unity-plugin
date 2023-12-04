@@ -549,10 +549,25 @@ namespace PlayUR.Editor
         #endregion
 
         #region Utils
+        static float progress = 0;
+        static UnityWebRequest www;
+        static UnityWebRequestAsyncOperation operation;
+        static string uploadFilename = "";
+        static UploadFinishedCallback uploadFinishedCallback;
+        delegate void UploadFinishedCallback();
+        static void ProgressUpdate() 
+        {
+            progress = operation.progress;
+            EditorUtility.DisplayProgressBar("UPLOADING... please wait", uploadFilename, operation.progress);
+            if (progress >= 1)
+            {
+                uploadFinishedCallback();
+            }
+        }
         static IEnumerator UploadFile(string endPoint, string filePath, string fileName, string mimeType, JSONObject additionalRequest = null, Rest.ServerCallback callback = null)
         {
             //display a progress bar -- for whatever reason it doesn't close though so nah
-            //EditorUtility.DisplayProgressBar("UPLOADING... please wait", fileName, 0.38f);
+            EditorUtility.DisplayProgressBar("UPLOADING... please wait", fileName, 0f);
 
             WWWForm form = new WWWForm();
             form.AddField("gameID", PlayURPlugin.GameID);
@@ -561,17 +576,23 @@ namespace PlayUR.Editor
 
             if (additionalRequest != null) form.AddField("request", additionalRequest.ToString());
 
-            using (var www = UnityWebRequest.Post(PlayURPlugin.SERVER_URL + endPoint, form))
-            {
-                PlayURPlugin.Log("Upload Begin, Cannot show progress bar");
+            www = UnityWebRequest.Post(PlayURPlugin.SERVER_URL + endPoint, form);
+            
+            PlayURPlugin.Log("Upload Begin");
 
-                yield return www.SendWebRequest();
+            progress = 0;
+            operation = www.SendWebRequest();
+            uploadFilename = filePath;
+            uploadFinishedCallback = () =>
+            {
+                EditorApplication.update -= ProgressUpdate;
+
+                //kill progress bar
+                EditorUtility.ClearProgressBar();
 
                 JSONNode json;
                 if (www.result == UnityWebRequest.Result.ConnectionError)
                 {
-                    //kill progress bar
-                    EditorUtility.ClearProgressBar();
                     throw new ServerCommunicationException(www.error);
                 }
                 else if (www.result == UnityWebRequest.Result.ProtocolError)
@@ -579,16 +600,13 @@ namespace PlayUR.Editor
                     json = JSON.Parse(www.downloadHandler.text);
                     PlayURPlugin.LogError("Response Code: " + www.responseCode);
                     PlayURPlugin.LogError(json);
-                    //kill progress bar
-                    EditorUtility.ClearProgressBar();
+
                     //if (callback != null) callback(false, json["message"]);
-                    //yield break;
+                    return;
                 }
                 else if (www.result != UnityWebRequest.Result.Success)
                 {
                     PlayURPlugin.LogError(www.result.ToString());
-                    //kill progress bar
-                    EditorUtility.ClearProgressBar();
                 }
                 PlayURPlugin.Log(www.downloadHandler.text);
 
@@ -598,41 +616,37 @@ namespace PlayUR.Editor
                 }
                 catch (System.Exception e)
                 {
-                    //kill progress bar
-                    EditorUtility.ClearProgressBar();
-
                     throw new ServerCommunicationException("JSON Parser Error: " + e.Message);
                 }
+
+
+                www.Dispose();
 
 
                 if (json == null)
                 {
                     PlayURPlugin.Log("json == null, Response Code: " + www.responseCode);
                     if (callback != null) callback(false, "Unknown error: " + www.downloadHandler.text);
-                    //kill progress bar
-                    EditorUtility.ClearProgressBar();
 
-                    yield break;
+                    return;
                 }
                 if (json["success"] != null)
                 {
                     if (json["success"].AsBool != true)
                     {
                         if (callback != null) callback(false, json["message"]);
-                        //kill progress bar
-                        EditorUtility.ClearProgressBar();
 
-                        yield break;
+                        return;
                     }
                 }
 
-                //kill progress bar
-                EditorUtility.ClearProgressBar();
                 if (callback != null) callback(true, json);
+                    
+            };
+            EditorApplication.update += ProgressUpdate;
 
-            }
-            //kill progress bar
-            EditorUtility.ClearProgressBar();
+
+            yield return null;
 
         }
 

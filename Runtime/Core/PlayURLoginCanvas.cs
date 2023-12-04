@@ -87,7 +87,7 @@ namespace PlayUR.Core
                 }
                 else
                 {
-#if UNITY_EDITOR || !UNITY_WEBGL
+#if UNITY_EDITOR || !UNITY_WEBGL 
                     var webService = new PlayURLoginWebServer(StandaloneLogin);
 #endif
                 }
@@ -230,9 +230,11 @@ namespace PlayUR.Core
                 });
             }
         }
-#endregion
+        #endregion
 
-#region WebGL and Standalone Linkage
+        #region WebGL and Standalone Linkage
+
+#if UNITY_EDITOR || UNITY_WEBGL
         /// <summary>
         /// This function has a matching JavaScript function on the website which gets called when we call this function from C#
         /// Slightly convoluated set up uses this, as the webpage otherwise doesn't know when the <see cref="PlayURLoginCanvas"/>
@@ -240,6 +242,9 @@ namespace PlayUR.Core
         /// </summary>
         [DllImport("__Internal")]
         private static extern void RequestWebGLLogin();
+#else
+        private static void RequestWebGLLogin() { }
+#endif
 
         /// <summary>
         /// The website will call this function (inside <see cref="RequestWebGLLogin"/> in JavaScript).
