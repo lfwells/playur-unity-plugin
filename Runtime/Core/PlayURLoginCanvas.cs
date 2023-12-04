@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using System.Collections;
 
 namespace PlayUR.Core
 {
@@ -26,11 +27,13 @@ namespace PlayUR.Core
         #region GUI Links
         public InputField username, password;
         public Text feedback;
-        public Button submit, register, loginWithBrowser;
+        public Button submit, register, loginWithBrowser, loginWithBrowser2, loginPassword, register2;
         public GameObject loginScreen, registerScreen;
         public GameObject fullscreenError;
         public Text errorText, errorTitle;
         public Button errorOK;
+
+        public GameObject panelBrowser, panelLogin;
 
         public InputField registerUsername, registerPassword, registerConfirmPassword, registerEmail, registerFirstName, registerLastName;
         public Button registerSubmit, registerCancel;
@@ -63,10 +66,14 @@ namespace PlayUR.Core
 
             submit.onClick.AddListener(() => { usr = username.text;  pwd = password.text; Login(); });
             register.onClick.AddListener(() => { OpenRegister(); });
+            register2.onClick.AddListener(() => { OpenRegister(); });
             registerCancel.onClick.AddListener(() => { CloseRegister(); });
             registerSubmit.onClick.AddListener(() => { Register(); });
 
             loginWithBrowser.onClick.AddListener(() => new PlayURLoginWebServer(StandaloneLogin));
+            loginWithBrowser2.onClick.AddListener(() => new PlayURLoginWebServer(StandaloneLogin));
+
+            loginPassword.onClick.AddListener(() => { panelLogin.SetActive(true); panelBrowser.SetActive(false); }); 
 
             if (ENABLE_PERSISTENCE && autoLogin)
             {
@@ -87,8 +94,9 @@ namespace PlayUR.Core
                 }
                 else
                 {
-#if UNITY_EDITOR || !UNITY_WEBGL
-                    var webService = new PlayURLoginWebServer(StandaloneLogin);
+#if UNITY_EDITOR || !UNITY_WEBGL 
+                    //don't auto-login with browser, its jarring
+                    //var webService = new PlayURLoginWebServer(StandaloneLogin);
 #endif
                 }
             }
@@ -106,7 +114,7 @@ namespace PlayUR.Core
         bool scheduleALoginOnNextFrame = false; //used to return to main thread on server info obtained
         private void Update()
         {
-            if (scheduleALoginOnNextFrame)
+            if (scheduleALoginOnNextFrame && Application.isFocused)
             {
                 scheduleALoginOnNextFrame = false;
                 Login();
@@ -230,9 +238,11 @@ namespace PlayUR.Core
                 });
             }
         }
-#endregion
+        #endregion
 
-#region WebGL and Standalone Linkage
+        #region WebGL and Standalone Linkage
+
+#if UNITY_EDITOR || UNITY_WEBGL
         /// <summary>
         /// This function has a matching JavaScript function on the website which gets called when we call this function from C#
         /// Slightly convoluated set up uses this, as the webpage otherwise doesn't know when the <see cref="PlayURLoginCanvas"/>
@@ -240,6 +250,9 @@ namespace PlayUR.Core
         /// </summary>
         [DllImport("__Internal")]
         private static extern void RequestWebGLLogin();
+#else
+        private static void RequestWebGLLogin() { }
+#endif
 
         /// <summary>
         /// The website will call this function (inside <see cref="RequestWebGLLogin"/> in JavaScript).

@@ -352,17 +352,17 @@ namespace PlayUR
                 experimentOverrideFound = true;
                 experiment = requestedExperiment;
             }
-#if (UNITY_ANDROID || UNITY_IOS)  && !UNITY_EDITOR
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
             if (experimentOverrideFound == false && PlayURPluginHelper.instance != null)
             {
-                experimentOverrideFound = PlayURPluginHelper.instance.useSpecificExperimentForMobileBuild;
-                experiment = PlayURPluginHelper.instance.mobileExperiment;
+                experimentOverrideFound = Settings.useSpecificExperimentForMobileBuild;
+                experiment = Settings.mobileExperiment;
             }
 #elif UNITY_STANDALONE && !UNITY_EDITOR
             if (experimentOverrideFound == false && PlayURPluginHelper.instance != null)
             {
-                experimentOverrideFound = PlayURPluginHelper.instance.useSpecificExperimentForDesktopBuild;
-                experiment = PlayURPluginHelper.instance.desktopExperiment;
+                experimentOverrideFound = Settings.useSpecificExperimentForDesktopBuild;
+                experiment = Settings.desktopExperiment;
             }
 #endif
             //if not found, try and get an experiment from the PluginHelper script
