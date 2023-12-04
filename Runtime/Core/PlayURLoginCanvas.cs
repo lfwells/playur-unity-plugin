@@ -95,7 +95,8 @@ namespace PlayUR.Core
                 else
                 {
 #if UNITY_EDITOR || !UNITY_WEBGL 
-                    var webService = new PlayURLoginWebServer(StandaloneLogin);
+                    //don't auto-login with browser, its jarring
+                    //var webService = new PlayURLoginWebServer(StandaloneLogin);
 #endif
                 }
             }
