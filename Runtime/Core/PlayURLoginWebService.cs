@@ -97,7 +97,7 @@ namespace PlayUR
 
         }
 
-        private void SendHeaders(string? httpVersion, int statusCode, string statusMsg, string? contentType, string? contentEncoding,
+        private void SendHeaders(string httpVersion, int statusCode, string statusMsg, string contentType, string contentEncoding,
                 int byteLength, ref NetworkStream networkStream)
         {
             string responseHeaderBuffer = "";
