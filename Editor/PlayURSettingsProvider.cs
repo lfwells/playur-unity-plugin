@@ -36,7 +36,8 @@ namespace PlayUR
         private SerializedObject playurClientSecretSettings;
         private SerializedProperty clientSecretProperty;
 
-        private bool _foldout_checks {
+        private bool _foldout_checks
+        {
             get { return EditorPrefs.GetBool("_foldout_checks", true); }
             set { EditorPrefs.SetBool("_foldout_checks", value); }
         }
@@ -201,7 +202,7 @@ namespace PlayUR
             gameIdProperty = playurSettings.FindProperty("gameId");
             standardSessionTracking = playurSettings.FindProperty("standardSessionTracking");
             useSpecificExperimentForMobileBuild = playurSettings.FindProperty("useSpecificExperimentForMobileBuild");
-            mobileExperiment = playurSettings.FindProperty("playurSettings");
+            mobileExperiment = playurSettings.FindProperty("mobileExperiment");
             useSpecificExperimentForDesktopBuild = playurSettings.FindProperty("useSpecificExperimentForDesktopBuild");
             desktopExperiment = playurSettings.FindProperty("desktopExperiment");
             mTurkStartMessage = playurSettings.FindProperty("mTurkStartMessage");
@@ -230,7 +231,7 @@ namespace PlayUR
 
         public override void OnGUI(string searchContext)
         {
-            if (playurSettings.targetObject == null) { Debug.Log("u wat?"); OnActivate(null, null);  return; }
+            if (playurSettings.targetObject == null) { Debug.Log("u wat?"); OnActivate(null, null); return; }
             if (playurClientSecretSettings.targetObject == null) { OnActivate(null, null); return; }
 
             var originalLabelWidth = EditorGUIUtility.labelWidth;
@@ -273,7 +274,7 @@ namespace PlayUR
                 GUILayout.Label("Plugin is at Latest Version", greenStyle);
             }
             EditorGUILayout.EndHorizontal();
-            
+
 
             // Set-Up Checks
             EditorGUI.indentLevel = 0;
@@ -362,7 +363,7 @@ namespace PlayUR
                 EditorGUILayout.PropertyField(clientSecretProperty, Labels.clientSecret);
                 if (GUILayout.Button("Open Game Config on Dashboard"))
                 {
-                    Application.OpenURL(PlayURPlugin.DASHBOARD_URL+"Game/"+gameIdProperty.intValue);
+                    Application.OpenURL(PlayURPlugin.DASHBOARD_URL + "Game/" + gameIdProperty.intValue);
                 }
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
@@ -566,7 +567,7 @@ namespace PlayUR
         {
             //foldout = EditorGUILayout.Foldout(foldout, label + " (" + values.Length + ")");
             GUILayout.Label(label + " (" + values.Length + ")", EditorStyles.boldLabel);
-            foldout= true;
+            foldout = true;
             if (foldout)
             {
                 EditorGUI.indentLevel = 2;
