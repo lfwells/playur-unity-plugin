@@ -248,28 +248,32 @@ namespace PlayUR.Editor
                 }
             }), runner);
 
-            EditorCoroutineUtility.StartCoroutine(AwaitGeneratedEnums(), runner);
+            EditorApplication.update += AwaitGeneratedEnums;
         }
         static int completeCount;
-        static IEnumerator AwaitGeneratedEnums()
+        static void AwaitGeneratedEnums()
         {
-            while (completeCount < 7)
+            if (completeCount < 7)
             {
                 EditorUtility.DisplayProgressBar("Generating Enums", $"{completeCount}/7", completeCount / 7f);
-                yield return 0;
+                return;
             }
-            EditorUtility.ClearProgressBar();
+            else
+            {
+                EditorApplication.update -= AwaitGeneratedEnums;
+                EditorUtility.ClearProgressBar();
 
-            //tell the code to now use the generated files instead of the ones that are used on plugin set up
-            PlayUREditorUtils.AddScriptingDefinesForAllPlatforms("PLAYUR_GENERATED");
+                //tell the code to now use the generated files instead of the ones that are used on plugin set up
+                PlayUREditorUtils.AddScriptingDefinesForAllPlatforms("PLAYUR_GENERATED");
 
-            //create an assembly definition
-            var path = GeneratedFilesPath("AssemblyReference.asmref");
-            AssetDatabase.DeleteAsset(path);
-            File.WriteAllBytes(path, Encoding.UTF8.GetBytes("{\n\"reference\": \"PlayUR\"\n}"));
+                //create an assembly definition
+                var path = GeneratedFilesPath("AssemblyReference.asmref");
+                AssetDatabase.DeleteAsset(path);
+                File.WriteAllBytes(path, Encoding.UTF8.GetBytes("{\n\"reference\": \"PlayUR\"\n}"));
 
 
-            AssetDatabase.Refresh();
+                AssetDatabase.Refresh();
+            }
         }
         #endregion
 
@@ -560,7 +564,7 @@ namespace PlayUR.Editor
         {
             progress = operation.progress;
             EditorUtility.DisplayProgressBar("UPLOADING... please wait", uploadFilename, operation.progress);
-            if (progress >= 1)
+            if (operation.isDone && operation.webRequest.result != UnityWebRequest.Result.InProgress)
             {
                 uploadFinishedCallback();
             }
