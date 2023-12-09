@@ -4,13 +4,14 @@ using System.Net;
 using UnityEngine.Networking;
 using UnityEngine;
 using PlayUR.Exceptions;
+using UnityEditor;
 
-namespace PlayUR.Core
+namespace PlayUR.Editor
 { 
     /// <summary>
     /// Interface class used for communicating with the REST API on the server.
     /// </summary>
-    public partial class Rest
+    public partial class EditorRest
     {
         /// <summary>
         /// Generic callback delegate which is called when we get a request is completed (failed or otherwise).
@@ -24,7 +25,22 @@ namespace PlayUR.Core
         /// </summary>
         /// <param name="succ">Boolean result of whether our request was successful (including logical errors, not just server connectivity issues)</param>
         /// <param name="result">The bytes representing the data returned.</param>
-        public delegate void ServerFileCallback(bool succ, byte[] result); 
+        public delegate void ServerFileCallback(bool succ, byte[] result);
+
+        static UnityWebRequest www;
+        static float progress;
+        static UnityWebRequestAsyncOperation operation;
+        static GetOperationFinished getRequestFinishedCallback;
+        delegate void GetOperationFinished();
+        static void Await()
+        {
+
+            progress = operation.progress;
+            if (progress >= 1)
+            {
+                getRequestFinishedCallback();
+            }
+        }
 
         /// <summary>
         /// Standard HTTP GET request. 
@@ -54,24 +70,30 @@ namespace PlayUR.Core
                 url = PlayURPlugin.SERVER_URL + page + kvp;
             if (debugOutput) PlayURPlugin.Log("GET " + url);
 
-            using (var www = UnityWebRequest.Get(url))
-            {
-                yield return www.SendWebRequest();
+            operation = www.SendWebRequest();
 
+            progress = 0;
+            www = UnityWebRequest.Get(url);
+            getRequestFinishedCallback = () =>
+            {
                 JSONNode json;
 
                 if (www.result == UnityWebRequest.Result.ConnectionError)
                 {
-                    PlayURPlugin.Log("Response Code: " + www.responseCode);
                     throw new ServerCommunicationException(www.error);
                 }
                 else if (www.result == UnityWebRequest.Result.ProtocolError)
                 {
                     json = JSON.Parse(www.downloadHandler.text);
-                    PlayURPlugin.Log("Response Code: " + www.responseCode);
-                    if (debugOutput) PlayURPlugin.Log(json);
-                    if (callback != null) callback(false, json);
-                    yield break;
+                    PlayURPlugin.LogError("Response Code: " + www.responseCode);
+                    PlayURPlugin.LogError(json);
+
+                    //if (callback != null) callback(false, json["message"]);
+                    return;
+                }
+                else if (www.result != UnityWebRequest.Result.Success)
+                {
+                    PlayURPlugin.LogError(www.result.ToString());
                 }
 
                 try
@@ -80,7 +102,7 @@ namespace PlayUR.Core
                 }
                 catch (System.Exception e)
                 {
-                    throw new ServerCommunicationException("JSON Parser Error: " + e.Message+"\nRaw: '"+www.downloadHandler.text + "'");
+                    throw new ServerCommunicationException("JSON Parser Error: " + e.Message + "\nRaw: '" + www.downloadHandler.text + "'");
                 }
 
                 if (debugOutput) PlayURPlugin.Log(www.downloadHandler.text);
@@ -90,13 +112,16 @@ namespace PlayUR.Core
                     if (json["success"].AsBool != true)
                     {
                         callback(false, json);
-                        yield break;
+                        return;
                     }
                 }
 
                 callback(true, json);
 
-            }
+            };
+            EditorApplication.update += Await;
+
+            yield return null;
         }
 
         /// <summary>
@@ -134,12 +159,12 @@ namespace PlayUR.Core
 
                 JSONNode json;
 
-                if (www.result == UnityWebRequest.Result.ConnectionError)
+                if (www.isNetworkError)
                 {
                     PlayURPlugin.Log("Response Code: " + www.responseCode);
                     throw new ServerCommunicationException(www.error);
                 }
-                else if (www.result == UnityWebRequest.Result.ProtocolError)
+                else if (www.isHttpError)
                 {
                     PlayURPlugin.Log(www.downloadHandler.text);
                     json = JSON.Parse(www.downloadHandler.text);
@@ -204,12 +229,12 @@ namespace PlayUR.Core
 
                 JSONNode json;
 
-                if (www.result == UnityWebRequest.Result.ConnectionError)
+                if (www.isNetworkError)
                 {
                     PlayURPlugin.Log("Response Code: " + www.responseCode);
                     throw new ServerCommunicationException(www.error);
                 }
-                else if (www.result == UnityWebRequest.Result.ProtocolError)
+                else if (www.isHttpError)
                 {
                     json = JSON.Parse(www.downloadHandler.text);
                     PlayURPlugin.Log("Response Code: " + www.responseCode);
@@ -244,7 +269,7 @@ namespace PlayUR.Core
         }
 
         /// <summary>
-        /// Helper function for building the <c>form</c> paramaters to the <see cref="Rest"/> class functions.
+        /// Helper function for building the <c>form</c> paramaters to the <see cref="EditorRest"/> class functions.
         /// Use this because it will automatically populate with the userID (from <see cref="PlayURPlugin.instance.user.id" />)
         /// and gameID (from <see cref="PlayURPlugin.instance.gameID"/>).
         /// Uses the terminology "WWWForm" because this class previously used <see cref="WWWForm"/> objects.
@@ -260,7 +285,7 @@ namespace PlayUR.Core
         }
 
         /// <summary>
-        /// Helper function for building the <c>form</c> paramaters to the <see cref="Rest"/> class functions.
+        /// Helper function for building the <c>form</c> paramaters to the <see cref="EditorRest"/> class functions.
         /// Use this because it will automatically populate with the userID (from <see cref="PlayURPlugin.instance.user.id" />)
         /// and gameID (from <see cref="PlayURPlugin.instance.gameID"/>).
         /// This version will also add in experimentID and experimentGroupID parameters, useful for some endpoints.
@@ -308,12 +333,12 @@ namespace PlayUR.Core
             {
                 yield return www.SendWebRequest();
 
-                if (www.result == UnityWebRequest.Result.ConnectionError)
+                if (www.isNetworkError)
                 {
                     PlayURPlugin.Log("Response Code: " + www.responseCode);
                     throw new ServerCommunicationException(www.error);
                 }
-                else if (www.result == UnityWebRequest.Result.ProtocolError)
+                else if (www.isHttpError)
                 {
                     PlayURPlugin.Log("Response Code: " + www.responseCode);
                     if (debugOutput) PlayURPlugin.Log(www.downloadHandler.text);

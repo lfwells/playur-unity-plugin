@@ -91,7 +91,7 @@ namespace PlayUR.Core
                 throw new ArgumentException("request must be completed", "request");
 
             StatusCode = request.responseCode;
-            IsNetworkError = request.isNetworkError;
+            IsNetworkError = request.result == UnityWebRequest.Result.ConnectionError;
             NetworkError = request.error;
             Content = request.downloadHandler.text;
         }
@@ -172,7 +172,7 @@ namespace PlayUR.Core
                             System.Threading.Thread.Sleep(100);
 
                         // If there is a DNS/Network Error, OR a HTTP error that matches the code >= 500 (server error) or 408 (timeout)
-                        if (wwwRequest.isNetworkError || (wwwRequest.isHttpError && (wwwRequest.responseCode >= 500 || wwwRequest.responseCode == 408)))
+                        if (wwwRequest.result == UnityWebRequest.Result.ConnectionError || (wwwRequest.result == UnityWebRequest.Result.ProtocolError && (wwwRequest.responseCode >= 500 || wwwRequest.responseCode == 408)))
                         {
                             if (_backoffSeconds >= 1f)
                             {
@@ -232,7 +232,7 @@ namespace PlayUR.Core
                             yield return wwwRequest.SendWebRequest();
 
                             // If there is a DNS/Network Error, OR a HTTP error that matches the code >= 500 (server error) or 408 (timeout)
-                            if (wwwRequest.isNetworkError || (wwwRequest.isHttpError && (wwwRequest.responseCode >= 500 || wwwRequest.responseCode == 408)))
+                            if (wwwRequest.result == UnityWebRequest.Result.ConnectionError || (wwwRequest.result == UnityWebRequest.Result.ProtocolError && (wwwRequest.responseCode >= 500 || wwwRequest.responseCode == 408)))
                             {
                                 if (_backoffSeconds >= MaxBackoffTime)
                                 {

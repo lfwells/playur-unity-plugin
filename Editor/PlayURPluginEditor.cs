@@ -84,7 +84,7 @@ namespace PlayUR.Editor
             completeCount = 0;
 
             //get actions from the server and populate an enum
-            EditorCoroutineUtility.StartCoroutine(Rest.Get("Action/listForGame.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(EditorRest.Get("Action/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -106,7 +106,7 @@ namespace PlayUR.Editor
             }), runner);
 
             //get elements from the server and populate an enum
-            EditorCoroutineUtility.StartCoroutine(Rest.Get("Element/listForGame.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(EditorRest.Get("Element/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -128,7 +128,7 @@ namespace PlayUR.Editor
             }), runner);
 
             //get experiments from the server and populate an enum
-            EditorCoroutineUtility.StartCoroutine(Rest.Get("Experiment/listForGame.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(EditorRest.Get("Experiment/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -150,7 +150,7 @@ namespace PlayUR.Editor
             }), runner);
 
             //get experiment groups from the server and populate an enum
-            EditorCoroutineUtility.StartCoroutine(Rest.Get("ExperimentGroup/listForGame.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(EditorRest.Get("ExperimentGroup/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -172,7 +172,7 @@ namespace PlayUR.Editor
             }), runner);
 
             //get analytics columns from the server and populate an enum
-            EditorCoroutineUtility.StartCoroutine(Rest.Get("AnalyticsColumn/listForGame.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(EditorRest.Get("AnalyticsColumn/listForGame.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -194,7 +194,7 @@ namespace PlayUR.Editor
             }), runner);
 
             //get all parameter keys from the server and populate an enum
-            EditorCoroutineUtility.StartCoroutine(Rest.Get("GameParameter/listParameterKeys.php" + GET, null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(EditorRest.Get("GameParameter/listParameterKeys.php" + GET, null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -510,20 +510,20 @@ namespace PlayUR.Editor
             }
             EditorUtility.ClearProgressBar();
         }
-        static IEnumerator UploadBuild(string zipPath, string branch, Rest.ServerCallback callback, int PlayURPlatformID = 0)
+        static IEnumerator UploadBuild(string zipPath, string branch, EditorRest.ServerCallback callback, int PlayURPlatformID = 0)
         {
             var form = GetGameIDForm();
             form.Add("branch", branch);
             form.Add("platform", PlayURPlatformID.ToString());
 
-            yield return EditorCoroutineUtility.StartCoroutine(Rest.Get("Build/latestBuildID.php", form, (succ, result) =>
+            yield return EditorCoroutineUtility.StartCoroutine(EditorRest.Get("Build/latestBuildID.php", form, (succ, result) =>
             {
                 var newBuildID = int.Parse(result["latestBuildID"]);
                 var id = result.HasKey("id") ? result["id"].AsInt : -1;
                 EditorCoroutineUtility.StartCoroutine(UploadBuildPart2(zipPath, branch, callback, form["gameID"], form["clientSecret"], newBuildID, PlayURPlatformID), new CoroutineRunner());
             }, debugOutput:true), new CoroutineRunner());
         }
-        static IEnumerator UploadBuildPart2(string zipPath, string branch, Rest.ServerCallback callback, string gameID, string clientSecret, int newBuildID, int PlayURPlatformID = 0)
+        static IEnumerator UploadBuildPart2(string zipPath, string branch, EditorRest.ServerCallback callback, string gameID, string clientSecret, int newBuildID, int PlayURPlatformID = 0)
         {
             PlayURPlugin.Log("New Build ID: " + newBuildID);
             PlayURPlugin.Log("Branch: " + branch);
@@ -565,7 +565,7 @@ namespace PlayUR.Editor
                 uploadFinishedCallback();
             }
         }
-        static IEnumerator UploadFile(string endPoint, string filePath, string fileName, string mimeType, JSONObject additionalRequest = null, Rest.ServerCallback callback = null)
+        static IEnumerator UploadFile(string endPoint, string filePath, string fileName, string mimeType, JSONObject additionalRequest = null, EditorRest.ServerCallback callback = null)
         {
             //display a progress bar -- for whatever reason it doesn't close though so nah
             EditorUtility.DisplayProgressBar("UPLOADING... please wait", fileName, 0f);
@@ -742,7 +742,7 @@ namespace PlayUR.Editor
         {
             var runner = new CoroutineRunner();
             var form = GetGameIDForm();
-            EditorCoroutineUtility.StartCoroutine(Rest.Get("game/warnings.php", form, (succ, message) => {
+            EditorCoroutineUtility.StartCoroutine(EditorRest.Get("game/warnings.php", form, (succ, message) => {
                 if (succ)
                 {
                     var json = message;
