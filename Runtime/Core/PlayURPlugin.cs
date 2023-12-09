@@ -397,6 +397,10 @@ namespace PlayUR
                 Log("Using Experiment Group Override " + experimentGroup.Value.ToString());
             }
 
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
+            form.Add("standalone", "true");
+#endif
+
             //go ahead and get config now
             yield return StartCoroutine(Rest.EnqueueGet("Configuration", form, (succ, result) => configuration = ParseConfigurationResult(succ, result, this), debugOutput: false));
         }
