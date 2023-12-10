@@ -121,7 +121,7 @@ namespace PlayUR.Editor
                     }
                 }
 
-                callback(true, json);
+                callback(json != null, json);
 
             };
             EditorApplication.update += AwaitKey;
