@@ -269,7 +269,9 @@ namespace PlayUR.Editor
                             Directory.CreateDirectory(GeneratedFilesPath("Schemas"));
                         }
 
-                        File.WriteAllBytes(GeneratedFilesPath("Schemas/"+name+".cs"), Encoding.UTF8.GetBytes(schema["csharpCode"]));
+                        var code = "using System;\nusing System.Collections.Generic;\n\n" + schema["csharpCode"];
+
+                        File.WriteAllBytes(GeneratedFilesPath("Schemas/"+name+".cs"), Encoding.UTF8.GetBytes(code));
                         PlayURPlugin.Log("Generated Schema Class File "+name+".cs");
 
                     }
