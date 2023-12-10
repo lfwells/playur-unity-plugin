@@ -509,8 +509,6 @@ namespace PlayUR
             if (!IsSettingsAvailable())
                 return null;
 
-            Debug.Log("create?");
-
             // Create a provider and automatically pull out the keywords
             return new PlayURSettingsProvider("Project/PlayUR", SettingsScope.Project);
         }

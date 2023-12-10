@@ -16,6 +16,9 @@ using UnityEditor.PackageManager;
 using System.Linq;
 using UnityEditorInternal;
 using System.ComponentModel.Design;
+using Unity.Plastic.Newtonsoft.Json.Schema;
+using System;
+using System.Security.Cryptography;
 
 namespace PlayUR.Editor
 {
@@ -248,12 +251,38 @@ namespace PlayUR.Editor
                 }
             }), runner);
 
+
+            //get all schemas from the server and populate c# classes
+            EditorCoroutineUtility.StartCoroutine(EditorRest.Get("ParameterSchema" + GET+"&generate=true", null, (succ, json) =>
+            {
+                if (succ)
+                {
+                    var schemas = json["records"].AsArray;
+                    foreach (var schema in schemas.Values)
+                    {
+                        var name = schema["name"];
+                        //print(schema["csharpCode"]);
+
+                        //create folder Schemas if doesn't exist
+                        if (!Directory.Exists(GeneratedFilesPath("Schemas")))
+                        {
+                            Directory.CreateDirectory(GeneratedFilesPath("Schemas"));
+                        }
+
+                        File.WriteAllBytes(GeneratedFilesPath("Schemas/"+name+".cs"), Encoding.UTF8.GetBytes(schema["csharpCode"]));
+                        PlayURPlugin.Log("Generated Schema Class File "+name+".cs");
+
+                    }
+                    completeCount++;
+                }
+            }), runner);
+
             EditorApplication.update += AwaitGeneratedEnums;
         }
         static int completeCount;
         static void AwaitGeneratedEnums()
         {
-            if (completeCount < 7)
+            if (completeCount < 8)
             {
                 EditorUtility.DisplayProgressBar("Generating Enums", $"{completeCount}/7", completeCount / 7f);
                 return;
@@ -273,6 +302,8 @@ namespace PlayUR.Editor
 
 
                 AssetDatabase.Refresh();
+
+                PlayURPlugin.Log("Finished generating enums");
             }
         }
         #endregion
