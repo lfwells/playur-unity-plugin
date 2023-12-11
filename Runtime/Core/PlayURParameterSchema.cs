@@ -1,3 +1,4 @@
+using Codice.CM.Client.Differences.Merge;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,6 @@ namespace PlayUR.ParameterSchemas
         //this is a hack to get the base class to call the extension method on the subclass
         public string ToJson() 
         {
-
             var extendedType = this.GetType();
             Assembly assembly = extendedType.Assembly;
             var isGenericTypeDefinition = extendedType.IsGenericType && extendedType.IsTypeDefinition;
@@ -32,6 +32,23 @@ namespace PlayUR.ParameterSchemas
             }
 
             return string.Empty;  
+        }
+
+        public static T FromJson<T>(string json) where T : EntityData
+        {
+            var extendedType = typeof(T);
+            Assembly assembly = extendedType.Assembly;
+            var isGenericTypeDefinition = extendedType.IsGenericType && extendedType.IsTypeDefinition;
+            var query = from method in extendedType.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                        where method.IsStatic
+                        where method.Name == "FromJson"
+                        select method;
+            if (query.Count() == 1)
+            {
+                return query.Single().Invoke(null, new object[] { json }) as T;
+            }
+
+            return default;
         }
     }
 }

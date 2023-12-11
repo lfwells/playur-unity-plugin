@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using PlayUR.Exceptions;
 using PlayUR.Core;
 using PlayUR;
+using PlayUR.ParameterSchemas;
 
 namespace PlayUR
 {
@@ -1042,6 +1043,24 @@ namespace PlayUR
             {
                 throw new InvalidParamFormatException(key, typeof(bool));
             }
+        }
+
+
+        /// <summary>
+        /// Obtains a object converted value of a parameter defined in the <see cref="Configuration"/> in string form.
+        /// </summary>
+        /// <param name="key">The key matching the parameter name set on the back-end</param>
+        /// <returns>The object converted value of the requested parameter if it exists</returns>
+        /// <exception cref="ConfigurationNotReadyException">thrown if <see cref="Configuration"/> is not previously obtained</exception>
+        /// <exception cref="ParameterNotFoundException">thrown if no parameter with that name present in the <see cref="Configuration"/></exception>
+        /// <exception cref="InvalidParamFormatException">thrown if the string json could not be converted to the requested type</exception>
+        public T GetObjectParam<T>(string key) where T : EntityData
+        {
+            var jsonStr = GetParam(key);
+            print(jsonStr);
+            var jsonObj = EntityData.FromJson<T>(jsonStr);
+            if (jsonObj == null) throw new Exceptions.InvalidParamFormatException(key, typeof(T));
+            return jsonObj;
         }
 
         #endregion
