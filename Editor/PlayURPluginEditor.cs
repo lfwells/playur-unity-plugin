@@ -431,18 +431,15 @@ namespace PlayUR.Editor
             }
             // ZIP everything
             var uploadfilename = "";
-            if (buildTarget == BuildTarget.StandaloneWindows || buildTarget == BuildTarget.StandaloneWindows64)
+            if (buildTarget == BuildTarget.StandaloneWindows || buildTarget == BuildTarget.StandaloneWindows64 || buildTarget == BuildTarget.StandaloneOSX)
             {
                 //get a build path minus the exe filename IF there is a .exe in the path
-                if (buildPath.Contains(".exe"))
+                if (buildPath.EndsWith(".exe"))
+                    buildPath = buildPath.Substring(0, buildPath.LastIndexOf('/'));
+                if (buildPath.EndsWith(".app"))
                     buildPath = buildPath.Substring(0, buildPath.LastIndexOf('/'));
                 uploadfilename = buildPath + "/index.zip";
                 CompressDirectory(buildPath + "/", uploadfilename);
-            }
-            else if (buildTarget == BuildTarget.StandaloneOSX)
-            {
-                //don't zip the .app, just get the filename from the end of the buildpath
-                uploadfilename = buildPath; 
             }
             else if (buildTarget == BuildTarget.Android)
             {
