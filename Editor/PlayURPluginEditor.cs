@@ -600,13 +600,15 @@ namespace PlayUR.Editor
         }
         static IEnumerator UploadFile(string endPoint, string filePath, string fileName, string mimeType, JSONObject additionalRequest = null, EditorRest.ServerCallback callback = null)
         {
-            //display a progress bar -- for whatever reason it doesn't close though so nah
-            EditorUtility.DisplayProgressBar("UPLOADING... please wait", fileName, 0f);
+            EditorUtility.ClearProgressBar();
 
             WWWForm form = new WWWForm();
             form.AddField("gameID", PlayURPlugin.GameID);
             form.AddField("clientSecret", PlayURPlugin.ClientSecret);
             form.AddBinaryData("file", File.ReadAllBytes(filePath), fileName, mimeType);
+
+            //display a progress bar 
+            EditorUtility.DisplayProgressBar("UPLOADING... please wait", fileName, 0f);
 
             if (additionalRequest != null) form.AddField("request", additionalRequest.ToString());
 
