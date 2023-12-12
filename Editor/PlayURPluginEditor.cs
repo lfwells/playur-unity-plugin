@@ -14,11 +14,6 @@ using PlayUR.Exceptions;
 using System.Diagnostics;
 using UnityEditor.PackageManager;
 using System.Linq;
-using UnityEditorInternal;
-using System.ComponentModel.Design;
-using Unity.Plastic.Newtonsoft.Json.Schema;
-using System;
-using System.Security.Cryptography;
 
 namespace PlayUR.Editor
 {
