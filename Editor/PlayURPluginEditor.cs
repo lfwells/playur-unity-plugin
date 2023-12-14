@@ -439,7 +439,10 @@ namespace PlayUR.Editor
                 if (buildPath.EndsWith(".app"))
                     buildPath = buildPath.Substring(0, buildPath.LastIndexOf('/'));
                 uploadfilename = buildPath + "/index.zip";
-                CompressDirectory(buildPath + "/", uploadfilename);
+                if (buildTarget == BuildTarget.StandaloneOSX)
+                    CompressDirectoryWithCommand(buildPath + "/", uploadfilename);
+                else
+                    CompressDirectory(buildPath + "/", uploadfilename);
             }
             else if (buildTarget == BuildTarget.Android)
             {
@@ -514,6 +517,24 @@ namespace PlayUR.Editor
             return PlayURPlugin.GameID > 0 || string.IsNullOrEmpty(PlayURPlugin.ClientSecret);
         }
 
+
+
+        [MenuItem("PlayUR/Build Windows Player", isValidateFunction:true)]
+        [MenuItem("PlayUR/Build and Upload Windows Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Upload Windows Player", isValidateFunction: true)]
+        public static bool ValidateWindowsMenuFunctions()
+        {
+            return Application.platform == RuntimePlatform.WindowsEditor;
+        }
+
+        [MenuItem("PlayUR/Build MacOS Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Build and Upload MacOS Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Upload MacOS Player", isValidateFunction: true)]
+        public static bool ValidateMacOSMenuFunctions()
+        {
+            return Application.platform == RuntimePlatform.OSXEditor;
+        }
+
         static string[] GetScenePaths()
         {
             string[] scenes = new string[EditorBuildSettings.scenes.Length];
@@ -527,6 +548,7 @@ namespace PlayUR.Editor
         static void CompressDirectory(string directory, string zipFileOutputPath)
         {
             PlayURPlugin.Log("attempting to compress " + directory + " into " + zipFileOutputPath);
+
             if (File.Exists(zipFileOutputPath))
                 File.Delete(zipFileOutputPath);
 
@@ -539,6 +561,29 @@ namespace PlayUR.Editor
                 zip.Save(zipFileOutputPath);
             }
             EditorUtility.ClearProgressBar();
+        }
+        static void CompressDirectoryWithCommand(string directory, string zipFileOutputPath)
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo()
+            {
+                FileName = "zip",
+                UseShellExecute = false,
+                //CreateNoWindow = false,
+                Arguments = "-r index.zip index.app",
+                RedirectStandardOutput = true,
+                WorkingDirectory = directory,
+            };
+            Process myProcess = new Process
+            {
+                StartInfo = startInfo,
+            };
+            myProcess.OutputDataReceived += (sender, e) =>
+            {
+                print(e.Data);
+            };
+            myProcess.Start();
+            myProcess.BeginOutputReadLine();
+            myProcess.WaitForExit();
         }
         static IEnumerator UploadBuild(string zipPath, string branch, EditorRest.ServerCallback callback, int PlayURPlatformID = 0)
         {
@@ -604,7 +649,7 @@ namespace PlayUR.Editor
             form.AddField("clientSecret", PlayURPlugin.ClientSecret);
             form.AddBinaryData("file", File.ReadAllBytes(filePath), fileName, mimeType);
 
-            //display a progress bar 
+            //display a progress bar
             EditorUtility.DisplayProgressBar("UPLOADING... please wait", fileName, 0f);
 
             if (additionalRequest != null) form.AddField("request", additionalRequest.ToString());
