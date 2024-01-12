@@ -486,7 +486,7 @@ namespace PlayUR
                 if (result.HasKey("accessLevel") && instance != null)
                     instance.user.accessLevel = result["accessLevel"].AsInt;
 
-                if (result.HasKey("mTurk"))
+                if (result.HasKey("mTurk") && result["mTurk"] != "0")
                 {
                     instance.mTurkFromStandaloneLoginInfo = result["mTurk"];
                 }
