@@ -14,6 +14,7 @@ namespace PlayUR
         private SerializedObject playurSettings;
         private SerializedProperty gameIdProperty;
         private SerializedProperty standardSessionTracking;
+        private SerializedProperty fullScreenMode;
         private SerializedProperty useSpecificExperimentForMobileBuild;
         private SerializedProperty mobileExperiment;
         private SerializedProperty useSpecificExperimentForDesktopBuild;
@@ -126,6 +127,7 @@ namespace PlayUR
 
             public static GUIContent generalSettings = new GUIContent("General Settings");
             public static GUIContent standardSessionTracking = new GUIContent("Use Standard Session Tracking");
+            public static GUIContent fullScreenMode = new GUIContent("Full Screen Mode");
             public static GUIContent logLevel = new GUIContent("Log Level");
             public static GUIContent logLevelToStore = new GUIContent("Storage Log Level");
 
@@ -201,6 +203,7 @@ namespace PlayUR
             playurSettings = PlayURSettings.GetSerializedSettings();
             gameIdProperty = playurSettings.FindProperty("gameId");
             standardSessionTracking = playurSettings.FindProperty("standardSessionTracking");
+            fullScreenMode = playurSettings.FindProperty("fullScreenMode");
             useSpecificExperimentForMobileBuild = playurSettings.FindProperty("useSpecificExperimentForMobileBuild");
             mobileExperiment = playurSettings.FindProperty("mobileExperiment");
             useSpecificExperimentForDesktopBuild = playurSettings.FindProperty("useSpecificExperimentForDesktopBuild");
@@ -378,6 +381,7 @@ namespace PlayUR
             {
                 EditorGUI.indentLevel = 1;
                 EditorGUILayout.PropertyField(standardSessionTracking, Labels.standardSessionTracking);
+                EditorGUILayout.PropertyField(fullScreenMode, Labels.fullScreenMode);
                 EditorGUILayout.PropertyField(logLevelToStore, Labels.logLevelToStore);
                 EditorGUILayout.PropertyField(logLevel, Labels.logLevel);
             }

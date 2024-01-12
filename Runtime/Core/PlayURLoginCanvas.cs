@@ -58,6 +58,15 @@ namespace PlayUR.Core
         void Awake()
         {
             GetComponent<CanvasGroup>().alpha = 0;
+
+            if (PlayURPlugin.Settings.fullScreenMode == PlayURSettings.FullScreenStartUpMode.AlwaysStartInFullScreen)
+            {
+                Screen.fullScreen = true;
+            }
+            else if (PlayURPlugin.Settings.fullScreenMode == PlayURSettings.FullScreenStartUpMode.AlwaysStartWindowed)
+            {
+                Screen.fullScreen = false;
+            }
         }
         private void Start()
         {
@@ -91,13 +100,6 @@ namespace PlayUR.Core
                         PlayURPlugin.Log("Auto-login..." + pwd);
                         Login();
                     }
-                }
-                else
-                {
-#if UNITY_EDITOR || !UNITY_WEBGL 
-                    //don't auto-login with browser, its jarring
-                    //var webService = new PlayURLoginWebServer(StandaloneLogin);
-#endif
                 }
             }
 

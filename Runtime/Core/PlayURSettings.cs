@@ -20,6 +20,21 @@ namespace PlayUR
         /// </summary>
         public bool standardSessionTracking = true;
 
+        [System.Serializable]
+        /// <summary>
+        /// Should the app start in full screen, start windowed, or remember previous run?
+        /// </summary>
+        public enum FullScreenStartUpMode
+        {
+            RememberPreviousState,
+            AlwaysStartInFullScreen,
+            AlwaysStartWindowed
+        }
+        /// <summary>
+        /// Should the app start in full screen, start windowed, or remember previous run?
+        /// </summary>
+        public FullScreenStartUpMode fullScreenMode = FullScreenStartUpMode.RememberPreviousState;
+
         /// <summary>
         /// Override the PlayUR Platform's automatic choosing of an experiment on mobile builds by forcing the use of <see cref="mobileExperiment"/>
         /// </summary>
