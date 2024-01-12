@@ -28,17 +28,23 @@ namespace PlayUR
         public string MTurkID
         {
             get {
+                string result = null;
 #if UNITY_EDITOR
-                    return PlayURPlugin.Settings.forceMTurkIDInEditor;
+                result = PlayURPlugin.Settings.forceMTurkIDInEditor;
 #else
-                    string result = null;
-                    URLParameters.GetSearchParameters().TryGetValue(MTURK_URL_PARAM, out result);
-                    if (result == null)
-                        URLParameters.GetSearchParameters().TryGetValue(MTURK_URL_PARAM_ALT, out result);
-                    return result;
+                URLParameters.GetSearchParameters().TryGetValue(MTURK_URL_PARAM, out result);
+                if (string.IsNullOrEmpty(result))
+                    URLParameters.GetSearchParameters().TryGetValue(MTURK_URL_PARAM_ALT, out result);
 #endif
+                if (string.IsNullOrEmpty(result))
+                {
+                    result = mTurkFromStandaloneLoginInfo;
+                }
+                return result;
             }
         }
+
+        protected string mTurkFromStandaloneLoginInfo = null; //if in a standalone build, we can get the mTurkID from the login info (api/Configuration/index.php returns this)
 
         int mTurkCompletionRowID;
 

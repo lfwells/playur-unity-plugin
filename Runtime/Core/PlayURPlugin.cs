@@ -485,6 +485,12 @@ namespace PlayUR
 
                 if (result.HasKey("accessLevel") && instance != null)
                     instance.user.accessLevel = result["accessLevel"].AsInt;
+
+                if (result.HasKey("mTurk"))
+                {
+                    instance.mTurkFromStandaloneLoginInfo = result["mTurk"];
+                }
+
                 return configuration;
             }
             else
@@ -523,13 +529,14 @@ namespace PlayUR
                 s += "\t\t" + p.Key + "\t" + p.Value + "\n";
             }
 
-            s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n";
+            s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + mTurkFromStandaloneLoginInfo +"\n\n";
 
             s += "\tAnalytics columns:\n";
             foreach (var c in configuration.analyticsColumnsOrder)
             {
                 s += "\t\t" + c + "\n";
             }
+
 
             Log(s);
         }
