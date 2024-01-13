@@ -249,6 +249,9 @@ namespace PlayUR
 
             //set up the action batcher
             StartCoroutine(RecordActionRoutine());
+
+            //set up the updatable action batcher
+            StartCoroutine(UpdatableActionsRoutine());
         }
 
         /// <summary>Loads the login scene. Waits until the PlayURLoginCanvas obtains a valid login. </summary>
