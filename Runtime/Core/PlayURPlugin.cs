@@ -9,6 +9,7 @@ using PlayUR.Exceptions;
 using PlayUR.Core;
 using PlayUR;
 using PlayUR.ParameterSchemas;
+using Newtonsoft.Json;
 
 namespace PlayUR
 {
@@ -44,6 +45,7 @@ namespace PlayUR
     /// Calculated as a combination of global \ref elements and \ref parameters which can be overridden
     /// at the Experiment and ExperimentGroup level.
     /// </summary>
+    [System.Serializable]
     public class Configuration
     {
         /// <summary>
@@ -649,7 +651,6 @@ namespace PlayUR
                 return configuration.branch;
             }
         }
-
         #endregion
 
         #region Parameter Getters
@@ -1126,6 +1127,7 @@ namespace PlayUR
             form.Add("buildID", CurrentBuildID.ToString());
             form.Add("branch", CurrentBuildBranch);
 
+            form.Add("platform", CurrentPlatform.ToString());
             form.Add("operatingSystem", SystemInfo.operatingSystem);
             form.Add("deviceType", SystemInfo.deviceType.ToString());
             form.Add("deviceModel", SystemInfo.deviceModel);
@@ -1136,6 +1138,8 @@ namespace PlayUR
             form.Add("processorType", SystemInfo.processorType);
             form.Add("currentResolution", Screen.currentResolution.ToString());
             if (string.IsNullOrEmpty(browserInfo) == false) { form.Add("browserInfo", browserInfo); }
+
+            form.Add("configuration", JsonConvert.SerializeObject(Configuration));
 
             StartCoroutine(Rest.EnqueuePost("Session", form, (succ, result) =>
             {
