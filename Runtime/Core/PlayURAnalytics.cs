@@ -262,7 +262,6 @@ namespace PlayUR
             protected InProgressAction action;
 
             bool initialUploadComplete = false;
-            bool initialUploadStarted = false;
             Dictionary<AnalyticsColumn, bool> dirty = new Dictionary<AnalyticsColumn, bool>();
             float lastUpdate = -1f;
             int userActionID = -1;
