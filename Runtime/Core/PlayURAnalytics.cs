@@ -56,7 +56,9 @@ namespace PlayUR
             while (!inSession) yield return new WaitForEndOfFrame();
             form.Add("sessionID", sessionID.ToString());
 
-            yield return StartCoroutine(Rest.Post("UserAction", form, HTMLencode: false, debugOutput: true, callback: callback));
+            var awaitingSuccess = false;
+
+            yield return StartCoroutine(Rest.EnqueuePost("UserAction", form, HTMLencode: false, debugOutput: true, callback: callback));
         }
         ActionParams GenerateUploadableActionData(Action a, object extra = null, bool HTMLencode = false, bool debugOutput = false, bool waitForPendingActions = true, Dictionary<AnalyticsColumn, object> columns = null)
         {
