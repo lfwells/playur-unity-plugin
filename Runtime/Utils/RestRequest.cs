@@ -115,7 +115,7 @@ namespace PlayUR.Core
         /// <summary>Is it currently processing?</summary>
         public bool IsProcessing { get; set; }
         /// <summary>Maximum time to allow for a back off before we give up (in seconds)</summary>
-        public float MaxBackoffTime { get; set; } = 60 * 10;
+        public float MaxBackoffTime { get; set; } = 10;//was 600
         /// <summary>Name of the file that will be saved when the history is written</summary>
         public string HistoryFilename { get; set; } = "rest-queue.xml";
 
@@ -234,23 +234,25 @@ namespace PlayUR.Core
                             // If there is a DNS/Network Error, OR a HTTP error that matches the code >= 500 (server error) or 408 (timeout)
                             if (wwwRequest.result == UnityWebRequest.Result.ConnectionError || (wwwRequest.result == UnityWebRequest.Result.ProtocolError && (wwwRequest.responseCode >= 500 || wwwRequest.responseCode == 408)))
                             {
+                                /* dont give up
                                 if (_backoffSeconds >= MaxBackoffTime)
                                 {
-                                    //PlayURPlugin.LogError($"Rest Queue: #{restRequest.Order} exceeded backoff time of {MaxBackoffTime}s. Giving up!!!!");
+                                    PlayURPlugin.LogError($"Rest Queue: #{restRequest.Order} exceeded backoff time of {MaxBackoffTime}s. Giving up!!!!");
                                     restRequest.Response = new RestResponse(wwwRequest);
                                     break;
                                 }
                                 else
-                                {
-                                    // We need to wait before looping again. Increment the backoff exponentially 
-                                    //PlayURPlugin.LogWarning($"Rest Queue: Required to backoff and attempt {restRequest.Order} again. Waiting {_backoffSeconds}s");
-                                    yield return new WaitForSeconds(_backoffSeconds);
-                                    _backoffSeconds *= 2;
-                                }
+                                {*/
+                                var info = (wwwRequest.result == UnityWebRequest.Result.ConnectionError ? "Connection Error" : $"HTTP Error {wwwRequest.responseCode}") + " Error:" + wwwRequest.downloadHandler.text + wwwRequest.error + wwwRequest.responseCode;
+                                // We need to wait before looping again. Increment the backoff exponentially 
+                                PlayURPlugin.LogWarning($"Rest Queue: Required to backoff and attempt {restRequest.Order} again (" + info + $"). Waiting {_backoffSeconds}s");
+                                yield return new WaitForSeconds(_backoffSeconds);
+                                _backoffSeconds *= 2;
+                                //}
                             }
                             else
                             {
-                                //PlayURPlugin.Log($"Rest Queue: #{restRequest.Order} finished (took backoff of {_backoffSeconds}s).");
+                                PlayURPlugin.Log($"Rest Queue: #{restRequest.Order} finished (took backoff of {_backoffSeconds}s).");
                                 restRequest.Response = new RestResponse(wwwRequest);
                                 break;
                             }
