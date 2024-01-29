@@ -325,12 +325,13 @@ namespace PlayUR.Core
         #endregion
 
         #region Experiment Select
-        public Button experimentSelect;
+        public Button experimentSelect, experimentSelectClose;
         public GameObject panelExperimentSelect;
 
         void InitExperimentSelect()
         {
             experimentSelect.onClick.AddListener(() => { panelExperimentSelect.SetActive(true); });
+            experimentSelectClose.onClick.AddListener(() => { panelExperimentSelect.SetActive(false); });
         }
         #endregion
     }
