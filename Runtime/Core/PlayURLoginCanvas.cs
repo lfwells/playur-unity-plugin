@@ -82,7 +82,9 @@ namespace PlayUR.Core
             loginWithBrowser.onClick.AddListener(() => new PlayURLoginWebServer(StandaloneLogin));
             loginWithBrowser2.onClick.AddListener(() => new PlayURLoginWebServer(StandaloneLogin));
 
-            loginPassword.onClick.AddListener(() => { panelLogin.SetActive(true); panelBrowser.SetActive(false); }); 
+            loginPassword.onClick.AddListener(() => { panelLogin.SetActive(true); panelBrowser.SetActive(false); });
+
+            InitExperimentSelect();
 
             if (ENABLE_PERSISTENCE && autoLogin)
             {
@@ -320,7 +322,17 @@ namespace PlayUR.Core
             errorTitle.text = title;
             errorText.text = message;
         }
-#endregion
+        #endregion
+
+        #region Experiment Select
+        public Button experimentSelect;
+        public GameObject panelExperimentSelect;
+
+        void InitExperimentSelect()
+        {
+            experimentSelect.onClick.AddListener(() => { panelExperimentSelect.SetActive(true); });
+        }
+        #endregion
     }
 
 
