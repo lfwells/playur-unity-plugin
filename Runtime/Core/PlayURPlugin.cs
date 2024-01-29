@@ -335,6 +335,7 @@ namespace PlayUR
         }
 
 
+        [System.NonSerialized] public bool didRequestExperimentOrExperimentGroupFromLoginWindow = false;
         [System.NonSerialized] public bool didRequestExperiment = false;
         [System.NonSerialized] public bool didRequestExperimentGroup = false;
         [System.NonSerialized] public Experiment requestedExperiment;
@@ -349,6 +350,14 @@ namespace PlayUR
             var form = Rest.GetWWWForm();
 
             experimentFull = false;
+
+            //detect people using the experiment selector when they're not an owner (We didn't know they weren't an owner at that point
+            if (didRequestExperimentOrExperimentGroupFromLoginWindow && user.IsGameOwner == false)
+            {
+                didRequestExperiment = false;
+                didRequestExperimentGroup = false;
+                didRequestExperimentOrExperimentGroupFromLoginWindow = false;
+            }
 
             bool experimentOverrideFound = false;
             Experiment? experiment = null;
