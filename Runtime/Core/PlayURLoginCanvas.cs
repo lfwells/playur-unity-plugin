@@ -122,7 +122,8 @@ namespace PlayUR.Core
             {
                 scheduleALoginOnNextFrame = false;
                 Login();
-            }    
+            }
+            CheckForAndEnableExperimentSelectButton();
         }
         /// <summary>
         /// Triggers a login request with whatever username and password has been entered.
@@ -332,6 +333,19 @@ namespace PlayUR.Core
         {
             experimentSelect.onClick.AddListener(() => { panelExperimentSelect.SetActive(true); });
             experimentSelectClose.onClick.AddListener(() => { panelExperimentSelect.SetActive(false); });
+        }
+        void CheckForAndEnableExperimentSelectButton()
+        {
+            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+            {
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                {
+                    if (Input.GetKeyDown(KeyCode.E))
+                    {
+                        experimentSelect.gameObject.SetActive(true);
+                    }
+                }
+            }
         }
         #endregion
     }
