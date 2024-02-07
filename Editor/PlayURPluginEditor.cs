@@ -70,7 +70,7 @@ namespace PlayUR.Editor
 
         }
 
-        [MenuItem("PlayUR/Re-generate Enums", priority = 11)]
+        [MenuItem("PlayUR/Re-generate Enums and Schema Definitions", priority = 11)]
         public static void GenerateEnum()
         {
             var runner = new CoroutineRunner();
@@ -248,7 +248,7 @@ namespace PlayUR.Editor
 
 
             //get all schemas from the server and populate c# classes
-            EditorCoroutineUtility.StartCoroutine(EditorRest.Get("ParameterSchema" + GET+"&generate=true", null, (succ, json) =>
+            EditorCoroutineUtility.StartCoroutine(EditorRest.Get("ParameterSchema/listForGame.php" + GET+"&generate=true", null, (succ, json) =>
             {
                 if (succ)
                 {
@@ -507,7 +507,7 @@ namespace PlayUR.Editor
             }, debugOutput: true), new CoroutineRunner());
         }*/
 
-        [MenuItem("PlayUR/Re-generate Enums", isValidateFunction: true)]
+        [MenuItem("PlayUR/Re-generate Enums and Schema Definitions", isValidateFunction: true)]
         [MenuItem("PlayUR/Build Web Player", isValidateFunction: true)]
         [MenuItem("PlayUR/Build and Upload Web Player", isValidateFunction: true)]
         [MenuItem("PlayUR/Upload Web Player", isValidateFunction: true)]
