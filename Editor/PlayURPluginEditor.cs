@@ -256,6 +256,8 @@ namespace PlayUR.Editor
                     foreach (var schema in schemas.Values)
                     {
                         var name = schema["name"];
+                        //make the name safe for a c# filename
+                        name = PlayUREditorUtils.PlatformNameToValidEnumValue(name.Value);
                         //print(schema["csharpCode"]);
 
                         //create folder Schemas if doesn't exist
