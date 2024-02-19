@@ -420,7 +420,7 @@ namespace PlayUR
             yield return StartCoroutine(Rest.EnqueueGet("Configuration", form, (succ, result) => configuration = ParseConfigurationResult(succ, result, this), debugOutput: false));
         }
         public static Configuration ParseConfigurationResult(bool succ, JSONNode result = null, PlayURPlugin instance = null)
-    {
+        {
             if (succ)
             {
                 var configuration = new Configuration();
@@ -504,6 +504,10 @@ namespace PlayUR
                 {
                     instance.mTurkFromStandaloneLoginInfo = result["mTurk"];
                 }
+                if (result.HasKey("mTurkID") && result["mTurkID"] != "0")
+                {
+                    instance.mTurkFromStandaloneLoginInfo = result["mTurkID"];
+                }
 
                 return configuration;
             }
@@ -543,7 +547,7 @@ namespace PlayUR
                 s += "\t\t" + p.Key + "\t" + p.Value + "\n";
             }
 
-            s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + mTurkFromStandaloneLoginInfo +"\n\n";
+            s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + mTurkFromStandaloneLoginInfo + "\n\n";
 
             s += "\tAnalytics columns:\n";
             foreach (var c in configuration.analyticsColumnsOrder)
@@ -1082,7 +1086,7 @@ namespace PlayUR
             if (jsonObj == null) throw new Exceptions.InvalidParamFormatException(key, typeof(T));
             return jsonObj;
         }
-        
+
         /// <summary>
         /// Obtains a boolean array of values of a parameter defined in the <see cref="Configuration"/>.
         /// </summary>
@@ -1105,7 +1109,7 @@ namespace PlayUR
 
         #endregion
 
-            #region Session Logging
+        #region Session Logging
         bool inSession;
         const int NO_SESSION = -1;
         int sessionID = NO_SESSION;
@@ -1743,7 +1747,7 @@ namespace PlayUR.Exceptions
         {
             get
             {
-                return specificMessage+" Check the PlayUR Configuration via PlayUR -> Plugin Configuration...";
+                return specificMessage + " Check the PlayUR Configuration via PlayUR -> Plugin Configuration...";
             }
         }
     }

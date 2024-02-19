@@ -14,7 +14,7 @@ namespace PlayUR
         /// MTurk IDs are passed to the when launched in the web interface via the URL GET parameter defined in <see cref="MTURK_URL_PARAM"/>.
         /// When testing in the Unity Editor, this value can be overridden by setting <see cref="PlayURPluginHelper.forceMTurkIDInEditor"/>.
         /// </summary>
-        public bool HasMTurkID 
+        public bool HasMTurkID
         {
             get { return !string.IsNullOrEmpty(MTurkID); }
         }
@@ -27,7 +27,8 @@ namespace PlayUR
         /// </summary>
         public string MTurkID
         {
-            get {
+            get
+            {
                 string result = null;
 #if UNITY_EDITOR
                 result = PlayURPlugin.Settings.forceMTurkIDInEditor;
@@ -54,7 +55,7 @@ namespace PlayUR
             {
                 var form = Rest.GetWWWFormWithExperimentInfo();
                 form.Add(MTURK_URL_PARAM, MTurkID.ToString());
-                
+
                 yield return Rest.EnqueuePost(MTURK_API_ENDPOINT, form, (succ, result) =>
                 {
                     if (succ)
@@ -112,10 +113,10 @@ namespace PlayUR
         }
     }
 
-    
+
 }
 namespace PlayUR.Exceptions
-{ 
+{
     /// <summary>
     /// Thrown when a we try to set mturk as complete, but we have no row handle in database
     /// </summary>
