@@ -53,8 +53,7 @@ namespace PlayUR
             if (HasMTurkID)
             {
                 var form = Rest.GetWWWFormWithExperimentInfo();
-                //no longer store the id -- the user id is enough
-                //form.Add(MTURK_URL_PARAM, MTurkID.ToString());
+                form.Add(MTURK_URL_PARAM, MTurkID.ToString());
                 
                 yield return Rest.EnqueuePost(MTURK_API_ENDPOINT, form, (succ, result) =>
                 {
