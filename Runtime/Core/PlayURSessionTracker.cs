@@ -15,12 +15,18 @@ namespace PlayUR
         public override void OnReady()
         {
             PlayURPlugin.instance.StartSession();
+            Application.quitting += Quitting;
         }
-        private void OnApplicationQuit()
+        private void Quitting()
         {
-            PlayURPlugin.instance.EndSession();
+            if (PlayURPlugin.instance.CurrentSessionRunning)
+            {
+                PlayURPlugin.instance.EndSession();
+            }
             if (Core.Rest.Queue != null)
+            {
                 Core.Rest.Queue.ProcessImmediate();
+            }
         }
     }
 }
