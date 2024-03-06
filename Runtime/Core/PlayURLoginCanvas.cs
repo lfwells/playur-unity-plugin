@@ -136,7 +136,6 @@ namespace PlayUR.Core
                 UnityEngine.PlayerPrefs.SetString(PlayURPlugin.PERSIST_KEY_PREFIX + "username", usr);
             }
 
-            Debug.Log("login called" + pwd);
             PlayURPlugin.instance.Login(usr, pwd, (succ, result) =>
             {
                 password.text = string.Empty;
