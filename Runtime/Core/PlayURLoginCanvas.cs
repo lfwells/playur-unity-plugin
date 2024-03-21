@@ -99,7 +99,7 @@ namespace PlayUR.Core
                     pwd = UnityEngine.PlayerPrefs.GetString(PlayURPlugin.PERSIST_KEY_PREFIX + "password");
                     if (pwd.StartsWith("___TOKEN") == false)
                     {
-                        PlayURPlugin.Log("Auto-login..." + pwd);
+                        PlayURPlugin.Log("Auto-login...");
                         Login();
                     }
                 }
