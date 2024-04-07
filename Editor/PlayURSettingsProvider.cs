@@ -100,6 +100,11 @@ namespace PlayUR
             get { return EditorPrefs.GetBool("_foldout_groups", false); }
             set { EditorPrefs.SetBool("_foldout_groups", value); }
         }
+        private bool _foldout_actions
+        {
+            get { return EditorPrefs.GetBool("_foldout_actions", false); }
+            set { EditorPrefs.SetBool("_foldout_actions", value); }
+        }
         private bool _foldout_analytics
         {
             get { return EditorPrefs.GetBool("_foldout_analytics", false); }
@@ -161,7 +166,8 @@ namespace PlayUR
             public static GUIContent parameters = new GUIContent("Parameters");
             public static GUIContent experiments = new GUIContent("Experiments");
             public static GUIContent groups = new GUIContent("Groups");
-            public static GUIContent analyticColumns = new GUIContent("Analytic Columns");
+            public static GUIContent actions = new GUIContent("Analytics Actions");
+            public static GUIContent analyticColumns = new GUIContent("Analytics Columns");
         }
 
         public PlayURSettingsProvider(string path, SettingsScope scope = SettingsScope.User)
@@ -493,6 +499,8 @@ namespace PlayUR
                 _foldout_elements = ElementListFoldout(_foldout_elements, GetPlayURElements(), Labels.elements);
                 _foldout_parameters = ParameterListFoldout(_foldout_parameters, GetPlayURParameters(), Labels.parameters);
 
+                EditorGUILayout.Space();
+                _foldout_actions = EnumNameFoldout<PlayUR.Action>(_foldout_actions, Labels.actions);
                 EditorGUILayout.Space();
                 _foldout_analytics = EnumNameFoldout<PlayUR.AnalyticsColumn>(_foldout_analytics, Labels.analyticColumns);
             }
