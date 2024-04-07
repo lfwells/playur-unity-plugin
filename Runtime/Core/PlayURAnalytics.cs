@@ -407,6 +407,46 @@ namespace PlayUR
                 return Set(this.column, this.currentDataValue);
             }
         }
+
+        /// <summary>
+        /// An action that can have data for a given column appended-to over time. Can be updated frequently, and is updated to the server at a regular interval.
+        /// </summary>
+        public class CountAction : UpdatableAction<int>
+        {
+            protected int currentDataValue = 0;
+            protected AnalyticsColumn column;
+
+            /// <summary>
+            /// The current value stored in the column for this action. 
+            /// </summary>
+            public int Value { get { return currentDataValue; } }
+
+            /// <summary>
+            /// Create an action that can be appended-to over time.
+            /// </summary>
+            /// <param name="action">The analytics action id to tag this action with</param>
+            /// <param name="column">The column to use for storing the data</param>
+            public CountAction(Action action, AnalyticsColumn column) : base(action) { this.column = column; }
+
+            /// <summary>
+            /// Create an action that can be appended-to over time, and set the initial data.
+            /// </summary>
+            /// <param name="action">The analytics action id to tag this action with</param>
+            /// <param name="column">The column to use for storing the data</param>
+            /// <param name="initialData">The initial data to store in the column</param>
+            public CountAction(Action action, AnalyticsColumn column, int initialData) : base(action, column, initialData) { this.column = column; }
+
+            /// <summary>
+            /// Add to the count for the column for this action. Is not immediately uploaded to server, PlayUR handles this on a regular interval instead.
+            /// </summary>
+            /// <param name="by">The amount to increment by</param>
+            /// <returns></returns>
+            public InProgressAction Increment(int by = 1)
+            {
+                this.currentDataValue += by;
+                return Set(this.column, this.currentDataValue);
+            }
+        }
         #endregion
     }
 }
