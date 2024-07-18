@@ -10,6 +10,7 @@ using PlayUR.Core;
 using PlayUR;
 using PlayUR.ParameterSchemas;
 using Newtonsoft.Json;
+using UnityEngine.Rendering;
 
 namespace PlayUR
 {
@@ -237,6 +238,8 @@ namespace PlayUR
             {
                 //set up mTurk integration as needed
                 StartCoroutine(InitMTurk());
+                //set up prolific integration as needed
+                StartCoroutine(InitProlific());
 
                 inited = true;
                 Parameters.Load();
@@ -508,6 +511,10 @@ namespace PlayUR
                 {
                     instance.mTurkFromStandaloneLoginInfo = result["mTurkID"];
                 }
+                if (result.HasKey("prolificID") && result["prolificID"] != "0")
+                {
+                    instance.prolificFromStandaloneLoginInfo = result["prolificID"];
+                }
 
                 return configuration;
             }
@@ -547,7 +554,7 @@ namespace PlayUR
                 s += "\t\t" + p.Key + "\t" + p.Value + "\n";
             }
 
-            s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + mTurkFromStandaloneLoginInfo + "\n\n";
+            s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + mTurkFromStandaloneLoginInfo + "\n\t\tProlific = "+ prolificFromStandaloneLoginInfo+ "\n\n";
 
             s += "\tAnalytics columns:\n";
             foreach (var c in configuration.analyticsColumnsOrder)
