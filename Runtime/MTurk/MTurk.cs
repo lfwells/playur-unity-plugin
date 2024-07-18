@@ -5,9 +5,9 @@ namespace PlayUR
 {
     public partial class PlayURPlugin : UnitySingletonPersistent<PlayURPlugin>
     {
-        public const string MTURK_URL_PARAM = "mTurkID";
-        public const string MTURK_URL_PARAM_ALT = "mTurk";
-        public const string MTURK_API_ENDPOINT = "MTurkCompletion";
+        const string MTURK_URL_PARAM = "mTurkID";
+        const string MTURK_URL_PARAM_ALT = "mTurk";
+        const string MTURK_API_ENDPOINT = "MTurkCompletion";
 
         /// <summary>
         /// Determines if the game was launched with a MTurk ID defined.
@@ -74,7 +74,7 @@ namespace PlayUR
 
         /// <summary>
         /// Record on PlayUR that the MTurk participant has completed the game.
-        /// If successful, shows a popup in the corner with the Amazon MTurk Logo (as defined in <see cref="PlayURPluginHelper.mTurkLogo"/>) and the message defined in <see cref="PlayURPluginHelper.mTurkCompletionMessage"/>.
+        /// If successful, shows a popup in the corner with the Amazon MTurk Logo (as defined in <see cref="PlayURSettings.mTurkLogo"/>) and the message defined in <see cref="PlayURSettings.mTurkCompletionMessage"/>.
         /// </summary>
         /// <exception cref="PlayUR.Exceptions.InvalidMTurkState">If the game was not launched with a MTurkID.</exception>
         public void MarkMTurkComplete()

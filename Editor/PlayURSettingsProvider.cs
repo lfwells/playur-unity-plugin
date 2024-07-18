@@ -21,16 +21,22 @@ namespace PlayUR
         private SerializedProperty desktopExperiment;
         private SerializedProperty mTurkStartMessage;
         private SerializedProperty mTurkCompletionMessage;
+        private SerializedProperty mTurkCompletionCodeCopiedMessage;
+        private SerializedProperty prolificStartMessage;
+        private SerializedProperty prolificCompletionMessage;
+        private SerializedProperty prolificCompletionCodeCopiedMessage;
         private SerializedProperty forceToUseSpecificExperiment;
         private SerializedProperty experimentToTestInEditor;
         private SerializedProperty forceToUseSpecificGroup;
         private SerializedProperty groupToTestInEditor;
         private SerializedProperty forceMTurkIDInEditor;
+        private SerializedProperty forceProlificIDInEditor;
         private SerializedProperty defaultHighScoreTablePrefab;
         private SerializedProperty defaultPopupPrefab;
         private SerializedProperty defaultSurveyPopupPrefab;
         private SerializedProperty defaultSurveyRowPrefab;
         private SerializedProperty mTurkLogo;
+        private SerializedProperty prolificLogo;
         private SerializedProperty logLevel;
         private SerializedProperty logLevelToStore;
 
@@ -57,6 +63,11 @@ namespace PlayUR
         {
             get { return EditorPrefs.GetBool("_foldout_mturk", false); }
             set { EditorPrefs.SetBool("_foldout_mturk", value); }
+        }
+        private bool _foldout_prolific
+        {
+            get { return EditorPrefs.GetBool("_foldout_prolific", false); }
+            set { EditorPrefs.SetBool("_foldout_prolific", value); }
         }
         private bool _foldout_editorSettings
         {
@@ -139,9 +150,16 @@ namespace PlayUR
             public static GUIContent mTurk = new GUIContent("MTurk Settings");
             public static GUIContent mTurkStartMessage = new GUIContent("MTurk Start Message");
             public static GUIContent mTurkCompletionMessage = new GUIContent("MTurk Completion Message");
+            public static GUIContent mTurkCompletionCodeCopiedMessage = new GUIContent("MTurk Completion Code Copied Message");
             public static GUIContent mTurkSprite = new GUIContent("MTurk Sprite");
             public static GUIContent mTurkForceID = new GUIContent("Force MTurk ID in Editor");
 
+            public static GUIContent prolific = new GUIContent("Prolific Settings");
+            public static GUIContent prolificStartMessage = new GUIContent("Prolific Start Message");
+            public static GUIContent prolificCompletionMessage = new GUIContent("Prolific Completion Message");
+            public static GUIContent prolificCompletionCodeCopiedMessage = new GUIContent("Prolific Completion Code Copied Message");
+            public static GUIContent prolificSprite = new GUIContent("Prolific Sprite");
+            public static GUIContent prolificForceID = new GUIContent("Force Prolific ID in Editor");
 
             public static GUIContent editorSettings = new GUIContent("Editor Settings");
             public static GUIContent forceExperiment = new GUIContent("Force Experiment in Editor");
@@ -216,6 +234,10 @@ namespace PlayUR
             desktopExperiment = playurSettings.FindProperty("desktopExperiment");
             mTurkStartMessage = playurSettings.FindProperty("mTurkStartMessage");
             mTurkCompletionMessage = playurSettings.FindProperty("mTurkCompletionMessage");
+            mTurkCompletionCodeCopiedMessage = playurSettings.FindProperty("mTurkCompletionCodeCopiedMessage");
+            prolificStartMessage = playurSettings.FindProperty("prolificStartMessage");
+            prolificCompletionMessage = playurSettings.FindProperty("prolificCompletionMessage");
+            prolificCompletionCodeCopiedMessage = playurSettings.FindProperty("prolificCompletionCodeCopiedMessage");
             forceToUseSpecificExperiment = playurSettings.FindProperty("forceToUseSpecificExperiment");
             experimentToTestInEditor = playurSettings.FindProperty("experimentToTestInEditor");
             forceToUseSpecificGroup = playurSettings.FindProperty("forceToUseSpecificGroup");
@@ -226,6 +248,8 @@ namespace PlayUR
             defaultSurveyRowPrefab = playurSettings.FindProperty("defaultSurveyRowPrefab");
             forceMTurkIDInEditor = playurSettings.FindProperty("forceMTurkIDInEditor");
             mTurkLogo = playurSettings.FindProperty("mTurkLogo");
+            forceProlificIDInEditor = playurSettings.FindProperty("forceProlificIDInEditor");
+            prolificLogo = playurSettings.FindProperty("prolificLogo");
             logLevel = playurSettings.FindProperty("logLevel");
             logLevelToStore = playurSettings.FindProperty("minimumLogLevelToStore");
 
@@ -469,6 +493,7 @@ namespace PlayUR
                 EditorGUI.indentLevel = 1;
                 EditorGUILayout.PropertyField(mTurkStartMessage, Labels.mTurkStartMessage);
                 EditorGUILayout.PropertyField(mTurkCompletionMessage, Labels.mTurkCompletionMessage);
+                EditorGUILayout.PropertyField(mTurkCompletionCodeCopiedMessage, Labels.mTurkCompletionCodeCopiedMessage);
                 EditorGUILayout.PropertyField(forceMTurkIDInEditor, Labels.mTurkForceID);
                 EditorGUILayout.PropertyField(mTurkLogo, Labels.mTurkSprite);
             }
@@ -476,6 +501,22 @@ namespace PlayUR
             EditorGUI.indentLevel = 0;
             EditorGUILayout.EndVertical();
 
+            // Prolific
+            EditorGUI.indentLevel = 0;
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            _foldout_prolific = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_prolific, Labels.prolific);
+            if (_foldout_prolific)
+            {
+                EditorGUI.indentLevel = 1;
+                EditorGUILayout.PropertyField(prolificStartMessage, Labels.prolificStartMessage);
+                EditorGUILayout.PropertyField(prolificCompletionMessage, Labels.prolificCompletionMessage);
+                EditorGUILayout.PropertyField(prolificCompletionCodeCopiedMessage, Labels.prolificCompletionCodeCopiedMessage);
+                EditorGUILayout.PropertyField(forceProlificIDInEditor, Labels.prolificForceID);
+                EditorGUILayout.PropertyField(prolificLogo, Labels.prolificSprite);
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
+            EditorGUI.indentLevel = 0;
+            EditorGUILayout.EndVertical();
 
 
             // ActionsEditorGUI.indentLevel = 0;

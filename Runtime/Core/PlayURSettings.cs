@@ -71,10 +71,31 @@ namespace PlayUR
 
         [TextArea(3, 3)]
         /// <summary>
+        /// What message should be shown to the user when they start the game as a Amazon Mechanical Turk user. \
+        /// This value can (and should) be set at any time.
+        /// </summary>
+        public string prolificStartMessage = "Task Started";
+
+        [TextArea(3, 3)]
+        /// <summary>
+        /// What message should be shown to the user when they complete the game as a Amazon Mechanical Turk user. \
+        /// This value can (and should) be set at any time.
+        /// </summary>
+        public string prolificCompletionMessage = "Task Completed";
+
+        [TextArea(3, 3)]
+        /// <summary>
         /// What message should be shown to the user when they copy the completion code as a Amazon Mechanical Turk user. \
         /// This value can (and should) be set at any time.
         /// </summary>
         public string mTurkCompletionCodeCopiedMessage = "Completion Code Copied";
+
+        [TextArea(3, 3)]
+        /// <summary>
+        /// What message should be shown to the user when they copy the completion code as a Amazon Mechanical Turk user. \
+        /// This value can (and should) be set at any time.
+        /// </summary>
+        public string prolificCompletionCodeCopiedMessage = "Completion Code Copied";
 
         /// <summary>
         /// For use in-editor only, this allows us to test the game with the Experiment defined in <see cref="experimentToTestInEditor"/>.
@@ -102,6 +123,11 @@ namespace PlayUR
         public string forceMTurkIDInEditor = null;
 
         /// <summary>
+        /// For use in-editor only, this allows us to test the game with a given Prolific ID.
+        /// </summary>
+        public string forceProlificIDInEditor = null;
+
+        /// <summary>
         /// The prefab to use that represents the highscore table. You can link this to the pre-made prefab in the PlayUR/HighScores folder, or create your own.
         /// </summary>
         public GameObject defaultHighScoreTablePrefab;
@@ -125,6 +151,11 @@ namespace PlayUR
         /// The sprite asset representing the Amazon Mechanical Turk Logo. You can link this to the logo in the PlayUR/Murk folder.
         /// </summary>
         public Sprite mTurkLogo;
+
+        /// <summary>
+        /// The sprite asset representing the Prolific Logo. You can link this to the logo in the PlayUR/Prolific folder.
+        /// </summary>
+        public Sprite prolificLogo;
 
         /// <summary>
         /// The minimum log level to store in the PlayUR Platform. This is useful if you want to ignore certain log messages.
@@ -165,7 +196,7 @@ namespace PlayUR
                 settings.defaultSurveyPopupPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(Path.Combine(runtimeFolder, "Survey", "SurveyPopupPrefab.prefab"));
                 settings.defaultSurveyRowPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(Path.Combine(runtimeFolder, "Survey", "SurveyRowPrefab.prefab"));
                 settings.mTurkLogo = AssetDatabase.LoadAssetAtPath<Sprite>(Path.Combine(runtimeFolder, "MTurk", "mturk.png"));
-
+                settings.prolificLogo = AssetDatabase.LoadAssetAtPath<Sprite>(Path.Combine(runtimeFolder, "Prolific", "prolific.png"));
 
                 Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath));
                 AssetDatabase.CreateAsset(settings, SettingsPath);
