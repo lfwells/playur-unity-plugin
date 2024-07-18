@@ -111,6 +111,10 @@ namespace PlayUR
         {
             ShowCloseablePopup(PlayURPlugin.Settings.mTurkCompletionMessage, PlayURPlugin.Settings.mTurkLogo);
         }
+        public void mTurkCompletionCodeCopiedMessage()
+        {
+            ShowCloseablePopup(PlayURPlugin.Settings.mTurkCompletionCodeCopiedMessage, PlayURPlugin.Settings.mTurkLogo);
+        }
     }
 
 
