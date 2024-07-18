@@ -828,10 +828,14 @@ namespace PlayUR.Editor
                     if (json["success"].AsBool)
                     {
                         var warnings = json["warnings"].AsArray;
-                        string[] warningStrings = new string[warnings.Count];
-                        for (int i = 0; i < warnings.Count; i++)
+                        string[] warningStrings = new string[Mathf.Min(6, warnings.Count)];
+                        for (int i = 0; i < Mathf.Min(5,warnings.Count); i++)
                         {
                             warningStrings[i] = warnings[i];
+                        }
+                        if (warnings.Count > 5)
+                        {
+                            warningStrings[5] = "Plus " + (warnings.Count - 5) + " More Warnings";
                         }
                         callback(warningStrings);
                     }
