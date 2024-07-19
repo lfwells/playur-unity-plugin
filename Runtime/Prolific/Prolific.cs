@@ -31,7 +31,6 @@ namespace PlayUR
                 string result = null;
 #if UNITY_EDITOR
                 result = PlayURPlugin.Settings.forceProlificIDInEditor;
-                print("DUMB PROLIFIC:"+result);
 #else
                 URLParameters.GetSearchParameters().TryGetValue(PROLIFIC_URL_PARAM, out result);
 #endif
