@@ -51,6 +51,10 @@ namespace PlayUR
             {
                 textBox.text = GenerateCompletionCode(text);
             }
+            else
+            {
+                textBox.text = text;
+            }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             textBox.AddComponent<WebGLCopyAndPaste>();
