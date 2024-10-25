@@ -46,6 +46,7 @@ namespace PlayUR
         }
 
         protected string mTurkFromStandaloneLoginInfo = null; //if in a standalone build, we can get the mTurkID from the login info (api/Configuration/index.php returns this)
+        protected string paramsFromStandaloneLoginInfo = null;
 
         int mTurkCompletionRowID;
 

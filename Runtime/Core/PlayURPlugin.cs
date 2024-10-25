@@ -94,6 +94,21 @@ namespace PlayUR
         /// The branch of the current build
         /// </summary>
         public string branch;
+
+        /// <summary>
+        /// The user's passed in mturkID, if any
+        /// </summary>
+        public string mturkID;
+
+        /// <summary>
+        /// The user's passed in mturk params (assignmentId, hitId, workerId, turkSubmitTo), if any, in json format
+        /// </summary>
+        public string mturkparams;
+
+        /// <summary>
+        /// The user's passed in prolificID, if any
+        /// </summary>
+        public string prolificID;
     }
     #endregion
 
@@ -420,7 +435,7 @@ namespace PlayUR
 #endif
 
             //go ahead and get config now
-            yield return StartCoroutine(Rest.EnqueueGet("Configuration", form, (succ, result) => configuration = ParseConfigurationResult(succ, result, this), debugOutput: false));
+            yield return StartCoroutine(Rest.EnqueueGet("Configuration", form, (succ, result) => configuration = ParseConfigurationResult(succ, result, this), debugOutput: true));
         }
         public static Configuration ParseConfigurationResult(bool succ, JSONNode result = null, PlayURPlugin instance = null)
         {
@@ -510,10 +525,17 @@ namespace PlayUR
                 if (result.HasKey("mTurkID") && result["mTurkID"] != "0")
                 {
                     instance.mTurkFromStandaloneLoginInfo = result["mTurkID"];
+                    configuration.mturkID = result["mTurkID"];
                 }
                 if (result.HasKey("prolificID") && result["prolificID"] != "0")
                 {
                     instance.prolificFromStandaloneLoginInfo = result["prolificID"];
+                    configuration.prolificID = result["prolificID"];
+                }
+                if (result.HasKey("params") && result["params"] != "0")
+                {
+                    instance.paramsFromStandaloneLoginInfo = result["params"];
+                    configuration.mturkparams = result["params"];
                 }
 
                 return configuration;
@@ -555,6 +577,7 @@ namespace PlayUR
             }
 
             s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + mTurkFromStandaloneLoginInfo + "\n\t\tProlific = "+ prolificFromStandaloneLoginInfo+ "\n\n";
+            s += "\tParams = " + paramsFromStandaloneLoginInfo + "\n\n";
 
             s += "\tAnalytics columns:\n";
             foreach (var c in configuration.analyticsColumnsOrder)

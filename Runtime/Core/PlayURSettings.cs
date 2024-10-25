@@ -88,14 +88,14 @@ namespace PlayUR
         /// What message should be shown to the user when they copy the completion code as a Amazon Mechanical Turk user. \
         /// This value can (and should) be set at any time.
         /// </summary>
-        public string mTurkCompletionCodeCopiedMessage = "Completion Code Copied";
+        public string mTurkCompletionCodeCopiedMessage = "Submission Code Copied";
 
         [TextArea(3, 3)]
         /// <summary>
         /// What message should be shown to the user when they copy the completion code as a Amazon Mechanical Turk user. \
         /// This value can (and should) be set at any time.
         /// </summary>
-        public string prolificCompletionCodeCopiedMessage = "Completion Code Copied";
+        public string prolificCompletionCodeCopiedMessage = "Submission Code Copied";
 
         /// <summary>
         /// For use in-editor only, this allows us to test the game with the Experiment defined in <see cref="experimentToTestInEditor"/>.
