@@ -521,6 +521,7 @@ namespace PlayUR
                 if (result.HasKey("mTurk") && result["mTurk"] != "0")
                 {
                     instance.mTurkFromStandaloneLoginInfo = result["mTurk"];
+                    configuration.mturkID = result["mTurk"];
                 }
                 if (result.HasKey("mTurkID") && result["mTurkID"] != "0")
                 {
