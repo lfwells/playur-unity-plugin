@@ -68,8 +68,8 @@ namespace PlayUR.Editor
         public static string PlatformNameToValidEnumValue(string input)
         {
             var rgx = new System.Text.RegularExpressions.Regex("[^a-zA-Z0-9_]");
+            input = input.Replace(" ", "_");
             input = rgx.Replace(input, "");
-            input = input.Replace(" ", "");
             if (!char.IsLetter(input[0])) input = "_" + input;
             return input;
         }
