@@ -50,6 +50,12 @@ namespace PlayUR
         {
             if (HasProlificID)
             {
+                if (IsDetachedMode)
+                {
+                    yield return StartCoroutine(DetachedModeProxy.InitProlific());
+                    yield break;
+                }
+
                 var form = Rest.GetWWWFormWithExperimentInfo();
                 form.Add(PROLIFIC_URL_PARAM, ProlificID.ToString());
 
@@ -78,6 +84,12 @@ namespace PlayUR
         {
             if (HasProlificID)
             {
+                if (IsDetachedMode)
+                {
+                    DetachedModeProxy.MarkProlificComplete();
+                    return;
+                }
+
                 if (prolificCompletionRowID == -1)
                 {
                     throw new PlayUR.Exceptions.InvalidProlificState();

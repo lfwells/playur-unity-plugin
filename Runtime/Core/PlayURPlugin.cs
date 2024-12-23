@@ -301,6 +301,12 @@ namespace PlayUR
         /// <param name="callback">called when the response from the server is given, with a bool success and the user's information</param>
         public void Login(string username, string password, Rest.ServerCallback callback)
         {
+            if (IsDetachedMode)
+            {
+                DetachedModeProxy.Login(username, password, callback);
+                return;
+            }
+
             var form = Rest.GetWWWForm();
             form.Add("username", username);
             form.Add("password", password);
@@ -331,6 +337,12 @@ namespace PlayUR
         /// <param name="callback">called when the response from the server is given, with a bool success and the user's information</param>
         public void Register(string username, string password, string email, string firstName, string lastName, Rest.ServerCallback callback)
         {
+            if (IsDetachedMode)
+            {
+                DetachedModeProxy.Register(username, password, email, firstName, lastName, callback);
+                return;
+            }
+
             var form = Rest.GetWWWForm();
             form.Add("username", username);
             form.Add("email", email);
@@ -1193,6 +1205,12 @@ namespace PlayUR
 
             form.Add("configuration", JsonConvert.SerializeObject(Configuration));
 
+            if (IsDetachedMode)
+            {
+                DetachedModeProxy.StartSession(form);
+                return;
+            }
+
             StartCoroutine(Rest.EnqueuePost("Session", form, (succ, result) =>
             {
                 if (succ)
@@ -1230,6 +1248,12 @@ namespace PlayUR
             form.Add("currentResolution", Screen.currentResolution.ToString());
             if (string.IsNullOrEmpty(browserInfo) == false) { form.Add("browserInfo", browserInfo); }
 
+            if (IsDetachedMode)
+            {
+                yield return StartCoroutine(DetachedModeProxy.StartSessionAsync(form));
+                yield break;
+            }
+
             yield return StartCoroutine(Rest.EnqueuePost("Session", form, (succ, result) =>
             {
                 if (succ)
@@ -1257,6 +1281,12 @@ namespace PlayUR
                 { "history", GetHistoryString() },
                 { "debugLog", GetDebugLogs(Settings?.minimumLogLevelToStore ?? LogLevel.Log) }
             };
+
+            if (IsDetachedMode)
+            {
+                DetachedModeProxy.EndSession(startNew, endConfig);
+                return;
+            }
 
             StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) =>
             {
@@ -1288,6 +1318,12 @@ namespace PlayUR
                 { "history", GetHistoryString() },
                 { "debugLog", GetDebugLogs(Settings?.minimumLogLevelToStore ?? LogLevel.Log) }
             };
+
+            if (IsDetachedMode)
+            {
+                yield return StartCoroutine(DetachedModeProxy.EndSessionAsync(startNew, endConfig));
+                yield break;
+            }
 
             yield return StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) =>
             {
@@ -1323,7 +1359,13 @@ namespace PlayUR
                 { "history", GetHistoryString() },
             };
 
-            return Rest.EnqueuePut("Session", sessionID, form, (succ, result) =>
+            if (IsDetachedMode)
+            {
+                yield return StartCoroutine(DetachedModeProxy.BackupSessionAsync(form));
+                yield break;
+            }
+
+            yield return Rest.EnqueuePut("Session", sessionID, form, (succ, result) =>
             {
                 PlayURPlugin.Log("session backedup");
             }, debugOutput: false, storeFormInHistory: false);
@@ -1460,6 +1502,12 @@ namespace PlayUR
         }
         public void UpdateLeaderboardEntryName(int id, string name, Rest.ServerCallback callback)
         {
+            if (IsDetachedMode)
+            {
+                DetachedModeProxy.UpdateLeaderboardEntryName(id, name, callback);
+                return;
+            }
+
             var form = Rest.GetWWWForm();
             form.Add("customName", name);
 

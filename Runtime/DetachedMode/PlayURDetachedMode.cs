@@ -4,6 +4,8 @@ using PlayUR.DetachedMode;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
+using System;
+using UnityEngine;
 
 namespace PlayUR
 {
@@ -29,11 +31,86 @@ namespace PlayUR
                 yield return 0;
             }
 
+            #region Login
+            public void Login(string username, string password, Rest.ServerCallback callback)
+            {
+                throw new NotImplementedException();
+            }
+            public void Register(string username, string password, string email, string firstName, string lastName, Rest.ServerCallback callback)
+            {
+                throw new NotImplementedException();
+            }
+            #endregion
+
+            #region Analytics
+            public void StartSession(Dictionary<string, string> form)
+            {
+                throw new NotImplementedException();
+            }
+            public void EndSession(bool startNew = false, Dictionary<string, string> form = null)
+            {
+                throw new NotImplementedException();
+            }
+            public IEnumerator StartSessionAsync(Dictionary<string, string> form)
+            {
+                throw new NotImplementedException();
+                yield break;
+            }
+            public IEnumerator EndSessionAsync(bool startNew = false, Dictionary<string, string> form = null)
+            {
+                throw new NotImplementedException();
+                yield break;
+            }
+            public IEnumerator RecordActionDirectly(ActionParamsList actions, Rest.ServerCallback callback)
+            {
+                throw new NotImplementedException();
+                yield break;
+            }
+            public IEnumerator ProcessUpdatableAction<T>(UpdatableAction<T> updatableAction) 
+            { 
+                throw new NotImplementedException();
+                yield break;
+            }
+            public IEnumerator BackupSessionAsync(Dictionary<string, string> form)
+            {
+                throw new NotImplementedException();
+                yield break;
+            }
+            #endregion
+
+            #region Leaderboard
             public void GetLeaderboardEntries(string leaderboardID, LeaderboardConfiguration leaderBoardConfiguration, Rest.ServerCallback callback)
             {
                 if (callback != null) callback(false);
             }
+            public void UpdateLeaderboardEntryName(int id, string name, Rest.ServerCallback callback)
+            {
+                if (callback != null) callback(false);
+            }
+            #endregion
 
+            #region MTurk and Prolific
+            public IEnumerator InitMTurk()
+            {
+                throw new NotImplementedException();
+                yield break;
+            }
+            public IEnumerator InitProlific()
+            {
+                throw new NotImplementedException();
+                yield break;
+            }
+            public void MarkMTurkComplete()
+            {
+                throw new NotImplementedException();
+            }
+            public void MarkProlificComplete()
+            {
+                throw new NotImplementedException();
+            }
+            #endregion
+
+            #region PlayerPrefs
             public void PlayerPrefsLoad(PlayUR.Core.Rest.ServerCallback callback)
             {
                 if (callback != null) callback(false);
@@ -66,6 +143,7 @@ namespace PlayUR
             {
                 UnityEngine.PlayerPrefs.DeleteAll();
             }
+            #endregion
         }
     }
 }

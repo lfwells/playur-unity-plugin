@@ -11,7 +11,7 @@ namespace PlayUR
     public partial class PlayURPlugin
     {
         [System.Serializable]
-        protected struct ActionParams
+        public struct ActionParams
         {
             public Action a;
             public string timestamp;
@@ -21,7 +21,7 @@ namespace PlayUR
             public List<string> columnValues; 
         }
         [System.Serializable]
-        protected struct ActionParamsList //weirdly to serialize to json, we need a struct to wrap the array
+        public struct ActionParamsList //weirdly to serialize to json, we need a struct to wrap the array
         {
             public ActionParams[] actions;
         }
@@ -50,6 +50,12 @@ namespace PlayUR
         }
         IEnumerator RecordActionDirectly(ActionParamsList actions, Rest.ServerCallback callback)
         {
+            if (IsDetachedMode)
+            {
+                yield return StartCoroutine(DetachedModeProxy.RecordActionDirectly(actions, callback));
+                yield break;
+            }
+
             var form = Rest.GetWWWFormWithExperimentInfo();
             form.Add("actions", JsonUtility.ToJson(actions));
 
@@ -338,6 +344,11 @@ namespace PlayUR
             /// <returns></returns>
             public IEnumerator Process()
             {
+                if (PlayURPlugin.instance.IsDetachedMode)
+                {
+                    yield return instance.StartCoroutine(PlayURPlugin.instance.DetachedModeProxy.ProcessUpdatableAction(this));
+                    yield break;
+                }
 
                 if (Time.realtimeSinceStartup - lastUpdate > uploadIntervalSeconds)
                 {

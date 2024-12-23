@@ -54,6 +54,11 @@ namespace PlayUR
         {
             if (HasMTurkID)
             {
+                if (IsDetachedMode)
+                {
+                    yield return StartCoroutine(DetachedModeProxy.InitMTurk()); yield break;
+                }
+
                 var form = Rest.GetWWWFormWithExperimentInfo();
                 form.Add(MTURK_URL_PARAM, MTurkID.ToString());
 
@@ -82,6 +87,12 @@ namespace PlayUR
         {
             if (HasMTurkID)
             {
+                if (IsDetachedMode)
+                {
+                    DetachedModeProxy.MarkMTurkComplete();
+                    return;
+                }
+
                 if (mTurkCompletionRowID == -1)
                 {
                     throw new PlayUR.Exceptions.InvalidMTurkState();
