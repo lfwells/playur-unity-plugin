@@ -7,6 +7,10 @@ using UnityEngine.InputSystem;
 using System;
 using UnityEngine;
 using PlayUR.Exceptions;
+using System.IO;
+using System.Text;
+using System.Runtime.Serialization.Formatters.Binary;
+using UnityEditor;
 
 namespace PlayUR
 {
@@ -82,28 +86,38 @@ namespace PlayUR
             #endregion
 
             #region Analytics
+            FileStream currentAnalyticsFile;
+            BinaryFormatter bf = new BinaryFormatter();
             public void StartSession(PlayURPlugin plugin, Dictionary<string, string> form)
             {
-                throw new NotImplementedException();
+                var currentTimestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+                currentAnalyticsFile = new FileStream(Path.Combine(Application.persistentDataPath, "session_" + currentTimestamp + ".csv"), FileMode.Create);
+                var toWrite = string.Join("\n", form.Select(kvp => kvp.Key+","+kvp.Value));
+                bf.Serialize(currentAnalyticsFile, toWrite);
+                Log("Analytics File Created in Detached Mode at " + currentAnalyticsFile.Name + " with session info " + toWrite);
             }
             public void EndSession(PlayURPlugin plugin, bool startNew = false, Dictionary<string, string> form = null)
             {
-                throw new NotImplementedException();
+                if (currentAnalyticsFile != null) { currentAnalyticsFile.Close(); }
             }
             public IEnumerator StartSessionAsync(PlayURPlugin plugin, Dictionary<string, string> form)
             {
-                throw new NotImplementedException();
-                yield break;
+                StartSession(plugin, form);
+                yield return 0;
             }
             public IEnumerator EndSessionAsync(PlayURPlugin plugin, bool startNew = false, Dictionary<string, string> form = null)
             {
-                throw new NotImplementedException();
-                yield break;
+                EndSession(plugin, startNew, form);
+                yield return 0;
             }
             public IEnumerator RecordActionDirectly(PlayURPlugin plugin, ActionParamsList actions, Rest.ServerCallback callback)
             {
-                throw new NotImplementedException();
-                yield break;
+                if (currentAnalyticsFile != null && bf != null)
+                {
+                    bf.Serialize(currentAnalyticsFile, JsonUtility.ToJson(actions));
+                }
+                callback?.Invoke(true, null);
+                yield return 0;
             }
             public IEnumerator ProcessUpdatableAction<T>(UpdatableAction<T> updatableAction) 
             { 
