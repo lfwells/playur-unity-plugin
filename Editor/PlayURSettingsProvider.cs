@@ -140,7 +140,7 @@ namespace PlayUR
 
             public static GUIContent gameConfiguration = new GUIContent("Configuration Settings");
             public static GUIContent gameId = new GUIContent("Game ID");
-            public static GUIContent detachedMode = new GUIContent("Detached Mode");
+            public static GUIContent detachedMode = new GUIContent("Detached Mode (?)", "In detached mode, configuratation comes from a Scriptable Object instead of from the PlayUR Servers.");
             public static GUIContent clientSecret = new GUIContent("Client Secret");
 
             public static GUIContent generalSettings = new GUIContent("General Settings");
@@ -317,9 +317,9 @@ namespace PlayUR
 
             if (InDetachedMode)
             {
-                GUILayout.Label("In detached mode, configuratation comes from a Scriptable Object.\n\n" +
+                GUILayout.Label("In detached mode, configuratation comes from a Scriptable Object instead of from the PlayUR Servers.\n\n" +
                     "Note that many features will not work well in this mode--" +
-                    "this plugin is written to make the most of the PlayUR servers", EditorStyles.helpBox);
+                    "this plugin is written to make the most of the PlayUR Servers", EditorStyles.helpBox);
             }
             else
             {
