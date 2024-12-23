@@ -605,7 +605,7 @@ namespace PlayUR
                 {
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.SelectableLabel(name, EditorStyles.wordWrappedMiniLabel, GUILayout.MaxHeight(15));
-                    if (GUILayout.Button("Preview Values", EditorStyles.miniButton, GUILayout.Width(150)))
+                    if ((!InDetachedMode || gameIdProperty.intValue > 0) && GUILayout.Button("Preview Values", EditorStyles.miniButton, GUILayout.Width(150)))
                     {
                         previewGroup = (ExperimentGroup)System.Enum.Parse(typeof(ExperimentGroup), name);
 
