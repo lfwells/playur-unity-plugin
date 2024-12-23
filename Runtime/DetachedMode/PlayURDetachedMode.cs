@@ -6,13 +6,37 @@ using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using System;
 using UnityEngine;
+using PlayUR.Exceptions;
 
 namespace PlayUR
 {
     public partial class PlayURPlugin : UnitySingletonPersistent<PlayURPlugin>
     {
         public bool IsDetachedMode => Settings.detachedMode;
-        public PlayURConfigurationObject DetchedConfiguration => Settings.detachedModeConfiguration;
+
+        void InitDetachedFunctionality()
+        {
+            if (IsDetachedMode)
+            {
+                _detachedConfiguration = Settings.detachedModeConfiguration;
+            }
+        }
+        PlayURConfigurationObject _detachedConfiguration;
+        public PlayURConfigurationObject DetchedConfiguration
+        {
+            get
+            {
+                return _detachedConfiguration;
+            }
+            set
+            {
+                if (inSession)
+                    throw new SessionAlreadyStartedException();
+
+                _detachedConfiguration = value;
+                StartCoroutine(Init());
+            }
+        }
         public DetachedModeProxyHandler DetachedModeProxy => new();
 
         public class DetachedModeProxyHandler
@@ -39,12 +63,17 @@ namespace PlayUR
 
                 PlayURPlugin.instance.Login(currentTimestampAsUsername, passwordDoesntMatter, (succ, result) =>
                 {
+                    PlayURLoginCanvas.LoggedIn = true;
                     loginCanvas.GoToNextScene();
                 });
             }
             public void Login(PlayURPlugin plugin, string username, string password, Rest.ServerCallback callback)
             {
-                throw new NotImplementedException();
+                plugin.user = new User
+                {
+                    name = username,
+                };
+                callback?.Invoke(true, null);
             }
             public void Register(PlayURPlugin plugin, string username, string password, string email, string firstName, string lastName, Rest.ServerCallback callback)
             {
@@ -91,11 +120,11 @@ namespace PlayUR
             #region Leaderboard
             public void GetLeaderboardEntries(PlayURPlugin plugin, string leaderboardID, LeaderboardConfiguration leaderBoardConfiguration, Rest.ServerCallback callback)
             {
-                if (callback != null) callback(false);
+                callback?.Invoke(false, null);
             }
             public void UpdateLeaderboardEntryName(PlayURPlugin plugin, int id, string name, Rest.ServerCallback callback)
             {
-                if (callback != null) callback(false);
+                callback?.Invoke(false, null);
             }
             #endregion
 

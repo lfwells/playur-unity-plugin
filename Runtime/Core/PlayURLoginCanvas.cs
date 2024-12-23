@@ -44,7 +44,7 @@ namespace PlayUR.Core
         /// <summary>
         /// Returns if we have successfully logged in or not
         /// </summary>
-        public static bool LoggedIn { get; private set; }
+        public static bool LoggedIn { get; set; }
 
         //this var either contains the text put in the password field, or is populated by the auto-login process.
         string usr;

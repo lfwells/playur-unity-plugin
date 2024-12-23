@@ -215,6 +215,8 @@ namespace PlayUR
                 throw new PluginNotConfiguredException("Client Secret ID must be set");
             }
 
+            InitDetachedFunctionality();
+
             base.Awake();
 
             StartCoroutine(Init());
@@ -586,25 +588,33 @@ namespace PlayUR
                 $"\n\tBuildID: {configuration.buildID}, Branch: {configuration.branch}" +
                 $"\n\t" +
                 $"\n\tElements:\n";
-            foreach (var element in configuration.elements)
-            {
-                s += "\t\t" + element + "\n";
-            }
+
+            if (configuration.elements == null) s += "\t\tNULL\n";
+            else
+                foreach (var element in configuration.elements)
+                {
+                    s += "\t\t" + element + "\n";
+                }
 
             s += "\tParameters:\n";
-            foreach (var p in configuration.parameters)
-            {
-                s += "\t\t" + p.Key + "\t" + p.Value + "\n";
-            }
+            if (configuration.parameters == null) s += "\t\tNULL\n";
+            else
+                foreach (var p in configuration.parameters)
+                {
+                    s += "\t\t" + p.Key + "\t" + p.Value + "\n";
+                }
 
             s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + mTurkFromStandaloneLoginInfo + "\n\t\tProlific = "+ prolificFromStandaloneLoginInfo+ "\n\n";
+
             s += "\tParams = " + paramsFromStandaloneLoginInfo + "\n\n";
 
             s += "\tAnalytics columns:\n";
-            foreach (var c in configuration.analyticsColumnsOrder)
-            {
-                s += "\t\t" + c + "\n";
-            }
+            if (configuration.analyticsColumnsOrder == null) s += "\t\tNULL\n";
+            else
+                foreach (var c in configuration.analyticsColumnsOrder)
+                {
+                    s += "\t\t" + c + "\n";
+                }
 
 
             Log(s);
