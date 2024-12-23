@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace PlayUR.DetachedMode
-{ 
+{
     [CreateAssetMenu(menuName = "PlayUR/Detached Mode/Configuration Object")]
     public class PlayURConfigurationObject : ScriptableObject
     {
@@ -19,11 +19,11 @@ namespace PlayUR.DetachedMode
             }
 
             public string key;
-            [TextArea(2,10)]
+            [TextArea(2, 10)]
             public string value;
             public DataType type;
         }
 
         public List<Parameter> parameters;
     }
-    |
+}
