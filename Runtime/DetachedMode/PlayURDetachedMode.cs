@@ -77,6 +77,9 @@ namespace PlayUR
                 plugin.user = new User
                 {
                     name = username,
+#if UNITY_EDITOR
+                    accessLevel = 9001
+#endif
                 };
                 callback?.Invoke(true, null);
             }
