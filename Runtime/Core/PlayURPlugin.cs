@@ -303,7 +303,7 @@ namespace PlayUR
         {
             if (IsDetachedMode)
             {
-                DetachedModeProxy.Login(username, password, callback);
+                DetachedModeProxy.Login(this, username, password, callback);
                 return;
             }
 
@@ -339,7 +339,7 @@ namespace PlayUR
         {
             if (IsDetachedMode)
             {
-                DetachedModeProxy.Register(username, password, email, firstName, lastName, callback);
+                DetachedModeProxy.Register(this, username, password, email, firstName, lastName, callback);
                 return;
             }
 
@@ -1207,7 +1207,7 @@ namespace PlayUR
 
             if (IsDetachedMode)
             {
-                DetachedModeProxy.StartSession(form);
+                DetachedModeProxy.StartSession(this, form);
                 return;
             }
 
@@ -1250,7 +1250,7 @@ namespace PlayUR
 
             if (IsDetachedMode)
             {
-                yield return StartCoroutine(DetachedModeProxy.StartSessionAsync(form));
+                yield return StartCoroutine(DetachedModeProxy.StartSessionAsync(this, form));
                 yield break;
             }
 
@@ -1284,7 +1284,7 @@ namespace PlayUR
 
             if (IsDetachedMode)
             {
-                DetachedModeProxy.EndSession(startNew, endConfig);
+                DetachedModeProxy.EndSession(this, startNew, endConfig);
                 return;
             }
 
@@ -1321,7 +1321,7 @@ namespace PlayUR
 
             if (IsDetachedMode)
             {
-                yield return StartCoroutine(DetachedModeProxy.EndSessionAsync(startNew, endConfig));
+                yield return StartCoroutine(DetachedModeProxy.EndSessionAsync(this, startNew, endConfig));
                 yield break;
             }
 
@@ -1361,7 +1361,7 @@ namespace PlayUR
 
             if (IsDetachedMode)
             {
-                yield return StartCoroutine(DetachedModeProxy.BackupSessionAsync(form));
+                yield return StartCoroutine(DetachedModeProxy.BackupSessionAsync(this, form));
                 yield break;
             }
 
@@ -1460,7 +1460,7 @@ namespace PlayUR
         {
             if (IsDetachedMode) 
             {
-                DetachedModeProxy.GetLeaderboardEntries(leaderboardID, leaderBoardConfiguration, callback);
+                DetachedModeProxy.GetLeaderboardEntries(this, leaderboardID, leaderBoardConfiguration, callback);
                 return;
             }
 
@@ -1504,7 +1504,7 @@ namespace PlayUR
         {
             if (IsDetachedMode)
             {
-                DetachedModeProxy.UpdateLeaderboardEntryName(id, name, callback);
+                DetachedModeProxy.UpdateLeaderboardEntryName(this, id, name, callback);
                 return;
             }
 

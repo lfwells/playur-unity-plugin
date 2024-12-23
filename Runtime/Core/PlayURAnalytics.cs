@@ -52,7 +52,7 @@ namespace PlayUR
         {
             if (IsDetachedMode)
             {
-                yield return StartCoroutine(DetachedModeProxy.RecordActionDirectly(actions, callback));
+                yield return StartCoroutine(DetachedModeProxy.RecordActionDirectly(this, actions, callback));
                 yield break;
             }
 

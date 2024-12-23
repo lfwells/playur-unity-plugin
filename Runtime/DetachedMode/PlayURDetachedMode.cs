@@ -42,36 +42,36 @@ namespace PlayUR
                     loginCanvas.GoToNextScene();
                 });
             }
-            public void Login(string username, string password, Rest.ServerCallback callback)
+            public void Login(PlayURPlugin plugin, string username, string password, Rest.ServerCallback callback)
             {
                 throw new NotImplementedException();
             }
-            public void Register(string username, string password, string email, string firstName, string lastName, Rest.ServerCallback callback)
+            public void Register(PlayURPlugin plugin, string username, string password, string email, string firstName, string lastName, Rest.ServerCallback callback)
             {
                 throw new NotImplementedException();
             }
             #endregion
 
             #region Analytics
-            public void StartSession(Dictionary<string, string> form)
+            public void StartSession(PlayURPlugin plugin, Dictionary<string, string> form)
             {
                 throw new NotImplementedException();
             }
-            public void EndSession(bool startNew = false, Dictionary<string, string> form = null)
+            public void EndSession(PlayURPlugin plugin, bool startNew = false, Dictionary<string, string> form = null)
             {
                 throw new NotImplementedException();
             }
-            public IEnumerator StartSessionAsync(Dictionary<string, string> form)
-            {
-                throw new NotImplementedException();
-                yield break;
-            }
-            public IEnumerator EndSessionAsync(bool startNew = false, Dictionary<string, string> form = null)
+            public IEnumerator StartSessionAsync(PlayURPlugin plugin, Dictionary<string, string> form)
             {
                 throw new NotImplementedException();
                 yield break;
             }
-            public IEnumerator RecordActionDirectly(ActionParamsList actions, Rest.ServerCallback callback)
+            public IEnumerator EndSessionAsync(PlayURPlugin plugin, bool startNew = false, Dictionary<string, string> form = null)
+            {
+                throw new NotImplementedException();
+                yield break;
+            }
+            public IEnumerator RecordActionDirectly(PlayURPlugin plugin, ActionParamsList actions, Rest.ServerCallback callback)
             {
                 throw new NotImplementedException();
                 yield break;
@@ -81,7 +81,7 @@ namespace PlayUR
                 throw new NotImplementedException();
                 yield break;
             }
-            public IEnumerator BackupSessionAsync(Dictionary<string, string> form)
+            public IEnumerator BackupSessionAsync(PlayURPlugin plugin, Dictionary<string, string> form)
             {
                 throw new NotImplementedException();
                 yield break;
@@ -89,32 +89,32 @@ namespace PlayUR
             #endregion
 
             #region Leaderboard
-            public void GetLeaderboardEntries(string leaderboardID, LeaderboardConfiguration leaderBoardConfiguration, Rest.ServerCallback callback)
+            public void GetLeaderboardEntries(PlayURPlugin plugin, string leaderboardID, LeaderboardConfiguration leaderBoardConfiguration, Rest.ServerCallback callback)
             {
                 if (callback != null) callback(false);
             }
-            public void UpdateLeaderboardEntryName(int id, string name, Rest.ServerCallback callback)
+            public void UpdateLeaderboardEntryName(PlayURPlugin plugin, int id, string name, Rest.ServerCallback callback)
             {
                 if (callback != null) callback(false);
             }
             #endregion
 
             #region MTurk and Prolific
-            public IEnumerator InitMTurk()
+            public IEnumerator InitMTurk(PlayURPlugin plugin)
             {
                 throw new NotImplementedException();
                 yield break;
             }
-            public IEnumerator InitProlific()
+            public IEnumerator InitProlific(PlayURPlugin plugin)
             {
                 throw new NotImplementedException();
                 yield break;
             }
-            public void MarkMTurkComplete()
+            public void MarkMTurkComplete(PlayURPlugin plugin)
             {
                 throw new NotImplementedException();
             }
-            public void MarkProlificComplete()
+            public void MarkProlificComplete(PlayURPlugin plugin)
             {
                 throw new NotImplementedException();
             }

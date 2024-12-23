@@ -56,7 +56,7 @@ namespace PlayUR
             {
                 if (IsDetachedMode)
                 {
-                    yield return StartCoroutine(DetachedModeProxy.InitMTurk()); yield break;
+                    yield return StartCoroutine(DetachedModeProxy.InitMTurk(this)); yield break;
                 }
 
                 var form = Rest.GetWWWFormWithExperimentInfo();
@@ -89,7 +89,7 @@ namespace PlayUR
             {
                 if (IsDetachedMode)
                 {
-                    DetachedModeProxy.MarkMTurkComplete();
+                    DetachedModeProxy.MarkMTurkComplete(this);
                     return;
                 }
 

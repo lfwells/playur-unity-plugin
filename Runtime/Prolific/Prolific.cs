@@ -52,7 +52,7 @@ namespace PlayUR
             {
                 if (IsDetachedMode)
                 {
-                    yield return StartCoroutine(DetachedModeProxy.InitProlific());
+                    yield return StartCoroutine(DetachedModeProxy.InitProlific(this));
                     yield break;
                 }
 
@@ -86,7 +86,7 @@ namespace PlayUR
             {
                 if (IsDetachedMode)
                 {
-                    DetachedModeProxy.MarkProlificComplete();
+                    DetachedModeProxy.MarkProlificComplete(this);
                     return;
                 }
 
