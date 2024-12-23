@@ -545,7 +545,7 @@ namespace PlayUR
             if (_foldout_enums)
             {
                 EditorGUI.indentLevel = 1;
-                if (GUILayout.Button(Labels.generateEnums, EditorStyles.miniButton))
+                if (!InDetachedMode && GUILayout.Button(Labels.generateEnums, EditorStyles.miniButton))
                 {
                     PlayURPluginEditor.GenerateEnum();
                     _parameters = null;

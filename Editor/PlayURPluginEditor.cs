@@ -279,6 +279,7 @@ namespace PlayUR.Editor
 
             EditorApplication.update += AwaitGeneratedEnums;
         }
+
         static int completeCount;
         static void AwaitGeneratedEnums()
         {
@@ -519,8 +520,6 @@ namespace PlayUR.Editor
             return PlayURPlugin.GameID > 0 || string.IsNullOrEmpty(PlayURPlugin.ClientSecret);
         }
 
-
-
         [MenuItem("PlayUR/Build Windows Player", isValidateFunction:true)]
         [MenuItem("PlayUR/Build and Upload Windows Player", isValidateFunction: true)]
         [MenuItem("PlayUR/Upload Windows Player", isValidateFunction: true)]
@@ -535,6 +534,22 @@ namespace PlayUR.Editor
         public static bool ValidateMacOSMenuFunctions()
         {
             return Application.platform == RuntimePlatform.OSXEditor;
+        }
+
+        [MenuItem("PlayUR/Build and Upload Web Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Upload Web Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Build and Upload Windows Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Upload Windows Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Build and Upload MacOS Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Upload MacOS Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Build and Upload Android Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Upload Android Player", isValidateFunction: true)]
+        [MenuItem("PlayUR/Run Game In Browser", isValidateFunction: true)]
+        [MenuItem("PlayUR/Check for Updates...", isValidateFunction: true)]
+        [MenuItem("PlayUR/Re-generate Enums and Schema Definitions", isValidateFunction: true)]
+        public static bool ValidateMenuFunctionsWhichDontWorkInDetachedMode()
+        {
+            return !IsDetachedMode;
         }
 
         static string[] GetScenePaths()
@@ -627,6 +642,7 @@ namespace PlayUR.Editor
         #endregion
 
         #region Utils
+        static bool IsDetachedMode { get { return PlayURPlugin.Settings.detachedMode; } }
         static float progress = 0;
         static UnityWebRequest www;
         static UnityWebRequestAsyncOperation operation;
@@ -776,6 +792,7 @@ namespace PlayUR.Editor
             //var runner = new CoroutineRunner();
             //EditorCoroutineUtility.StartCoroutine(CheckUpdateRoutine(), runner);
         }
+
         static IEnumerator CheckUpdateRoutine()
         {
             checkingForUpdate = true;
