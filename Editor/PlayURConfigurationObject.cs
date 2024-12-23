@@ -17,6 +17,7 @@ public class PlayURConfigurationObject : ScriptableObject
         }
 
         public string key;
+        [TextArea(2,10)]
         public string value;
         public DataType type;
     }
