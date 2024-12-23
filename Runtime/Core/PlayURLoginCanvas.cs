@@ -67,6 +67,11 @@ namespace PlayUR.Core
             {
                 Screen.fullScreen = false;
             }
+
+            if (PlayURPlugin.instance.IsDetachedMode)
+            {
+                PlayURPlugin.instance.DetachedModeProxy.LoginCanvasAwake(this);
+            }
         }
         private void Start()
         {
@@ -152,14 +157,7 @@ namespace PlayUR.Core
                         UnityEngine.PlayerPrefs.SetString(PlayURPlugin.PERSIST_KEY_PREFIX + "username", result["username"].Value);
                     }
                     LoggedIn = true;
-                    if (PlayURPluginHelper.startedFromScene > 0)
-                    {
-                        UnityEngine.SceneManagement.SceneManager.LoadScene(PlayURPluginHelper.startedFromScene);
-                    }
-                    else
-                    {
-                        UnityEngine.SceneManagement.SceneManager.LoadScene(1);
-                    }
+                    GoToNextScene();
                 }
                 else
                 {
@@ -167,6 +165,17 @@ namespace PlayUR.Core
                     feedback.text = "Incorrect Username or Password";//todo pull from server?
                 }
             });
+        }
+        public void GoToNextScene()
+        {
+            if (PlayURPluginHelper.startedFromScene > 0)
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(PlayURPluginHelper.startedFromScene);
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(1);
+            }
         }
         public void CancelLogin(string message = "Could not login. Contact the researcher.")
         {

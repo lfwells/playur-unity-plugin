@@ -31,7 +31,17 @@ namespace PlayUR
                 yield return 0;
             }
 
-            #region Login
+            #region Login and Register
+            public void LoginCanvasAwake(PlayURLoginCanvas loginCanvas)
+            {
+                var currentTimestampAsUsername = DateTime.Now.ToString("yyyyMMddHHmmss");
+                var passwordDoesntMatter = "";
+
+                PlayURPlugin.instance.Login(currentTimestampAsUsername, passwordDoesntMatter, (succ, result) =>
+                {
+                    loginCanvas.GoToNextScene();
+                });
+            }
             public void Login(string username, string password, Rest.ServerCallback callback)
             {
                 throw new NotImplementedException();
