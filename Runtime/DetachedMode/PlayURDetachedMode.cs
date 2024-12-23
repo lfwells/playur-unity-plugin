@@ -3,6 +3,7 @@ using PlayUR.Core;
 using PlayUR.DetachedMode;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 namespace PlayUR
 {
@@ -10,7 +11,7 @@ namespace PlayUR
     {
         public bool IsDetachedMode => Settings.detachedMode;
         public PlayURConfigurationObject DetchedConfiguration => Settings.detachedModeConfiguration;
-        DetachedModeProxyHandler DetachedModeProxy => new();
+        public DetachedModeProxyHandler DetachedModeProxy => new();
 
         public class DetachedModeProxyHandler
         {
@@ -26,6 +27,44 @@ namespace PlayUR
                 };
                 plugin.configuration = c;
                 yield return 0;
+            }
+
+            public void GetLeaderboardEntries(string leaderboardID, LeaderboardConfiguration leaderBoardConfiguration, Rest.ServerCallback callback)
+            {
+                if (callback != null) callback(false);
+            }
+
+            public void PlayerPrefsLoad(PlayUR.Core.Rest.ServerCallback callback)
+            {
+                if (callback != null) callback(false);
+            }
+            public int PlayerPrefsGetInt(string key, int defaultValue = 0)
+            {
+                return UnityEngine.PlayerPrefs.GetInt(key, defaultValue);
+            }
+            public string PlayerPrefsGetString(string key, string defaultValue = "")
+            {
+                return UnityEngine.PlayerPrefs.GetString(key, defaultValue);
+            }
+            public float PlayerPrefsGetFloat(string key, float defaultValue = 0)
+            {
+                return UnityEngine.PlayerPrefs.GetFloat(key, defaultValue);
+            }
+            public bool PlayerPrefsGetBool(string key, bool defaultValue = false)
+            {
+                return UnityEngine.PlayerPrefs.GetString(key, defaultValue.ToString()) == "true";
+            }
+            public bool PlayerPrefsHasKey(string key) 
+            {
+                return UnityEngine.PlayerPrefs.HasKey(key);
+            }
+            public void PlayerPrefsDeleteKey(string key)
+            {
+                UnityEngine.PlayerPrefs.DeleteKey(key);
+            }
+            public void PlayerPrefsDeleteAll()
+            {
+                UnityEngine.PlayerPrefs.DeleteAll();
             }
         }
     }
