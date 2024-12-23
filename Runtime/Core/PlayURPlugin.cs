@@ -2013,14 +2013,14 @@ public static class PlayerPrefs
 
     public static void Save()
     {
-        if (PlayUR.PlayURPlugin.instance.IsDetachedMode == false) { PlayUR.PlayURPlugin.instance.SavePlayerPrefs(DATA, debugOutput: false); }
+        if (PlayUR.PlayURPlugin.IsDetachedMode == false) { PlayUR.PlayURPlugin.instance.SavePlayerPrefs(DATA, debugOutput: false); }
         UnityEngine.PlayerPrefs.Save();
     }
 
     public static void Load() { Load(null); }
     public static void Load(PlayUR.Core.Rest.ServerCallback callback)
     {
-        if (PlayUR.PlayURPlugin.instance.IsDetachedMode) { PlayURPlugin.instance.DetachedModeProxy.PlayerPrefsLoad(callback); return; }
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { PlayURPlugin.DetachedModeProxy.PlayerPrefsLoad(callback); return; }
 
         PlayUR.PlayURPlugin.instance.LoadPlayerPrefs((succ, result) =>
         {
@@ -2066,7 +2066,7 @@ public static class PlayerPrefs
 
     public static int GetInt(string key, int defaultValue = 0)
     {
-        if (PlayUR.PlayURPlugin.instance.IsDetachedMode) { return PlayURPlugin.instance.DetachedModeProxy.PlayerPrefsGetInt(key,defaultValue); }
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsGetInt(key,defaultValue); }
 
         if (DATA.ContainsKey(key))
             try
@@ -2088,7 +2088,7 @@ public static class PlayerPrefs
     }
     public static string GetString(string key, string defaultValue = "")
     {
-        if (PlayUR.PlayURPlugin.instance.IsDetachedMode) { return PlayURPlugin.instance.DetachedModeProxy.PlayerPrefsGetString(key, defaultValue); }
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsGetString(key, defaultValue); }
 
         if (DATA.ContainsKey(key))
             try
@@ -2110,7 +2110,7 @@ public static class PlayerPrefs
     }
     public static float GetFloat(string key, float defaultValue = 0)
     {
-        if (PlayUR.PlayURPlugin.instance.IsDetachedMode) { return PlayURPlugin.instance.DetachedModeProxy.PlayerPrefsGetFloat(key, defaultValue); }
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsGetFloat(key, defaultValue); }
 
         if (DATA.ContainsKey(key))
             try
@@ -2132,7 +2132,7 @@ public static class PlayerPrefs
     }
     public static bool GetBool(string key, bool defaultValue = false)
     {
-        if (PlayUR.PlayURPlugin.instance.IsDetachedMode) { return PlayURPlugin.instance.DetachedModeProxy.PlayerPrefsGetBool(key, defaultValue); }
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsGetBool(key, defaultValue); }
 
         if (DATA.ContainsKey(key))
             try
@@ -2146,13 +2146,13 @@ public static class PlayerPrefs
 
     public static bool HasKey(string key)
     {
-        if (PlayUR.PlayURPlugin.instance.IsDetachedMode) { return PlayURPlugin.instance.DetachedModeProxy.PlayerPrefsHasKey(key); }
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsHasKey(key); }
 
         return DATA.ContainsKey(key);
     }
     public static void DeleteKey(string key)
     {
-        if (PlayUR.PlayURPlugin.instance.IsDetachedMode) { PlayURPlugin.instance.DetachedModeProxy.PlayerPrefsDeleteKey(key); }
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { PlayURPlugin.DetachedModeProxy.PlayerPrefsDeleteKey(key); }
 
         if (DATA.ContainsKey(key))
             DATA.Remove(key);
@@ -2162,7 +2162,7 @@ public static class PlayerPrefs
 
     public static void DeleteAll()
     {
-        if (PlayUR.PlayURPlugin.instance.IsDetachedMode) { PlayURPlugin.instance.DetachedModeProxy.PlayerPrefsDeleteAll(); }
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { PlayURPlugin.DetachedModeProxy.PlayerPrefsDeleteAll(); }
 
         DATA = new Dictionary<string, object>();
 

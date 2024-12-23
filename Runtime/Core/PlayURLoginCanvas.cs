@@ -68,9 +68,9 @@ namespace PlayUR.Core
                 Screen.fullScreen = false;
             }
 
-            if (PlayURPlugin.instance.IsDetachedMode)
+            if (PlayURPlugin.IsDetachedMode)
             {
-                PlayURPlugin.instance.DetachedModeProxy.LoginCanvasAwake(this);
+                PlayURPlugin.DetachedModeProxy.LoginCanvasAwake(this);
             }
         }
         private void Start()

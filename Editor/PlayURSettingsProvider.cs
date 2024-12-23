@@ -5,6 +5,7 @@ using PlayUR.Editor;
 using System.Collections.Generic;
 using PlayUR.Core;
 using Unity.EditorCoroutines.Editor;
+using PlayUR.DetachedMode;
 
 namespace PlayUR
 {
@@ -617,6 +618,29 @@ namespace PlayUR
                         var runner = new CoroutineRunner();
                         EditorCoroutineUtility.StartCoroutine(Rest.Get("Configuration/debug.php", form, (succ, result) => {
                             configuration = PlayURPlugin.ParseConfigurationResult(succ, result);
+                            loadingConfig = false;
+                        }, debugOutput: true), runner);
+
+                    }
+                    if (InDetachedMode && gameIdProperty.intValue > 0 && GUILayout.Button("Generate Detached Mode Object", EditorStyles.miniButton, GUILayout.Width(250)))
+                    {
+                        previewGroup = (ExperimentGroup)System.Enum.Parse(typeof(ExperimentGroup), name);
+
+
+                        PlayURPlugin.Log("Getting Configuration...");
+                        loadingConfig = true;
+                        var form = Rest.GetWWWForm();
+                        form.Add("experimentGroupID", ((int)previewGroup.Value).ToString());
+
+                        var runner = new CoroutineRunner();
+                        EditorCoroutineUtility.StartCoroutine(Rest.Get("Configuration/debug.php", form, (succ, result) => {
+                            var configuration = PlayURPlugin.ParseConfigurationResult(succ, result);
+                            var saveLocation = EditorUtility.SaveFilePanelInProject("Save Detached Mode Object", "Detached Mode Configuration", "asset", "Choose a location to save the configuration object.");
+                            var so = ScriptableObject.CreateInstance<PlayURConfigurationObject>();
+                            so.experiment = configuration.experiment;
+                            so.experimentGroup = configuration.experimentGroup;
+                            so.parameterValues = configuration.parameters.Select(kvp => new PlayURConfigurationObject.Parameter { key = kvp.Key, value = kvp.Value }).ToList();
+                            AssetDatabase.CreateAsset(so, saveLocation);
                             loadingConfig = false;
                         }, debugOutput: true), runner);
 

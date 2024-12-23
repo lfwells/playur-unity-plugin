@@ -344,9 +344,9 @@ namespace PlayUR
             /// <returns></returns>
             public IEnumerator Process()
             {
-                if (PlayURPlugin.instance.IsDetachedMode)
+                if (PlayURPlugin.IsDetachedMode)
                 {
-                    yield return instance.StartCoroutine(PlayURPlugin.instance.DetachedModeProxy.ProcessUpdatableAction(this));
+                    yield return instance.StartCoroutine(PlayURPlugin.DetachedModeProxy.ProcessUpdatableAction(this));
                     yield break;
                 }
 

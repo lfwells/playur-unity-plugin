@@ -16,7 +16,7 @@ namespace PlayUR
 {
     public partial class PlayURPlugin : UnitySingletonPersistent<PlayURPlugin>
     {
-        public bool IsDetachedMode => Settings.detachedMode;
+        public static bool IsDetachedMode => Settings.detachedMode;
 
         void InitDetachedFunctionality()
         {
@@ -41,7 +41,7 @@ namespace PlayUR
                 StartCoroutine(Init());
             }
         }
-        public DetachedModeProxyHandler DetachedModeProxy => new();
+        public static DetachedModeProxyHandler DetachedModeProxy => new();
 
         public class DetachedModeProxyHandler
         {
@@ -54,6 +54,7 @@ namespace PlayUR
                     experimentGroup = plugin.DetchedConfiguration.experimentGroup,
                     experimentGroupID = (int)plugin.DetchedConfiguration.experimentGroup,
                     parameters = new Dictionary<string,string>(plugin.DetchedConfiguration.parameterValues.Select(p => new KeyValuePair<string,string>(p.key, p.value))),
+                    analyticsColumnsOrder = new List<AnalyticsColumn>(),
                 };
                 plugin.configuration = c;
                 yield return 0;
@@ -86,15 +87,16 @@ namespace PlayUR
             #endregion
 
             #region Analytics
-            FileStream currentAnalyticsFile;
-            BinaryFormatter bf = new BinaryFormatter();
+            static StreamWriter currentAnalyticsFile;
             public void StartSession(PlayURPlugin plugin, Dictionary<string, string> form)
             {
                 var currentTimestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-                currentAnalyticsFile = new FileStream(Path.Combine(Application.persistentDataPath, "session_" + currentTimestamp + ".csv"), FileMode.Create);
+                var path = Path.Combine(Application.persistentDataPath, "session_" + currentTimestamp + ".csv");
+                currentAnalyticsFile = new StreamWriter(path, true);
                 var toWrite = string.Join("\n", form.Select(kvp => kvp.Key+","+kvp.Value));
-                bf.Serialize(currentAnalyticsFile, toWrite);
-                Log("Analytics File Created in Detached Mode at " + currentAnalyticsFile.Name + " with session info " + toWrite);
+                currentAnalyticsFile.Write(toWrite);
+                currentAnalyticsFile.Flush();
+                Log("Analytics File Created in Detached Mode at " + path + " with session info " + toWrite);
             }
             public void EndSession(PlayURPlugin plugin, bool startNew = false, Dictionary<string, string> form = null)
             {
@@ -112,9 +114,11 @@ namespace PlayUR
             }
             public IEnumerator RecordActionDirectly(PlayURPlugin plugin, ActionParamsList actions, Rest.ServerCallback callback)
             {
-                if (currentAnalyticsFile != null && bf != null)
+                if (currentAnalyticsFile != null)
                 {
-                    bf.Serialize(currentAnalyticsFile, JsonUtility.ToJson(actions));
+                    var toWrite = JsonUtility.ToJson(actions);
+                    currentAnalyticsFile.WriteLine(toWrite);
+                    currentAnalyticsFile.Flush();
                 }
                 callback?.Invoke(true, null);
                 yield return 0;
