@@ -13,6 +13,7 @@ namespace PlayUR
         /// <summary>Current PlayUR settings</summary>
         private SerializedObject playurSettings;
         private SerializedProperty detachedModeProperty;
+        private SerializedProperty detachedModeConfigurationProperty;
         private SerializedProperty gameIdProperty;
         private SerializedProperty standardSessionTracking;
         private SerializedProperty fullScreenMode;
@@ -141,6 +142,7 @@ namespace PlayUR
             public static GUIContent gameConfiguration = new GUIContent("Configuration Settings");
             public static GUIContent gameId = new GUIContent("Game ID");
             public static GUIContent detachedMode = new GUIContent("Detached Mode (?)", "In detached mode, configuratation comes from a Scriptable Object instead of from the PlayUR Servers.");
+            public static GUIContent detachedModeConfiguration = new GUIContent("Detached Mode Configuration File", "This is the configuration that otherwise would have come from the PlayUR Servers. ");
             public static GUIContent clientSecret = new GUIContent("Client Secret");
 
             public static GUIContent generalSettings = new GUIContent("General Settings");
@@ -229,6 +231,7 @@ namespace PlayUR
             // Load the default settings (or create a new one) when the settings window is first clicked.
             playurSettings = PlayURSettings.GetSerializedSettings();
             detachedModeProperty = playurSettings.FindProperty("detachedMode");
+            detachedModeConfigurationProperty = playurSettings.FindProperty("detachedModeConfiguration");
             gameIdProperty = playurSettings.FindProperty("gameId");
             standardSessionTracking = playurSettings.FindProperty("standardSessionTracking");
             fullScreenMode = playurSettings.FindProperty("fullScreenMode");
@@ -320,6 +323,8 @@ namespace PlayUR
                 GUILayout.Label("In detached mode, configuratation comes from a Scriptable Object instead of from the PlayUR Servers.\n\n" +
                     "Note that many features will not work well in this mode--" +
                     "this plugin is written to make the most of the PlayUR Servers", EditorStyles.helpBox);
+
+                EditorGUILayout.PropertyField(detachedModeConfigurationProperty, Labels.detachedModeConfiguration);
             }
             else
             {
@@ -529,38 +534,40 @@ namespace PlayUR
                 EditorGUILayout.EndFoldoutHeaderGroup();
                 EditorGUI.indentLevel = 0;
                 EditorGUILayout.EndVertical();
-
-
-                // ActionsEditorGUI.indentLevel = 0;
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                _foldout_enums = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_enums, Labels.enums);
-                if (_foldout_enums)
-                {
-                    EditorGUI.indentLevel = 1;
-                    if (GUILayout.Button(Labels.generateEnums, EditorStyles.miniButton))
-                    {
-                        PlayURPluginEditor.GenerateEnum();
-                        _parameters = null;
-                    }
-
-                    EditorGUILayout.Space();
-                    _foldout_experiments = EnumNameFoldout<PlayUR.Experiment>(_foldout_experiments, Labels.experiments);
-                    _foldout_groups = GroupListItemFoldout(_foldout_groups, Labels.groups);
-
-                    EditorGUILayout.Space();
-                    GUILayout.Label("Previewing Values for Experiment: " + (previewGroup?.ToString() ?? "NONE" + (loadingConfig ? "(Loading...)" : "")), EditorStyles.boldLabel);
-                    _foldout_elements = ElementListFoldout(_foldout_elements, GetPlayURElements(), Labels.elements);
-                    _foldout_parameters = ParameterListFoldout(_foldout_parameters, GetPlayURParameters(), Labels.parameters);
-
-                    EditorGUILayout.Space();
-                    _foldout_actions = EnumNameFoldout<PlayUR.Action>(_foldout_actions, Labels.actions);
-                    EditorGUILayout.Space();
-                    _foldout_analytics = EnumNameFoldout<PlayUR.AnalyticsColumn>(_foldout_analytics, Labels.analyticColumns);
-                }
-                EditorGUILayout.EndFoldoutHeaderGroup();
-                EditorGUI.indentLevel = 0;
-                EditorGUILayout.EndVertical();
             }
+
+            //Previewing values
+
+            // ActionsEditorGUI.indentLevel = 0;
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            _foldout_enums = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_enums, Labels.enums);
+            if (_foldout_enums)
+            {
+                EditorGUI.indentLevel = 1;
+                if (GUILayout.Button(Labels.generateEnums, EditorStyles.miniButton))
+                {
+                    PlayURPluginEditor.GenerateEnum();
+                    _parameters = null;
+                }
+
+                EditorGUILayout.Space();
+                _foldout_experiments = EnumNameFoldout<PlayUR.Experiment>(_foldout_experiments, Labels.experiments);
+                _foldout_groups = GroupListItemFoldout(_foldout_groups, Labels.groups);
+
+                EditorGUILayout.Space();
+                GUILayout.Label("Previewing Values for Experiment: " + (previewGroup?.ToString() ?? "NONE" + (loadingConfig ? "(Loading...)" : "")), EditorStyles.boldLabel);
+                _foldout_elements = ElementListFoldout(_foldout_elements, GetPlayURElements(), Labels.elements);
+                _foldout_parameters = ParameterListFoldout(_foldout_parameters, GetPlayURParameters(), Labels.parameters);
+
+                EditorGUILayout.Space();
+                _foldout_actions = EnumNameFoldout<PlayUR.Action>(_foldout_actions, Labels.actions);
+                EditorGUILayout.Space();
+                _foldout_analytics = EnumNameFoldout<PlayUR.AnalyticsColumn>(_foldout_analytics, Labels.analyticColumns);
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
+            EditorGUI.indentLevel = 0;
+            EditorGUILayout.EndVertical();
+            
             EditorGUIUtility.labelWidth = originalLabelWidth;
 
             playurSettings.ApplyModifiedProperties();
