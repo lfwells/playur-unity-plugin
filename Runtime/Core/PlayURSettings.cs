@@ -11,8 +11,16 @@ namespace PlayUR
         public const string ResourcePath = "PlayURSettings";
         public const string SettingsPath = "Assets/PlayURPlugin/Resources/"+ResourcePath+".asset";
 
+        /// <summary>
+        /// Allows users to still use the PlayUR platform without having to connect to the PlayUR Dashboard. Some features may not be fully supported in this mode.
+        /// </summary>
+        public bool detachedMode = false;
+
         [SerializeField]
         private int gameId;
+        /// <summary>
+        /// The associated game ID on the PlayUR Dashboard
+        /// </summary>
         public int GameID => gameId;
 
         /// <summary>

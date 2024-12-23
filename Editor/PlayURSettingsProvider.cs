@@ -12,6 +12,7 @@ namespace PlayUR
     {
         /// <summary>Current PlayUR settings</summary>
         private SerializedObject playurSettings;
+        private SerializedProperty detachedModeProperty;
         private SerializedProperty gameIdProperty;
         private SerializedProperty standardSessionTracking;
         private SerializedProperty fullScreenMode;
@@ -139,6 +140,7 @@ namespace PlayUR
 
             public static GUIContent gameConfiguration = new GUIContent("Configuration Settings");
             public static GUIContent gameId = new GUIContent("Game ID");
+            public static GUIContent detachedMode = new GUIContent("Detached Mode");
             public static GUIContent clientSecret = new GUIContent("Client Secret");
 
             public static GUIContent generalSettings = new GUIContent("General Settings");
@@ -196,6 +198,7 @@ namespace PlayUR
 
         /// <summary>Shows or Hides the settings based of the return value</summary>
         public static bool IsSettingsAvailable() => true;
+        public bool InDetachedMode => detachedModeProperty.boolValue;
 
         string[] warnings = new string[0];
 
@@ -225,6 +228,7 @@ namespace PlayUR
         {
             // Load the default settings (or create a new one) when the settings window is first clicked.
             playurSettings = PlayURSettings.GetSerializedSettings();
+            detachedModeProperty = playurSettings.FindProperty("detachedMode");
             gameIdProperty = playurSettings.FindProperty("gameId");
             standardSessionTracking = playurSettings.FindProperty("standardSessionTracking");
             fullScreenMode = playurSettings.FindProperty("fullScreenMode");
@@ -308,247 +312,255 @@ namespace PlayUR
             }
             EditorGUILayout.EndHorizontal();
 
+            // Detached Mode Setting
+            EditorGUILayout.PropertyField(detachedModeProperty, Labels.detachedMode);
 
-            // Set-Up Checks
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            _foldout_checks = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_checks, Labels.setUpChecks);
-            if (_foldout_checks)
+            if (InDetachedMode)
             {
-                EditorGUI.indentLevel = 1;
-
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel(Labels.gameIDSet);
-                if (gameIdProperty.intValue > 0)
-                    EditorGUILayout.LabelField(Labels.done, greenStyle);
-                else
-                    EditorGUILayout.LabelField(Labels.fixBelow, redStyle);
-                EditorGUILayout.EndHorizontal();
-
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel(Labels.clientSecret);
-                if (!string.IsNullOrEmpty(clientSecretProperty.stringValue))
-                    EditorGUILayout.LabelField(Labels.done, greenStyle);
-                else
-                    EditorGUILayout.LabelField(Labels.fixBelow, redStyle);
-                EditorGUILayout.EndHorizontal();
-
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel(Labels.enumsGenerated);
-                if (System.Enum.GetValues(typeof(Experiment)).Length > 0)
-                    EditorGUILayout.LabelField(Labels.done, greenStyle);
-                else
-                {
-                    var oldColor = GUI.color;
-                    GUI.color = Color.red;
-                    if (GUILayout.Button(Labels.fix))
-                    {
-                        PlayURPluginEditor.GenerateEnum();
-                    }
-                    GUI.color = oldColor;
-                }
-                EditorGUILayout.EndHorizontal();
-
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel(Labels.buildSettingsSet);
-                var scenes = new List<EditorBuildSettingsScene>();
-                scenes.AddRange(EditorBuildSettings.scenes);
-
-                if (scenes.Where((scene) => scene.path.Contains("PlayURLogin")).Count() == 1)
-                    EditorGUILayout.LabelField(Labels.done, greenStyle);
-                else
-                {
-                    var oldColor = GUI.color;
-                    GUI.color = Color.red;
-                    if (GUILayout.Button(Labels.fix))
-                    {
-                        PlayURPluginEditor.SetSceneBuildSettings();
-                    }
-                    GUI.color = oldColor;
-                }
-                EditorGUILayout.EndHorizontal();
+                GUILayout.Label("In detached mode, configuratation comes from a Scriptable Object.\n\n" +
+                    "Note that many features will not work well in this mode--" +
+                    "this plugin is written to make the most of the PlayUR servers", EditorStyles.helpBox);
             }
-
-            if (warnings != null)
+            else
             {
-                foreach (var warning in warnings)
+                // Set-Up Checks
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                _foldout_checks = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_checks, Labels.setUpChecks);
+                if (_foldout_checks)
                 {
+                    EditorGUI.indentLevel = 1;
+
                     EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField(new GUIContent(warning), yellowStyle);
+                    EditorGUILayout.PrefixLabel(Labels.gameIDSet);
+                    if (gameIdProperty.intValue > 0)
+                        EditorGUILayout.LabelField(Labels.done, greenStyle);
+                    else
+                        EditorGUILayout.LabelField(Labels.fixBelow, redStyle);
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.PrefixLabel(Labels.clientSecret);
+                    if (!string.IsNullOrEmpty(clientSecretProperty.stringValue))
+                        EditorGUILayout.LabelField(Labels.done, greenStyle);
+                    else
+                        EditorGUILayout.LabelField(Labels.fixBelow, redStyle);
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.PrefixLabel(Labels.enumsGenerated);
+                    if (System.Enum.GetValues(typeof(Experiment)).Length > 0)
+                        EditorGUILayout.LabelField(Labels.done, greenStyle);
+                    else
+                    {
+                        var oldColor = GUI.color;
+                        GUI.color = Color.red;
+                        if (GUILayout.Button(Labels.fix))
+                        {
+                            PlayURPluginEditor.GenerateEnum();
+                        }
+                        GUI.color = oldColor;
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.PrefixLabel(Labels.buildSettingsSet);
+                    var scenes = new List<EditorBuildSettingsScene>();
+                    scenes.AddRange(EditorBuildSettings.scenes);
+
+                    if (scenes.Where((scene) => scene.path.Contains("PlayURLogin")).Count() == 1)
+                        EditorGUILayout.LabelField(Labels.done, greenStyle);
+                    else
+                    {
+                        var oldColor = GUI.color;
+                        GUI.color = Color.red;
+                        if (GUILayout.Button(Labels.fix))
+                        {
+                            PlayURPluginEditor.SetSceneBuildSettings();
+                        }
+                        GUI.color = oldColor;
+                    }
                     EditorGUILayout.EndHorizontal();
                 }
-            }
 
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.EndVertical();
-
-
-
-            // Game Configuration
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            _foldout_config = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_config, Labels.gameConfiguration);
-            if (_foldout_config)
-            {
-                EditorGUI.indentLevel = 1;
-                EditorGUILayout.PropertyField(gameIdProperty, Labels.gameId);
-                EditorGUILayout.PropertyField(clientSecretProperty, Labels.clientSecret);
-                if (GUILayout.Button("Open Game Config on Dashboard"))
+                if (warnings != null)
                 {
-                    Application.OpenURL(PlayURPlugin.DASHBOARD_URL + "Game/" + gameIdProperty.intValue);
-                }
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.EndVertical();
-
-            // Settings
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            _foldout_general = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_general, Labels.generalSettings);
-            if (_foldout_general)
-            {
-                EditorGUI.indentLevel = 1;
-                EditorGUILayout.PropertyField(standardSessionTracking, Labels.standardSessionTracking);
-                EditorGUILayout.PropertyField(fullScreenMode, Labels.fullScreenMode);
-                EditorGUILayout.PropertyField(logLevelToStore, Labels.logLevelToStore);
-                EditorGUILayout.PropertyField(logLevel, Labels.logLevel);
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.EndVertical();
-
-
-            // Editor Settings
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            _foldout_editorSettings = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_editorSettings, Labels.editorSettings);
-            if (_foldout_editorSettings)
-            {
-                EditorGUI.indentLevel = 1;
-                EditorGUILayout.PropertyField(forceToUseSpecificExperiment, Labels.forceExperiment);
-                if (forceToUseSpecificExperiment.boolValue)
-                {
-                    EditorGUILayout.PropertyField(experimentToTestInEditor, Labels.experiment);
-                }
-                EditorGUILayout.PropertyField(forceToUseSpecificGroup, Labels.forceExperimentGroup);
-                if (forceToUseSpecificGroup.boolValue)
-                {
-                    EditorGUILayout.PropertyField(groupToTestInEditor, Labels.experimentGroup);
+                    foreach (var warning in warnings)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField(new GUIContent(warning), yellowStyle);
+                        EditorGUILayout.EndHorizontal();
+                    }
                 }
 
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.EndVertical();
+                EditorGUILayout.EndFoldoutHeaderGroup();
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.EndVertical();
 
-            // Mobile and Desktop Settings
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            _foldout_mobileDesktopSettings = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_mobileDesktopSettings, Labels.mobileAndDesktop);
-            if (_foldout_mobileDesktopSettings)
-            {
-                EditorGUI.indentLevel = 1;
-                EditorGUILayout.PropertyField(useSpecificExperimentForMobileBuild, Labels.mobileExpForce);
-                if (useSpecificExperimentForMobileBuild.boolValue)
+                // Game Configuration
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                _foldout_config = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_config, Labels.gameConfiguration);
+                if (_foldout_config)
                 {
-                    EditorGUILayout.PropertyField(mobileExperiment, Labels.experiment);
+                    EditorGUI.indentLevel = 1;
+                    EditorGUILayout.PropertyField(gameIdProperty, Labels.gameId);
+                    EditorGUILayout.PropertyField(clientSecretProperty, Labels.clientSecret);
+                    if (GUILayout.Button("Open Game Config on Dashboard"))
+                    {
+                        Application.OpenURL(PlayURPlugin.DASHBOARD_URL + "Game/" + gameIdProperty.intValue);
+                    }
                 }
-                EditorGUILayout.PropertyField(useSpecificExperimentForDesktopBuild, Labels.desktopExpForce);
-                if (useSpecificExperimentForDesktopBuild.boolValue)
+                EditorGUILayout.EndFoldoutHeaderGroup();
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.EndVertical();
+
+                // Settings
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                _foldout_general = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_general, Labels.generalSettings);
+                if (_foldout_general)
                 {
-                    EditorGUILayout.PropertyField(desktopExperiment, Labels.experimentGroup);
+                    EditorGUI.indentLevel = 1;
+                    EditorGUILayout.PropertyField(standardSessionTracking, Labels.standardSessionTracking);
+                    EditorGUILayout.PropertyField(fullScreenMode, Labels.fullScreenMode);
+                    EditorGUILayout.PropertyField(logLevelToStore, Labels.logLevelToStore);
+                    EditorGUILayout.PropertyField(logLevel, Labels.logLevel);
                 }
-
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.EndVertical();
+                EditorGUILayout.EndFoldoutHeaderGroup();
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.EndVertical();
 
 
-            // Prefabs
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            _foldout_prefabs = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_prefabs, Labels.prefabsSettings);
-            if (_foldout_prefabs)
-            {
-                EditorGUI.indentLevel = 1;
-                EditorGUILayout.PropertyField(defaultHighScoreTablePrefab, Labels.prefabHighScoreTable);
-                EditorGUILayout.PropertyField(defaultPopupPrefab, Labels.prefabPopup);
-                EditorGUILayout.PropertyField(defaultSurveyPopupPrefab, Labels.prefabSurveyPopup);
-                EditorGUILayout.PropertyField(defaultSurveyRowPrefab, Labels.prefabSurveyRow);
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.EndVertical();
-
-
-            // MTurk
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            _foldout_mturk = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_mturk, Labels.mTurk);
-            if (_foldout_mturk)
-            {
-                EditorGUI.indentLevel = 1;
-                EditorGUILayout.PropertyField(mTurkStartMessage, Labels.mTurkStartMessage);
-                EditorGUILayout.PropertyField(mTurkCompletionMessage, Labels.mTurkCompletionMessage);
-                EditorGUILayout.PropertyField(mTurkCompletionCodeCopiedMessage, Labels.mTurkCompletionCodeCopiedMessage);
-                EditorGUILayout.PropertyField(forceMTurkIDInEditor, Labels.mTurkForceID);
-                EditorGUILayout.PropertyField(mTurkLogo, Labels.mTurkSprite);
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.EndVertical();
-
-            // Prolific
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            _foldout_prolific = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_prolific, Labels.prolific);
-            if (_foldout_prolific)
-            {
-                EditorGUI.indentLevel = 1;
-                EditorGUILayout.PropertyField(prolificStartMessage, Labels.prolificStartMessage);
-                EditorGUILayout.PropertyField(prolificCompletionMessage, Labels.prolificCompletionMessage);
-                EditorGUILayout.PropertyField(prolificCompletionCodeCopiedMessage, Labels.prolificCompletionCodeCopiedMessage);
-                EditorGUILayout.PropertyField(forceProlificIDInEditor, Labels.prolificForceID);
-                EditorGUILayout.PropertyField(prolificLogo, Labels.prolificSprite);
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.EndVertical();
-
-
-            // ActionsEditorGUI.indentLevel = 0;
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            _foldout_enums = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_enums, Labels.enums);
-            if (_foldout_enums)
-            {
-                EditorGUI.indentLevel = 1;
-                if (GUILayout.Button(Labels.generateEnums, EditorStyles.miniButton))
+                // Editor Settings
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                _foldout_editorSettings = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_editorSettings, Labels.editorSettings);
+                if (_foldout_editorSettings)
                 {
-                    PlayURPluginEditor.GenerateEnum();
-                    _parameters = null;
+                    EditorGUI.indentLevel = 1;
+                    EditorGUILayout.PropertyField(forceToUseSpecificExperiment, Labels.forceExperiment);
+                    if (forceToUseSpecificExperiment.boolValue)
+                    {
+                        EditorGUILayout.PropertyField(experimentToTestInEditor, Labels.experiment);
+                    }
+                    EditorGUILayout.PropertyField(forceToUseSpecificGroup, Labels.forceExperimentGroup);
+                    if (forceToUseSpecificGroup.boolValue)
+                    {
+                        EditorGUILayout.PropertyField(groupToTestInEditor, Labels.experimentGroup);
+                    }
+
                 }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.EndVertical();
 
-                EditorGUILayout.Space();
-                _foldout_experiments = EnumNameFoldout<PlayUR.Experiment>(_foldout_experiments, Labels.experiments);
-                _foldout_groups = GroupListItemFoldout(_foldout_groups, Labels.groups);
+                // Mobile and Desktop Settings
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                _foldout_mobileDesktopSettings = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_mobileDesktopSettings, Labels.mobileAndDesktop);
+                if (_foldout_mobileDesktopSettings)
+                {
+                    EditorGUI.indentLevel = 1;
+                    EditorGUILayout.PropertyField(useSpecificExperimentForMobileBuild, Labels.mobileExpForce);
+                    if (useSpecificExperimentForMobileBuild.boolValue)
+                    {
+                        EditorGUILayout.PropertyField(mobileExperiment, Labels.experiment);
+                    }
+                    EditorGUILayout.PropertyField(useSpecificExperimentForDesktopBuild, Labels.desktopExpForce);
+                    if (useSpecificExperimentForDesktopBuild.boolValue)
+                    {
+                        EditorGUILayout.PropertyField(desktopExperiment, Labels.experimentGroup);
+                    }
 
-                EditorGUILayout.Space();
-                GUILayout.Label("Previewing Values for Experiment: " + (previewGroup?.ToString() ?? "NONE" + (loadingConfig ? "(Loading...)" : "")), EditorStyles.boldLabel);
-                _foldout_elements = ElementListFoldout(_foldout_elements, GetPlayURElements(), Labels.elements);
-                _foldout_parameters = ParameterListFoldout(_foldout_parameters, GetPlayURParameters(), Labels.parameters);
+                }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.EndVertical();
 
-                EditorGUILayout.Space();
-                _foldout_actions = EnumNameFoldout<PlayUR.Action>(_foldout_actions, Labels.actions);
-                EditorGUILayout.Space();
-                _foldout_analytics = EnumNameFoldout<PlayUR.AnalyticsColumn>(_foldout_analytics, Labels.analyticColumns);
+
+                // Prefabs
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                _foldout_prefabs = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_prefabs, Labels.prefabsSettings);
+                if (_foldout_prefabs)
+                {
+                    EditorGUI.indentLevel = 1;
+                    EditorGUILayout.PropertyField(defaultHighScoreTablePrefab, Labels.prefabHighScoreTable);
+                    EditorGUILayout.PropertyField(defaultPopupPrefab, Labels.prefabPopup);
+                    EditorGUILayout.PropertyField(defaultSurveyPopupPrefab, Labels.prefabSurveyPopup);
+                    EditorGUILayout.PropertyField(defaultSurveyRowPrefab, Labels.prefabSurveyRow);
+                }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.EndVertical();
+
+
+                // MTurk
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                _foldout_mturk = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_mturk, Labels.mTurk);
+                if (_foldout_mturk)
+                {
+                    EditorGUI.indentLevel = 1;
+                    EditorGUILayout.PropertyField(mTurkStartMessage, Labels.mTurkStartMessage);
+                    EditorGUILayout.PropertyField(mTurkCompletionMessage, Labels.mTurkCompletionMessage);
+                    EditorGUILayout.PropertyField(mTurkCompletionCodeCopiedMessage, Labels.mTurkCompletionCodeCopiedMessage);
+                    EditorGUILayout.PropertyField(forceMTurkIDInEditor, Labels.mTurkForceID);
+                    EditorGUILayout.PropertyField(mTurkLogo, Labels.mTurkSprite);
+                }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.EndVertical();
+
+                // Prolific
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                _foldout_prolific = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_prolific, Labels.prolific);
+                if (_foldout_prolific)
+                {
+                    EditorGUI.indentLevel = 1;
+                    EditorGUILayout.PropertyField(prolificStartMessage, Labels.prolificStartMessage);
+                    EditorGUILayout.PropertyField(prolificCompletionMessage, Labels.prolificCompletionMessage);
+                    EditorGUILayout.PropertyField(prolificCompletionCodeCopiedMessage, Labels.prolificCompletionCodeCopiedMessage);
+                    EditorGUILayout.PropertyField(forceProlificIDInEditor, Labels.prolificForceID);
+                    EditorGUILayout.PropertyField(prolificLogo, Labels.prolificSprite);
+                }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.EndVertical();
+
+
+                // ActionsEditorGUI.indentLevel = 0;
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                _foldout_enums = EditorGUILayout.BeginFoldoutHeaderGroup(_foldout_enums, Labels.enums);
+                if (_foldout_enums)
+                {
+                    EditorGUI.indentLevel = 1;
+                    if (GUILayout.Button(Labels.generateEnums, EditorStyles.miniButton))
+                    {
+                        PlayURPluginEditor.GenerateEnum();
+                        _parameters = null;
+                    }
+
+                    EditorGUILayout.Space();
+                    _foldout_experiments = EnumNameFoldout<PlayUR.Experiment>(_foldout_experiments, Labels.experiments);
+                    _foldout_groups = GroupListItemFoldout(_foldout_groups, Labels.groups);
+
+                    EditorGUILayout.Space();
+                    GUILayout.Label("Previewing Values for Experiment: " + (previewGroup?.ToString() ?? "NONE" + (loadingConfig ? "(Loading...)" : "")), EditorStyles.boldLabel);
+                    _foldout_elements = ElementListFoldout(_foldout_elements, GetPlayURElements(), Labels.elements);
+                    _foldout_parameters = ParameterListFoldout(_foldout_parameters, GetPlayURParameters(), Labels.parameters);
+
+                    EditorGUILayout.Space();
+                    _foldout_actions = EnumNameFoldout<PlayUR.Action>(_foldout_actions, Labels.actions);
+                    EditorGUILayout.Space();
+                    _foldout_analytics = EnumNameFoldout<PlayUR.AnalyticsColumn>(_foldout_analytics, Labels.analyticColumns);
+                }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+                EditorGUI.indentLevel = 0;
+                EditorGUILayout.EndVertical();
             }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-            EditorGUI.indentLevel = 0;
-            EditorGUILayout.EndVertical();
-
             EditorGUIUtility.labelWidth = originalLabelWidth;
 
             playurSettings.ApplyModifiedProperties();
