@@ -24,6 +24,9 @@ namespace PlayUR.DetachedMode
             public DataType type;
         }
 
-        public List<Parameter> parameters;
+        public Experiment experiment;
+        public ExperimentGroup experimentGroup;
+
+        public List<Parameter> parameterValues;
     }
 }

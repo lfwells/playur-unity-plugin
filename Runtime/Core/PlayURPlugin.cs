@@ -365,6 +365,13 @@ namespace PlayUR
         IEnumerator GetConfiguration()//(Action action, ServerResponse callback, params object[] p)
         {
             Log("Getting Configuration...");
+
+            if (IsDetachedMode)
+            {
+                yield return StartCoroutine(DetachedModeProxy.GetConfiguration(this));
+                yield break;
+            }
+
             var form = Rest.GetWWWForm();
 
             experimentFull = false;
