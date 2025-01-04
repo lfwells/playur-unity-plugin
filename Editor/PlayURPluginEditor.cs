@@ -314,7 +314,9 @@ namespace PlayUR.Editor
         {
             var path = EditorUtility.SaveFolderPanel("Build "+buildTarget+" to...",
                                                         Application.dataPath + "/build/",
-                                                        "");
+                                                        ""); 
+            if (string.IsNullOrEmpty(path)) return path;
+
             if (buildTarget == BuildTarget.StandaloneWindows || buildTarget == BuildTarget.StandaloneWindows64)
             { 
                 //append the exe name to the path
