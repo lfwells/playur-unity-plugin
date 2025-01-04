@@ -15,6 +15,7 @@ namespace PlayUR
         private SerializedObject playurSettings;
         private SerializedProperty detachedModeProperty;
         private SerializedProperty detachedModeConfigurationProperty;
+        private SerializedProperty detachedModeAnalyticsPathProperty;
         private SerializedProperty gameIdProperty;
         private SerializedProperty standardSessionTracking;
         private SerializedProperty fullScreenMode;
@@ -144,6 +145,7 @@ namespace PlayUR
             public static GUIContent gameId = new GUIContent("Game ID");
             public static GUIContent detachedMode = new GUIContent("Detached Mode (?)", "In detached mode, configuratation comes from a Scriptable Object instead of from the PlayUR Servers.");
             public static GUIContent detachedModeConfiguration = new GUIContent("Detached Mode Configuration File", "This is the configuration that otherwise would have come from the PlayUR Servers. ");
+            public static GUIContent detachedModeAnalyticsPath = new GUIContent("Detached Mode Analytics Save Location", "The location to store the CSV files for session analytics data (since in detached mode, this doesn't upload to PlayUR servers.");
             public static GUIContent clientSecret = new GUIContent("Client Secret");
 
             public static GUIContent generalSettings = new GUIContent("General Settings");
@@ -233,6 +235,7 @@ namespace PlayUR
             playurSettings = PlayURSettings.GetSerializedSettings();
             detachedModeProperty = playurSettings.FindProperty("detachedMode");
             detachedModeConfigurationProperty = playurSettings.FindProperty("detachedModeConfiguration");
+            detachedModeAnalyticsPathProperty = playurSettings.FindProperty("detachedModeAnalyticsPath");
             gameIdProperty = playurSettings.FindProperty("gameId");
             standardSessionTracking = playurSettings.FindProperty("standardSessionTracking");
             fullScreenMode = playurSettings.FindProperty("fullScreenMode");
@@ -326,6 +329,7 @@ namespace PlayUR
                     "this plugin is written to make the most of the PlayUR Servers", EditorStyles.helpBox);
 
                 EditorGUILayout.PropertyField(detachedModeConfigurationProperty, Labels.detachedModeConfiguration);
+                EditorGUILayout.PropertyField(detachedModeAnalyticsPathProperty, Labels.detachedModeAnalyticsPath);
             }
             else
             {

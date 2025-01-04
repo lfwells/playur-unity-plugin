@@ -20,6 +20,11 @@ namespace PlayUR
         /// </summary>
         public DetachedMode.PlayURConfigurationObject detachedModeConfiguration;
 
+        /// <summary>
+        /// The location to store local analytics data when in detached mode.
+        /// </summary>
+        public DetachedModeAnalyticsLocation detachedModeAnalyticsPath = DetachedModeAnalyticsLocation.ExecutableFolder;
+
         [SerializeField]
         private int gameId;
         /// <summary>

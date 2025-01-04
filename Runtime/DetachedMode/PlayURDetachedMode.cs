@@ -91,10 +91,36 @@ namespace PlayUR
 
             #region Analytics
             static StreamWriter currentAnalyticsFile;
+            string DetachedModeAnalyticsPath
+            {
+                get
+                {
+                    switch (Settings.detachedModeAnalyticsPath)
+                    {
+                        default:
+                        case DetachedModeAnalyticsLocation.PersistentData:
+                            return Application.persistentDataPath;
+
+                        case DetachedModeAnalyticsLocation.ExecutableFolder:
+                            // parent folder of Application.dataPath
+                            return Directory.GetParent(Application.dataPath).FullName;
+
+                        case DetachedModeAnalyticsLocation.GameData:
+                            return Application.dataPath;
+
+                        case DetachedModeAnalyticsLocation.Desktop:
+                            return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+                        case DetachedModeAnalyticsLocation.Documents:
+                            return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    }
+                    
+                }
+            }
             public void StartSession(PlayURPlugin plugin, Dictionary<string, string> form)
             {
                 var currentTimestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-                var path = Path.Combine(Application.persistentDataPath, "session_" + currentTimestamp + ".csv");
+                var path = Path.Combine(DetachedModeAnalyticsPath, "session_" + currentTimestamp + ".csv");
                 currentAnalyticsFile = new StreamWriter(path, true);
                 var toWrite = string.Join("\n", form.Select(kvp => kvp.Key+","+kvp.Value));
                 currentAnalyticsFile.Write(toWrite);
@@ -205,5 +231,37 @@ namespace PlayUR
             }
             #endregion
         }
+    }
+
+    /// <summary>
+    /// Enum used to specify the location of the analytics file in Detached Mode.
+    /// </summary>
+    public enum DetachedModeAnalyticsLocation
+    {
+        /// <summary>
+        /// Appliation.persistentDataPath
+        /// </summary>
+        PersistentData,
+
+        /// <summary>
+        /// Path one-up from Application.dataPath (should be the location of the EXE/APP file)
+        /// </summary>
+        ExecutableFolder,
+
+        /// <summary>
+        /// Application.dataPath
+        /// </summary>
+        GameData,
+
+
+        /// <summary>
+        /// Finds the user's desktop path (uses Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+        /// </summary>
+        Desktop,
+
+        /// <summary>
+        /// Finds the user's documents path (uses Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+        /// </summary>
+        Documents,
     }
 }
