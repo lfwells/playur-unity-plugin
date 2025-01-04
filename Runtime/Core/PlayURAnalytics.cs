@@ -19,6 +19,8 @@ namespace PlayUR
             //extra analytics columns (new version)
             public List<int> includedColumns;
             public List<string> columnValues; 
+            //note this won't be serialized, and that's okay, but detached mode needs this
+            public Dictionary<AnalyticsColumn, object> columnData;
         }
         [System.Serializable]
         public struct ActionParamsList //weirdly to serialize to json, we need a struct to wrap the array
@@ -88,6 +90,7 @@ namespace PlayUR
 
             if (columns != null && columns.Count > 0)
             {
+                parameters.columnData = columns;
                 parameters.includedColumns = new List<int>();
                 parameters.columnValues = new List<string>();
                 foreach (var column in configuration.analyticsColumnsOrder) //this ordered array ensures that we maintain correct order of columns

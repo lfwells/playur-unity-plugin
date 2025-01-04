@@ -84,31 +84,37 @@ namespace PlayUR
         /// <summary>
         /// The list of extra analytics columns, but sorted by custom sort order from admin page.
         /// </summary>
+        [System.NonSerialized]
         public List<AnalyticsColumn> analyticsColumnsOrder;
 
         /// <summary>
         /// The build ID of the current configuration
         /// </summary>
+        [System.NonSerialized]
         public int buildID;
 
         /// <summary>
         /// The branch of the current build
         /// </summary>
+        [System.NonSerialized]
         public string branch;
 
         /// <summary>
         /// The user's passed in mturkID, if any
         /// </summary>
+        [System.NonSerialized]
         public string mturkID;
 
         /// <summary>
         /// The user's passed in mturk params (assignmentId, hitId, workerId, turkSubmitTo), if any, in json format
         /// </summary>
+        [System.NonSerialized]
         public string mturkparams;
 
         /// <summary>
         /// The user's passed in prolificID, if any
         /// </summary>
+        [System.NonSerialized]
         public string prolificID;
     }
     #endregion

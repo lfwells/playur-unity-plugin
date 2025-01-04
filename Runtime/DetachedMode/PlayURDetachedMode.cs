@@ -54,7 +54,7 @@ namespace PlayUR
                     experimentGroup = plugin.DetchedConfiguration.experimentGroup,
                     experimentGroupID = (int)plugin.DetchedConfiguration.experimentGroup,
                     parameters = new Dictionary<string,string>(plugin.DetchedConfiguration.parameterValues.Select(p => new KeyValuePair<string,string>(p.key, p.value))),
-                    analyticsColumnsOrder = new List<AnalyticsColumn>(),
+                    analyticsColumnsOrder = Enum.GetValues(typeof(AnalyticsColumn)).Cast<AnalyticsColumn>().ToList(),
                 };
                 plugin.configuration = c;
                 yield return 0;
@@ -114,16 +114,22 @@ namespace PlayUR
                         case DetachedModeAnalyticsLocation.Documents:
                             return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                     }
-                    
+
                 }
             }
+            List<string> exclude = new List<string>{ "userID", "gameID", "clientSecret", "buildID", "branch" };
+
             public void StartSession(PlayURPlugin plugin, Dictionary<string, string> form)
             {
                 var currentTimestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
                 var path = Path.Combine(DetachedModeAnalyticsPath, "session_" + currentTimestamp + ".csv");
                 currentAnalyticsFile = new StreamWriter(path, true);
-                var toWrite = string.Join("\n", form.Select(kvp => kvp.Key+","+kvp.Value));
+
+                var analyticsHeaders = "action,timestamp,"+ string.Join(",", Enum.GetValues(typeof(AnalyticsColumn)).Cast<AnalyticsColumn>().Select(ac => ac.ToString())) + "\n";
+                var toWrite = string.Join("\n", form.Where(kvp => exclude.Contains(kvp.Key) == false).Select(kvp => kvp.Key+","+kvp.Value))+"\n\n"+analyticsHeaders;
                 currentAnalyticsFile.Write(toWrite);
+
+
                 currentAnalyticsFile.Flush();
                 Log("Analytics File Created in Detached Mode at " + path + " with session info " + toWrite);
             }
@@ -145,8 +151,11 @@ namespace PlayUR
             {
                 if (currentAnalyticsFile != null)
                 {
-                    var toWrite = JsonUtility.ToJson(actions);
-                    currentAnalyticsFile.WriteLine(toWrite);
+                    foreach (var action in actions.actions)
+                    {
+                        var toWrite = action.a.ToString() + "," + action.timestamp + "," + string.Join(",", plugin.Configuration.analyticsColumnsOrder.Select(c => action.columnData.GetValueOrDefault(c, defaultValue: string.Empty)));
+                        currentAnalyticsFile.WriteLine(toWrite);
+                    }
                     currentAnalyticsFile.Flush();
                 }
                 callback?.Invoke(true, null);
