@@ -418,6 +418,8 @@ namespace PlayUR.Editor
         // this is the main player builder function
         static void BuildPlayer(BuildTargetGroup buildTargetGroup, BuildTarget buildTarget, string buildPath, bool onlyUpload = false, bool upload = true, int PlayURPlatformID = 0)
         {
+            if (IsDetachedMode) upload = false;
+
             Debug.ClearDeveloperConsole();
             if (onlyUpload == false)
             {
