@@ -144,13 +144,13 @@ namespace PlayUR
         /// <summary>Matches the id field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
-        public static int GameID => Settings?.GameID ?? 0;
+        public static int GameID => IsDetachedMode ? int.MaxValue : (Settings?.GameID ?? 0);
 
 
         /// <summary>Matches the client_secret field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
-        public static string ClientSecret => ClientSecretSettings?.ClientSecret ?? string.Empty;
+        public static string ClientSecret => IsDetachedMode ? "DETACHED_NO_SECRET_NEEDED" : (ClientSecretSettings?.ClientSecret ?? string.Empty);
 
         /// <summary> The currently logged in user. Will be null before log in. </summary>
         public User user;
