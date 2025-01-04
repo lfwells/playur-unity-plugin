@@ -418,8 +418,6 @@ namespace PlayUR.Editor
         // this is the main player builder function
         static void BuildPlayer(BuildTargetGroup buildTargetGroup, BuildTarget buildTarget, string buildPath, bool onlyUpload = false, bool upload = true, int PlayURPlatformID = 0)
         {
-            if (IsDetachedMode) upload = false;
-
             Debug.ClearDeveloperConsole();
             if (onlyUpload == false)
             {
@@ -436,6 +434,12 @@ namespace PlayUR.Editor
                     return;
                 }
             }
+            if (IsDetachedMode)
+            {
+                EditorUtility.DisplayDialog("PlayUR Plugin", "Build Complete. Note, in detached mode, you can just do normal builds--you don't need to use the PlayUR menu.", "OK");
+                return;
+            }
+
             // ZIP everything
             var uploadfilename = "";
             if (buildTarget == BuildTarget.StandaloneWindows || buildTarget == BuildTarget.StandaloneWindows64 || buildTarget == BuildTarget.StandaloneOSX)
@@ -840,6 +844,8 @@ namespace PlayUR.Editor
         public delegate void WarningsDelegate(string[] warnings);
         public static void CheckForWarnings(int gameID, WarningsDelegate callback)
         {
+            if (IsDetachedMode) return; 
+
             var runner = new CoroutineRunner();
             var form = GetGameIDForm();
             EditorCoroutineUtility.StartCoroutine(EditorRest.Get("game/warnings.php", form, (succ, message) => {
