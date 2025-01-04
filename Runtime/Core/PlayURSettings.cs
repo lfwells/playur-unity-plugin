@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,8 +10,26 @@ namespace PlayUR
         public const string ResourcePath = "PlayURSettings";
         public const string SettingsPath = "Assets/PlayURPlugin/Resources/"+ResourcePath+".asset";
 
+        /// <summary>
+        /// Allows users to still use the PlayUR platform without having to connect to the PlayUR Dashboard. Some features may not be fully supported in this mode.
+        /// </summary>
+        public bool detachedMode = false;
+
+        /// <summary>
+        /// The configuration settings to use on startup when in detached mode. This emulates the configuration that otherwise would have come from the PlayUR Dashboard.
+        /// </summary>
+        public DetachedMode.PlayURConfigurationObject detachedModeConfiguration;
+
+        /// <summary>
+        /// The location to store local analytics data when in detached mode.
+        /// </summary>
+        public DetachedModeAnalyticsLocation detachedModeAnalyticsPath = DetachedModeAnalyticsLocation.ExecutableFolder;
+
         [SerializeField]
         private int gameId;
+        /// <summary>
+        /// The associated game ID on the PlayUR Dashboard
+        /// </summary>
         public int GameID => gameId;
 
         /// <summary>

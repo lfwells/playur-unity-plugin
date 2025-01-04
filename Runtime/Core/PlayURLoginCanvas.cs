@@ -44,7 +44,7 @@ namespace PlayUR.Core
         /// <summary>
         /// Returns if we have successfully logged in or not
         /// </summary>
-        public static bool LoggedIn { get; private set; }
+        public static bool LoggedIn { get; set; }
 
         //this var either contains the text put in the password field, or is populated by the auto-login process.
         string usr;
@@ -66,6 +66,11 @@ namespace PlayUR.Core
             else if (PlayURPlugin.Settings.fullScreenMode == PlayURSettings.FullScreenStartUpMode.AlwaysStartWindowed)
             {
                 Screen.fullScreen = false;
+            }
+
+            if (PlayURPlugin.IsDetachedMode)
+            {
+                PlayURPlugin.DetachedModeProxy.LoginCanvasAwake(this);
             }
         }
         private void Start()
@@ -152,14 +157,7 @@ namespace PlayUR.Core
                         UnityEngine.PlayerPrefs.SetString(PlayURPlugin.PERSIST_KEY_PREFIX + "username", result["username"].Value);
                     }
                     LoggedIn = true;
-                    if (PlayURPluginHelper.startedFromScene > 0)
-                    {
-                        UnityEngine.SceneManagement.SceneManager.LoadScene(PlayURPluginHelper.startedFromScene);
-                    }
-                    else
-                    {
-                        UnityEngine.SceneManagement.SceneManager.LoadScene(1);
-                    }
+                    GoToNextScene();
                 }
                 else
                 {
@@ -167,6 +165,17 @@ namespace PlayUR.Core
                     feedback.text = "Incorrect Username or Password";//todo pull from server?
                 }
             });
+        }
+        public void GoToNextScene()
+        {
+            if (PlayURPluginHelper.startedFromScene > 0)
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(PlayURPluginHelper.startedFromScene);
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(1);
+            }
         }
         public void CancelLogin(string message = "Could not login. Contact the researcher.")
         {

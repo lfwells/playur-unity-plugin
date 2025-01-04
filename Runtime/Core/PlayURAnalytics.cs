@@ -11,7 +11,7 @@ namespace PlayUR
     public partial class PlayURPlugin
     {
         [System.Serializable]
-        protected struct ActionParams
+        public struct ActionParams
         {
             public Action a;
             public string timestamp;
@@ -19,9 +19,11 @@ namespace PlayUR
             //extra analytics columns (new version)
             public List<int> includedColumns;
             public List<string> columnValues; 
+            //note this won't be serialized, and that's okay, but detached mode needs this
+            public Dictionary<AnalyticsColumn, object> columnData;
         }
         [System.Serializable]
-        protected struct ActionParamsList //weirdly to serialize to json, we need a struct to wrap the array
+        public struct ActionParamsList //weirdly to serialize to json, we need a struct to wrap the array
         {
             public ActionParams[] actions;
         }
@@ -50,6 +52,12 @@ namespace PlayUR
         }
         IEnumerator RecordActionDirectly(ActionParamsList actions, Rest.ServerCallback callback)
         {
+            if (IsDetachedMode)
+            {
+                yield return StartCoroutine(DetachedModeProxy.RecordActionDirectly(this, actions, callback));
+                yield break;
+            }
+
             var form = Rest.GetWWWFormWithExperimentInfo();
             form.Add("actions", JsonUtility.ToJson(actions));
 
@@ -82,6 +90,7 @@ namespace PlayUR
 
             if (columns != null && columns.Count > 0)
             {
+                parameters.columnData = columns;
                 parameters.includedColumns = new List<int>();
                 parameters.columnValues = new List<string>();
                 foreach (var column in configuration.analyticsColumnsOrder) //this ordered array ensures that we maintain correct order of columns
@@ -338,6 +347,11 @@ namespace PlayUR
             /// <returns></returns>
             public IEnumerator Process()
             {
+                if (PlayURPlugin.IsDetachedMode)
+                {
+                    yield return instance.StartCoroutine(PlayURPlugin.DetachedModeProxy.ProcessUpdatableAction(this));
+                    yield break;
+                }
 
                 if (Time.realtimeSinceStartup - lastUpdate > uploadIntervalSeconds)
                 {

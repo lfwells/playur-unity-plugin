@@ -11,6 +11,7 @@ using PlayUR;
 using PlayUR.ParameterSchemas;
 using Newtonsoft.Json;
 using UnityEngine.Rendering;
+using UnityEngine.InputSystem;
 
 namespace PlayUR
 {
@@ -83,31 +84,37 @@ namespace PlayUR
         /// <summary>
         /// The list of extra analytics columns, but sorted by custom sort order from admin page.
         /// </summary>
+        [System.NonSerialized]
         public List<AnalyticsColumn> analyticsColumnsOrder;
 
         /// <summary>
         /// The build ID of the current configuration
         /// </summary>
+        [System.NonSerialized]
         public int buildID;
 
         /// <summary>
         /// The branch of the current build
         /// </summary>
+        [System.NonSerialized]
         public string branch;
 
         /// <summary>
         /// The user's passed in mturkID, if any
         /// </summary>
+        [System.NonSerialized]
         public string mturkID;
 
         /// <summary>
         /// The user's passed in mturk params (assignmentId, hitId, workerId, turkSubmitTo), if any, in json format
         /// </summary>
+        [System.NonSerialized]
         public string mturkparams;
 
         /// <summary>
         /// The user's passed in prolificID, if any
         /// </summary>
+        [System.NonSerialized]
         public string prolificID;
     }
     #endregion
@@ -143,13 +150,13 @@ namespace PlayUR
         /// <summary>Matches the id field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
-        public static int GameID => Settings?.GameID ?? 0;
+        public static int GameID => IsDetachedMode ? int.MaxValue : (Settings?.GameID ?? 0);
 
 
         /// <summary>Matches the client_secret field of the relevant game in the Game table in the server database.
         /// Is set on initial "Set Up" process, however if you need to update it, can be updated by running the set up process again.
         /// </summary>
-        public static string ClientSecret => ClientSecretSettings?.ClientSecret ?? string.Empty;
+        public static string ClientSecret => IsDetachedMode ? "DETACHED_NO_SECRET_NEEDED" : (ClientSecretSettings?.ClientSecret ?? string.Empty);
 
         /// <summary> The currently logged in user. Will be null before log in. </summary>
         public User user;
@@ -213,6 +220,8 @@ namespace PlayUR
                 Quit();
                 throw new PluginNotConfiguredException("Client Secret ID must be set");
             }
+
+            InitDetachedFunctionality();
 
             base.Awake();
 
@@ -300,6 +309,12 @@ namespace PlayUR
         /// <param name="callback">called when the response from the server is given, with a bool success and the user's information</param>
         public void Login(string username, string password, Rest.ServerCallback callback)
         {
+            if (IsDetachedMode)
+            {
+                DetachedModeProxy.Login(this, username, password, callback);
+                return;
+            }
+
             var form = Rest.GetWWWForm();
             form.Add("username", username);
             form.Add("password", password);
@@ -330,6 +345,12 @@ namespace PlayUR
         /// <param name="callback">called when the response from the server is given, with a bool success and the user's information</param>
         public void Register(string username, string password, string email, string firstName, string lastName, Rest.ServerCallback callback)
         {
+            if (IsDetachedMode)
+            {
+                DetachedModeProxy.Register(this, username, password, email, firstName, lastName, callback);
+                return;
+            }
+
             var form = Rest.GetWWWForm();
             form.Add("username", username);
             form.Add("email", email);
@@ -365,6 +386,13 @@ namespace PlayUR
         IEnumerator GetConfiguration()//(Action action, ServerResponse callback, params object[] p)
         {
             Log("Getting Configuration...");
+
+            if (IsDetachedMode)
+            {
+                yield return StartCoroutine(DetachedModeProxy.GetConfiguration(this));
+                yield break;
+            }
+
             var form = Rest.GetWWWForm();
 
             experimentFull = false;
@@ -566,25 +594,33 @@ namespace PlayUR
                 $"\n\tBuildID: {configuration.buildID}, Branch: {configuration.branch}" +
                 $"\n\t" +
                 $"\n\tElements:\n";
-            foreach (var element in configuration.elements)
-            {
-                s += "\t\t" + element + "\n";
-            }
+
+            if (configuration.elements == null) s += "\t\tNULL\n";
+            else
+                foreach (var element in configuration.elements)
+                {
+                    s += "\t\t" + element + "\n";
+                }
 
             s += "\tParameters:\n";
-            foreach (var p in configuration.parameters)
-            {
-                s += "\t\t" + p.Key + "\t" + p.Value + "\n";
-            }
+            if (configuration.parameters == null) s += "\t\tNULL\n";
+            else
+                foreach (var p in configuration.parameters)
+                {
+                    s += "\t\t" + p.Key + "\t" + p.Value + "\n";
+                }
 
             s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + mTurkFromStandaloneLoginInfo + "\n\t\tProlific = "+ prolificFromStandaloneLoginInfo+ "\n\n";
+
             s += "\tParams = " + paramsFromStandaloneLoginInfo + "\n\n";
 
             s += "\tAnalytics columns:\n";
-            foreach (var c in configuration.analyticsColumnsOrder)
-            {
-                s += "\t\t" + c + "\n";
-            }
+            if (configuration.analyticsColumnsOrder == null) s += "\t\tNULL\n";
+            else
+                foreach (var c in configuration.analyticsColumnsOrder)
+                {
+                    s += "\t\t" + c + "\n";
+                }
 
 
             Log(s);
@@ -1185,6 +1221,12 @@ namespace PlayUR
 
             form.Add("configuration", JsonConvert.SerializeObject(Configuration));
 
+            if (IsDetachedMode)
+            {
+                DetachedModeProxy.StartSession(this, form);
+                return;
+            }
+
             StartCoroutine(Rest.EnqueuePost("Session", form, (succ, result) =>
             {
                 if (succ)
@@ -1222,6 +1264,12 @@ namespace PlayUR
             form.Add("currentResolution", Screen.currentResolution.ToString());
             if (string.IsNullOrEmpty(browserInfo) == false) { form.Add("browserInfo", browserInfo); }
 
+            if (IsDetachedMode)
+            {
+                yield return StartCoroutine(DetachedModeProxy.StartSessionAsync(this, form));
+                yield break;
+            }
+
             yield return StartCoroutine(Rest.EnqueuePost("Session", form, (succ, result) =>
             {
                 if (succ)
@@ -1249,6 +1297,12 @@ namespace PlayUR
                 { "history", GetHistoryString() },
                 { "debugLog", GetDebugLogs(Settings?.minimumLogLevelToStore ?? LogLevel.Log) }
             };
+
+            if (IsDetachedMode)
+            {
+                DetachedModeProxy.EndSession(this, startNew, endConfig);
+                return;
+            }
 
             StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) =>
             {
@@ -1280,6 +1334,12 @@ namespace PlayUR
                 { "history", GetHistoryString() },
                 { "debugLog", GetDebugLogs(Settings?.minimumLogLevelToStore ?? LogLevel.Log) }
             };
+
+            if (IsDetachedMode)
+            {
+                yield return StartCoroutine(DetachedModeProxy.EndSessionAsync(this, startNew, endConfig));
+                yield break;
+            }
 
             yield return StartCoroutine(Rest.EnqueuePut("Session", sessionID, endConfig, (succ, result) =>
             {
@@ -1315,7 +1375,13 @@ namespace PlayUR
                 { "history", GetHistoryString() },
             };
 
-            return Rest.EnqueuePut("Session", sessionID, form, (succ, result) =>
+            if (IsDetachedMode)
+            {
+                yield return StartCoroutine(DetachedModeProxy.BackupSessionAsync(this, form));
+                yield break;
+            }
+
+            yield return Rest.EnqueuePut("Session", sessionID, form, (succ, result) =>
             {
                 PlayURPlugin.Log("session backedup");
             }, debugOutput: false, storeFormInHistory: false);
@@ -1408,6 +1474,12 @@ namespace PlayUR
         }
         public void GetLeaderboardEntries(string leaderboardID, LeaderboardConfiguration leaderBoardConfiguration, Rest.ServerCallback callback)
         {
+            if (IsDetachedMode) 
+            {
+                DetachedModeProxy.GetLeaderboardEntries(this, leaderboardID, leaderBoardConfiguration, callback);
+                return;
+            }
+
             if (string.IsNullOrEmpty(leaderboardID))
             {
                 throw new PlayUR.Exceptions.InvalidLeaderboardIDException(leaderboardID);
@@ -1446,6 +1518,12 @@ namespace PlayUR
         }
         public void UpdateLeaderboardEntryName(int id, string name, Rest.ServerCallback callback)
         {
+            if (IsDetachedMode)
+            {
+                DetachedModeProxy.UpdateLeaderboardEntryName(this, id, name, callback);
+                return;
+            }
+
             var form = Rest.GetWWWForm();
             form.Add("customName", name);
 
@@ -1941,12 +2019,15 @@ public static class PlayerPrefs
 
     public static void Save()
     {
-        PlayUR.PlayURPlugin.instance.SavePlayerPrefs(DATA, debugOutput: false);
+        if (PlayUR.PlayURPlugin.IsDetachedMode == false) { PlayUR.PlayURPlugin.instance.SavePlayerPrefs(DATA, debugOutput: false); }
         UnityEngine.PlayerPrefs.Save();
     }
+
     public static void Load() { Load(null); }
     public static void Load(PlayUR.Core.Rest.ServerCallback callback)
     {
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { PlayURPlugin.DetachedModeProxy.PlayerPrefsLoad(callback); return; }
+
         PlayUR.PlayURPlugin.instance.LoadPlayerPrefs((succ, result) =>
         {
             var results = result["results"].AsArray;
@@ -1991,6 +2072,8 @@ public static class PlayerPrefs
 
     public static int GetInt(string key, int defaultValue = 0)
     {
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsGetInt(key,defaultValue); }
+
         if (DATA.ContainsKey(key))
             try
             {
@@ -2011,6 +2094,8 @@ public static class PlayerPrefs
     }
     public static string GetString(string key, string defaultValue = "")
     {
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsGetString(key, defaultValue); }
+
         if (DATA.ContainsKey(key))
             try
             {
@@ -2031,6 +2116,8 @@ public static class PlayerPrefs
     }
     public static float GetFloat(string key, float defaultValue = 0)
     {
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsGetFloat(key, defaultValue); }
+
         if (DATA.ContainsKey(key))
             try
             {
@@ -2051,6 +2138,8 @@ public static class PlayerPrefs
     }
     public static bool GetBool(string key, bool defaultValue = false)
     {
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsGetBool(key, defaultValue); }
+
         if (DATA.ContainsKey(key))
             try
             {
@@ -2063,10 +2152,14 @@ public static class PlayerPrefs
 
     public static bool HasKey(string key)
     {
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsHasKey(key); }
+
         return DATA.ContainsKey(key);
     }
     public static void DeleteKey(string key)
     {
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { PlayURPlugin.DetachedModeProxy.PlayerPrefsDeleteKey(key); }
+
         if (DATA.ContainsKey(key))
             DATA.Remove(key);
 
@@ -2075,6 +2168,8 @@ public static class PlayerPrefs
 
     public static void DeleteAll()
     {
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { PlayURPlugin.DetachedModeProxy.PlayerPrefsDeleteAll(); }
+
         DATA = new Dictionary<string, object>();
 
         UnityEngine.PlayerPrefs.DeleteAll();
