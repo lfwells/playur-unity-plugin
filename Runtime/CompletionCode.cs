@@ -92,7 +92,10 @@ namespace PlayUR
             te.SelectAll();
             te.Copy();
 #endif
-            PlayURPlugin.instance.mTurkCompletionCodeCopiedMessage();
+            if (PlayURPlugin.instance.HasMTurkID)
+                PlayURPlugin.instance.mTurkCompletionCodeCopiedMessage();
+            else if (PlayURPlugin.instance.HasProlificID)
+                PlayURPlugin.instance.prolificCompletionCodeCopiedMessage();
             yield break;
         }
 
