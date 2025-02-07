@@ -17,7 +17,7 @@ namespace PlayUR.Core
     {
 
         #region Constants
-#if UNITY_EDITOR || !UNITY_WEBGL
+#if UNITY_EDITOR //|| !UNITY_WEBGL
         bool ENABLE_PERSISTENCE = true;
 #else
         bool ENABLE_PERSISTENCE = false;
