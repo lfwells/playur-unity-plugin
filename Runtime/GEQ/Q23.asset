@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c51bad96bd65d1b439e66e757ee45cd0, type: 3}
   m_Name: Q23
   m_EditorClassIdentifier: 
-  question: 3 I felt pressured
+  question: I felt pressured
   labels: 1
   analyticsKey: 
