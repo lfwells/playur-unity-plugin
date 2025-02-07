@@ -475,6 +475,9 @@ namespace PlayUR.Editor
                     if (cancelled == false)
                     {
                         branch = string.IsNullOrEmpty(branch) ? "main" : branch;
+
+                        EditorPrefs.SetString("lastBranchBuiltTo", branch);
+
                         PlayURPlugin.Log("Selected branch: " + branch);
                         PlayURPlugin.Log("uploadfilename: " + uploadfilename);
 
@@ -501,7 +504,7 @@ namespace PlayUR.Editor
                         }, PlayURPlatformID), new CoroutineRunner());
                     }
 
-                }, defaultText: "main");//TODO: remember last time a branch was used?
+                }, defaultText: EditorPrefs.GetString("lastBranchBuiltTo", defaultValue: "main"));//TODO: remember last time a branch was used?
 
             }
         }
