@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Web;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -23,7 +24,7 @@ namespace PlayUR
         /// <param name="textBox">The text box to run the operation on</param>
         /// <param name="text">The text to encode into a completion code (unless textIsAlreadyEncoded is set to true, in which case this will be just passed through as-is</param>
         /// <param name="textIsAlreadyEncoded">Set this to true if you have already generated the code text with <see cref="PlayURPlugin.GenerateCompletionCode(string)"/></param>
-        public static void PopulateTextBoxWithCopyableCompletionCode(TMPro.TMP_InputField textBox, string text, bool textIsAlreadyEncoded = false)
+        public static string PopulateTextBoxWithCopyableCompletionCode(TMPro.TMP_InputField textBox, string text, bool textIsAlreadyEncoded = false)
         {
             if (!textIsAlreadyEncoded)
             {
@@ -41,6 +42,45 @@ namespace PlayUR
                 selectedTextBox = textBox;
                 ClickEvent(s);
             });
+
+            return textBox.text;
+        }
+
+
+        public delegate void OnClickCompletionCodeButtonCallback(string s = null);
+
+        /// <summary>
+        /// Takes a button and populates it with a completion code that sends an encoded hitcode to a rediect URL
+        /// </summary>
+        /// <param name="textBox">The text box to run the operation on</param>
+        /// <param name="text">The text to encode into a completion code (unless textIsAlreadyEncoded is set to true, in which case this will be just passed through as-is</param>
+        /// <param name="textIsAlreadyEncoded">Set this to true if you have already generated the code text with <see cref="PlayURPlugin.GenerateCompletionCode(string)"/></param>
+        /// <param name="urlFormat">The url to redirect to, with {0} being replaced with a URL-encoded version of code</param>
+        /// <param name="buttonText">The text to put on the button (with {0} being replaced with the code/ If null, doesn't change the button's text</param>
+        /// <param name="onClickCallback">Optional additional code to run on the button click in *addition* to the redirect</param>
+        public static string PopulateButtonWithCompletionCodeURLRedirect(UnityEngine.UI.Button button, string text, string urlFormat = "https://app.prolific.com/submissions/complete?cc={0}", string buttonText = null, bool textIsAlreadyEncoded = false, OnClickCompletionCodeButtonCallback onClickCallback = null)
+        {
+            if (!textIsAlreadyEncoded)
+            {
+                text = GenerateCompletionCode(text);
+            }
+
+            if (buttonText != null)
+            {
+                var tmp = button.GetComponentInChildren<TextOrTMP>();
+                if (tmp != null) tmp.text = string.Format(buttonText, text);
+                else
+                {
+                    var utext = button.GetComponent<UnityEngine.UI.Text>();
+                    if (utext != null) utext.text = string.Format(buttonText, text);
+                }
+            }
+            button.onClick.AddListener(() => {
+                Application.OpenURL(string.Format(urlFormat, HttpUtility.UrlEncode(text)));
+                if (onClickCallback!= null) onClickCallback();
+            });
+
+            return text;
         }
 
         /// <summary>
