@@ -83,6 +83,10 @@ namespace PlayUR
                 };
                 callback?.Invoke(true, null);
             }
+            public void StandaloneTokenLogin(PlayURPlugin plugin, string stoken, Rest.ServerCallback callback)
+            {
+                throw new NotImplementedException();
+            }
             public void Register(PlayURPlugin plugin, string username, string password, string email, string firstName, string lastName, Rest.ServerCallback callback)
             {
                 throw new NotImplementedException();
