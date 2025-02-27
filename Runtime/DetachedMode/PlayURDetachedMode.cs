@@ -3,13 +3,10 @@ using PlayUR.Core;
 using PlayUR.DetachedMode;
 using System.Linq;
 using System.Collections.Generic;
-using UnityEngine.InputSystem;
 using System;
 using UnityEngine;
 using PlayUR.Exceptions;
 using System.IO;
-using System.Text;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 
 namespace PlayUR

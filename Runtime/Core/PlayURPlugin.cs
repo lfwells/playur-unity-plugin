@@ -3,15 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Events;
 using UnityEngine.UI;
 using PlayUR.Exceptions;
 using PlayUR.Core;
 using PlayUR;
 using PlayUR.ParameterSchemas;
 using Newtonsoft.Json;
-using UnityEngine.Rendering;
-using UnityEngine.InputSystem;
 
 namespace PlayUR
 {
