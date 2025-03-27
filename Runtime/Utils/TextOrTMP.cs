@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 [System.Serializable]
@@ -41,3 +42,46 @@ public class InputFieldOrTMP
     }
 }
 
+//an extension on a gameObject to do a GetComponent, but it will look for either a Text or a TextMeshPro component
+public static class TMPOrTextExtension
+{
+    /// <summary>
+    /// Tries to get a Text or TextMeshPro component from a GameObject and set the text on it.
+    /// </summary>
+    /// <returns>If a text or a text mesh pro object was found</returns>
+    public static bool TryGetTextComponentAndSetText(this GameObject obj, string text, bool inChildren = true)
+    {
+        if (inChildren)
+        {
+            var textComponent = obj.GetComponentInChildren<Text>();
+            if (textComponent != null)
+            {
+                textComponent.text = text;
+                return true;
+            }
+            var tmpComponent = obj.GetComponentInChildren<TextMeshProUGUI>();
+            if (tmpComponent != null)
+            {
+                tmpComponent.text = text;
+                return true;
+            }
+        }
+        else
+        {
+            var textComponent = obj.GetComponent<Text>();
+            if (textComponent != null)
+            {
+                textComponent.text = text;
+                return true;
+            }
+            var tmpComponent = obj.GetComponent<TextMeshProUGUI>();
+            if (tmpComponent != null)
+            {
+                tmpComponent.text = text;
+                return true;
+            }
+        }
+        return false;
+
+    }
+}

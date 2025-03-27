@@ -68,12 +68,9 @@ namespace PlayUR
 
             if (buttonText != null)
             {
-                var tmp = button.GetComponentInChildren<TextOrTMP>();
-                if (tmp != null) tmp.text = string.Format(buttonText, text);
-                else
+                if (button.gameObject.TryGetTextComponentAndSetText(string.Format(buttonText, text)))
                 {
-                    var utext = button.GetComponent<UnityEngine.UI.Text>();
-                    if (utext != null) utext.text = string.Format(buttonText, text);
+                    button.gameObject.SetActive(true);
                 }
             }
             button.onClick.AddListener(() => {
