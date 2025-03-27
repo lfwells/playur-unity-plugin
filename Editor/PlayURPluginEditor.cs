@@ -161,7 +161,7 @@ namespace PlayUR.Editor
                     {
                         if (string.IsNullOrEmpty(group["name"].Value)) continue;
                         text += PlayUREditorUtils.DescriptionToCommentSafe(group["description"], indent: 2, id: group["id"], "ExperimentGroup", "Game/" + PlayURPlugin.GameID +"/"+ group["experimentID"].Value);
-                        text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(group["experiment"].Value) + "_" + group["name"].Value.Replace(" ", "") + " = " + group["id"] + ",\n";
+                        text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(group["experiment"].Value + " " + group["name"].Value) + " = " + group["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
 
