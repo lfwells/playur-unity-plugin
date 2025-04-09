@@ -1000,7 +1000,14 @@ namespace PlayUR
 
         internal override void WriteToStringBuilder(StringBuilder aSB, int aIndent, int aIndentInc, JSONTextMode aMode)
         {
-            aSB.Append('\"').Append(Escape(m_Data)).Append('\"');
+            if (m_Data == null)
+            {
+                aSB.Append("null");
+            }
+            else
+            {
+                aSB.Append('\"').Append(Escape(m_Data)).Append('\"');
+            }
         }
         public override bool Equals(object obj)
         {
