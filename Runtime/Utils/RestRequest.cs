@@ -125,6 +125,9 @@ namespace PlayUR.Core
         private Queue<RestRequest> _pending;
         private List<RestRequest> _history;
 
+        public bool OutstandingRequests => _pending.Count > 0;
+        public int OutstandingRequestCount => _pending.Count;
+
         /// <summary>Made when a request is finished excecuting</summary>
         public event Action<RestRequest> RequestFinished;
 
