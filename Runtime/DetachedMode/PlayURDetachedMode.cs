@@ -3,13 +3,10 @@ using PlayUR.Core;
 using PlayUR.DetachedMode;
 using System.Linq;
 using System.Collections.Generic;
-using UnityEngine.InputSystem;
 using System;
 using UnityEngine;
 using PlayUR.Exceptions;
 using System.IO;
-using System.Text;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 
 namespace PlayUR
@@ -82,6 +79,10 @@ namespace PlayUR
 #endif
                 };
                 callback?.Invoke(true, null);
+            }
+            public void StandaloneTokenLogin(PlayURPlugin plugin, string stoken, Rest.ServerCallback callback)
+            {
+                throw new NotImplementedException();
             }
             public void Register(PlayURPlugin plugin, string username, string password, string email, string firstName, string lastName, Rest.ServerCallback callback)
             {

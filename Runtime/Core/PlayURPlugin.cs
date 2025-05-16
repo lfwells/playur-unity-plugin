@@ -3,15 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Events;
 using UnityEngine.UI;
 using PlayUR.Exceptions;
 using PlayUR.Core;
 using PlayUR;
 using PlayUR.ParameterSchemas;
 using Newtonsoft.Json;
-using UnityEngine.Rendering;
-using UnityEngine.InputSystem;
 
 namespace PlayUR
 {
@@ -92,12 +89,24 @@ namespace PlayUR
         /// </summary>
         [System.NonSerialized]
         public int buildID;
+        //for *reasons* the build ID can be detected ahead of time, and so the easiest way was to store it in a static
+        public static int detectedBuildID;
 
         /// <summary>
         /// The branch of the current build
         /// </summary>
         [System.NonSerialized]
         public string branch;
+        //for *reasons* the build branch can be detected ahead of time, and so the easiest way was to store it in a static
+        public static string detectedBuildBranch;
+
+        /// <summary>
+        /// The time the build was downloaded from PlayUR
+        /// </summary>
+        [System.NonSerialized]
+        public string downloadTime;
+        //for *reasons* the download time can be detected ahead of time, and so the easiest way was to store it in a static
+        public static string detectedDownloadTime;
 
         /// <summary>
         /// The user's passed in mturkID, if any
@@ -335,6 +344,33 @@ namespace PlayUR
             }));
         }
 
+        public void StandaloneTokenLogin(string token, Rest.ServerCallback callback)
+        {
+            if (IsDetachedMode)
+            {
+                DetachedModeProxy.StandaloneTokenLogin(this, token, callback);
+                return;
+            }
+
+            var form = Rest.GetWWWForm();
+            form.Add("token", token);
+
+            StartCoroutine(Rest.EnqueueGet("StandaloneExperimentLogin", form, (succ, result) =>
+            {
+                if (succ)
+                {
+                    user = new User();
+                    user.name = token;
+                    if (result["result"]["username"]) user.name = result["result"]["username"];
+                    user.id = result["result"]["userID"].AsInt;
+
+                    PlayerPrefs.Load(callback);
+                    StartCoroutine(PlayerPrefs.PeriodicallySavePlayerPrefs());
+                }
+                callback(succ, result);
+            }, debugOutput: true));
+        }
+
         /// <summary>Performs a register request to the server.
         /// After the callback the user will be populated (if correct username and password).</summary>
         /// <param name="username">the username of the new  user. Entered in the PlayURLoginCanvas.</param>
@@ -482,8 +518,30 @@ namespace PlayUR
                 configuration.experiment = (Experiment)configuration.experimentID;
                 configuration.experimentGroup = (ExperimentGroup)configuration.experimentGroupID;
 
-                configuration.branch = result["branch"];
-                configuration.buildID = result["buildID"];
+                if (result.HasKey("buildID"))
+                {
+                    configuration.buildID = result["buildID"];
+                }
+                else
+                {
+                    configuration.buildID = Configuration.detectedBuildID;
+                }
+                if (result.HasKey("branch"))
+                {
+                    configuration.branch = result["branch"];
+                }
+                else
+                {
+                    configuration.branch = Configuration.detectedBuildBranch;
+                }
+                if (result.HasKey("downloadTime"))
+                {
+                    configuration.downloadTime = result["downloadTime"];
+                }
+                else
+                {
+                    configuration.downloadTime = Configuration.detectedDownloadTime;
+                }
 
                 configuration.elements = new List<Element>();
                 foreach (var element in elements)
@@ -592,6 +650,7 @@ namespace PlayUR
                 $"\n\tExperimentID:{configuration.experimentID} - {configuration.experiment}" +
                 $"\n\tExperimentGroupID: {configuration.experimentGroupID} - {configuration.experimentGroup}" +
                 $"\n\tBuildID: {configuration.buildID}, Branch: {configuration.branch}" +
+                $"\n\tDownload Time: {configuration.downloadTime}" +
                 $"\n\t" +
                 $"\n\tElements:\n";
 
@@ -1206,6 +1265,7 @@ namespace PlayUR
 
             form.Add("buildID", CurrentBuildID.ToString());
             form.Add("branch", CurrentBuildBranch);
+            form.Add("downloadTime", configuration.downloadTime);
 
             form.Add("platform", CurrentPlatform.ToString());
             form.Add("operatingSystem", SystemInfo.operatingSystem);

@@ -70,7 +70,7 @@ namespace PlayUR.Editor
             var rgx = new System.Text.RegularExpressions.Regex("[^a-zA-Z0-9_]");
             input = input.Replace(" ", "_");
             input = rgx.Replace(input, "");
-            if (!char.IsLetter(input[0])) input = "_" + input;
+            if (!string.IsNullOrEmpty(input) && !char.IsLetter(input[0])) input = "_" + input;
             return input;
         }
         /// <summary>test 

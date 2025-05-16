@@ -148,6 +148,7 @@ namespace PlayUR
         /// <param name="a">the action to record</param>
         /// <param name="HTMLencode">Optionally convert form items special characters using <code>WebUtility.HtmlEncode</code>. </param>
         /// <param name="extra">the additional meta data about this action (e.g. if end match, what was the score?) -- in this case an array of itmes which will be concatenated</param>
+        [Obsolete("Use BeginRecordAction instead")]
         public void RecordAction(Action a, bool HTMLencode = false, params object[] extra)
         {
             RecordAction(a, string.Join(",",extra.Select(o => o.ToString())), HTMLencode: HTMLencode);
@@ -163,7 +164,12 @@ namespace PlayUR
         /// <returns>The <see cref="InProgressAction"/> to be used throughout the code, for later uploading.</returns>
         public InProgressAction BeginRecordAction(Action action)
         {
-            return new InProgressAction() { action = action };
+            var a = new InProgressAction() { action = action };
+            foreach (var kvp in ongoingValues)
+            {
+                a.AddColumn(kvp.Key, kvp.Value);
+            }
+            return a;
         }
 
         /// <summary>
@@ -460,6 +466,27 @@ namespace PlayUR
                 this.currentDataValue += by;
                 return Set(this.column, this.currentDataValue);
             }
+        }
+        #endregion
+
+        #region Ongoing Column Values
+        Dictionary<AnalyticsColumn, object> ongoingValues = new Dictionary<AnalyticsColumn, object>();
+        /// <summary>
+        /// Make it so that all new actions created will have the given value for the given column. Can be unset with <see cref="UnSetOngoingAnalyticsColumnValue"/>.
+        /// </summary>
+        /// <param name="column">The coloumn to set a value for every time.</param>
+        /// <param name="value">The value of the column, to be used repeatedly.</param>
+        public void SetOngoingAnalyticsColumnValue(AnalyticsColumn column, object value)
+        {
+            ongoingValues[column] = value;
+        }
+        /// <summary>
+        /// Undo the effects of <see cref="SetOngoingAnalyticsColumnValue="/>
+        /// </summary>
+        /// <param name="column">The column to clear.</param>
+        public void UnSetOngoingAnalyticsColumnValue(AnalyticsColumn column) 
+        { 
+            ongoingValues.Remove(column);
         }
         #endregion
     }

@@ -90,6 +90,7 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing possible user actions. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Action\n\t{\n";
                     foreach (var action in actions.Values)
                     {
+                        if (string.IsNullOrEmpty(action["name"].Value)) continue;
                         text += PlayUREditorUtils.DescriptionToCommentSafe(action["description"], indent: 2, id: action["id"], "Action", "Game/"+PlayURPlugin.GameID);
                         text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(action["name"].Value) + " = " + action["id"] + ",\n";
                     }
@@ -112,6 +113,7 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing top-level game elements. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Element\n\t{\n";
                     foreach (var element in elements.Values)
                     {
+                        if (string.IsNullOrEmpty(element["name"].Value)) continue;
                         text += PlayUREditorUtils.DescriptionToCommentSafe(element["description"], indent: 2, id: element["id"], "GameElement", "Game/" + PlayURPlugin.GameID);
                         text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(element["name"].Value) + " = " + element["id"] + ",\n";
                     }
@@ -134,6 +136,7 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing experiments for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum Experiment\n\t{\n";
                     foreach (var experiment in experiments.Values)
                     {
+                        if (string.IsNullOrEmpty(experiment["name"].Value)) continue;
                         text += PlayUREditorUtils.DescriptionToCommentSafe(experiment["description"], indent: 2, id: experiment["id"], "Experiment", "Game/" + PlayURPlugin.GameID);
                         text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(experiment["name"].Value) + " = " + experiment["id"] + ",\n";
                     }
@@ -156,8 +159,9 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing experiment groups for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum ExperimentGroup\n\t{\n";
                     foreach (var group in groups.Values)
                     {
+                        if (string.IsNullOrEmpty(group["name"].Value)) continue;
                         text += PlayUREditorUtils.DescriptionToCommentSafe(group["description"], indent: 2, id: group["id"], "ExperimentGroup", "Game/" + PlayURPlugin.GameID +"/"+ group["experimentID"].Value);
-                        text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(group["experiment"].Value) + "_" + group["name"].Value.Replace(" ", "") + " = " + group["id"] + ",\n";
+                        text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(group["experiment"].Value + " " + group["name"].Value) + " = " + group["id"] + ",\n";
                     }
                     text += "\t}" + GENERATED_FILE_FOOTER;
 
@@ -178,6 +182,7 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Enum generated from server representing the extra analytics columns used for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic enum AnalyticsColumn\n\t{\n";
                     foreach (var column in columns.Values)
                     {
+                        if (string.IsNullOrEmpty(column["name"].Value)) continue;
                         text += PlayUREditorUtils.DescriptionToCommentSafe(column["description"], indent: 2, id: column["id"], "AnalyticsColumn", "Game/" + PlayURPlugin.GameID);
                         text += "\t\t" + PlayUREditorUtils.PlatformNameToValidEnumValue(column["name"].Value) + " = " + column["id"] + ",\n";
                     }
@@ -200,7 +205,7 @@ namespace PlayUR.Editor
                     string text = GENERATED_FILE_HEADER + "\t///<summary>Constant Strings generated from server representing the parameter keys for this game. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic static class Parameter\n\t{\n";
                     foreach (var parameter in parameters.Values)
                     {
-
+                        if (string.IsNullOrEmpty(parameter["parameter"].Value)) continue;
                         string c = null;
                         if (!string.IsNullOrEmpty(parameter["type"]))
                         {
@@ -221,7 +226,7 @@ namespace PlayUR.Editor
                     text = GENERATED_FILE_HEADER + "\t///<summary>A generated datastructure containing all known parameters. Values are populated at runtime when plugin is Ready. To update use PlayUR\\Re-generate Enums.</summary>\n\tpublic static partial class Parameters\n\t{\n";
                     foreach (var parameter in parameters.Values)
                     {
-
+                        if (string.IsNullOrEmpty(parameter["parameter"].Value)) continue;
                         string type = "string";
                         if (!string.IsNullOrEmpty(parameter["type"]))
                         {
@@ -475,6 +480,9 @@ namespace PlayUR.Editor
                     if (cancelled == false)
                     {
                         branch = string.IsNullOrEmpty(branch) ? "main" : branch;
+
+                        EditorPrefs.SetString("lastBranchBuiltTo", branch);
+
                         PlayURPlugin.Log("Selected branch: " + branch);
                         PlayURPlugin.Log("uploadfilename: " + uploadfilename);
 
@@ -501,7 +509,7 @@ namespace PlayUR.Editor
                         }, PlayURPlatformID), new CoroutineRunner());
                     }
 
-                }, defaultText: "main");//TODO: remember last time a branch was used?
+                }, defaultText: EditorPrefs.GetString("lastBranchBuiltTo", defaultValue: "main"));//TODO: remember last time a branch was used?
 
             }
         }

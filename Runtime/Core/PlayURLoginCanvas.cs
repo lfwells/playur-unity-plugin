@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using System.Collections;
+using System.IO;
 
 namespace PlayUR.Core
 {
@@ -17,7 +18,7 @@ namespace PlayUR.Core
     {
 
         #region Constants
-#if UNITY_EDITOR || !UNITY_WEBGL
+#if UNITY_EDITOR //|| !UNITY_WEBGL
         bool ENABLE_PERSISTENCE = true;
 #else
         bool ENABLE_PERSISTENCE = false;
@@ -75,6 +76,48 @@ namespace PlayUR.Core
         }
         private void Start()
         {
+            if (!PlayURPlugin.IsDetachedMode)
+            {
+                //check for the existence of a file "playur" at the same location as the exe
+                var tokenPath = Application.dataPath;
+                //remove the final folder from the path (windows this is /App_Data, mac this is /Data, editor this is /Assets
+                tokenPath = Directory.GetParent(tokenPath).ToString();
+                tokenPath = Path.Combine(tokenPath, "playur");
+                if (File.Exists(tokenPath))
+                {
+                    ENABLE_PERSISTENCE = false;
+
+                    var info = JSON.Parse(File.ReadAllText(tokenPath));
+                    var token = info["token"];
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        PlayURPlugin.Log("Auto-login...");
+                        PlayURPlugin.instance.StandaloneTokenLogin(token, (succ, result) =>
+                        {
+                            password.text = string.Empty;
+                            PlayURPlugin.Log("Login Success: " + succ + PlayURPlugin.instance.user.id);
+                            if (succ)
+                            {
+                                LoggedIn = true;
+                                GoToNextScene();
+                            }
+                            else
+                            {
+                                GetComponent<CanvasGroup>().alpha = 1;
+                                feedback.text = "Could not login using Auto-Login -- try to manually login, or contact the researcher.";//todo pull from server?
+                            }
+                        });
+                    }
+
+                    var buildID = info["buildID"];
+                    PlayUR.Configuration.detectedBuildID = buildID;
+                    var buildBranch = info["buildBranch"];
+                    PlayUR.Configuration.detectedBuildBranch = buildBranch;
+                    var downloadTime = info["downloadTime"];
+                    PlayUR.Configuration.detectedDownloadTime = downloadTime;
+                }
+            }
+
             if (!string.IsNullOrEmpty(persistFeedbackMessage))
                 feedback.text = persistFeedbackMessage;
 
