@@ -23,16 +23,23 @@ namespace PlayUR
         /// <param name="textBox">The text box to run the operation on</param>
         /// <param name="text">The text to encode into a completion code (unless textIsAlreadyEncoded is set to true, in which case this will be just passed through as-is</param>
         /// <param name="textIsAlreadyEncoded">Set this to true if you have already generated the code text with <see cref="PlayURPlugin.GenerateCompletionCode(string)"/></param>
-        public static void PopulateTextBoxWithCopyableCompletionCode(TMPro.TMP_InputField textBox, string text, bool textIsAlreadyEncoded = false)
+        /// <param name="awaitAllDataUploaded">Display a message witholding the completion code until all analytics data has been uploaded</param>
+        public static void PopulateTextBoxWithCopyableCompletionCode(TMPro.TMP_InputField textBox, string text, bool textIsAlreadyEncoded = false, bool awaitAllDataUploaded = true)
         {
+            if (awaitAllDataUploaded && Rest.OutstandingRequests)
+            {
+                textBox.gameObject.StartCoroutine(WaitForOutstandingRequests(textBox, text, textIsAlreadyEncoded));
+                return;
+            }
+
             if (!textIsAlreadyEncoded)
-            {
-                textBox.text = GenerateCompletionCode(text);
-            }
-            else
-            {
-                textBox.text = text;
-            }
+                {
+                    textBox.text = GenerateCompletionCode(text);
+                }
+                else
+                {
+                    textBox.text = text;
+                }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             textBox.gameObject.AddComponent<WebGLCopyAndPaste>();
@@ -49,8 +56,15 @@ namespace PlayUR
         /// <param name="textBox">The text box to run the operation on</param>
         /// <param name="text">The text to encode into a completion code (unless textIsAlreadyEncoded is set to true, in which case this will be just passed through as-is</param>
         /// <param name="textIsAlreadyEncoded">Set this to true if you have already generated the code text with <see cref="PlayURPlugin.GenerateCompletionCode(string)"/></param>
-        public static void PopulateTextBoxWithCopyableCompletionCode(UnityEngine.UI.InputField textBox, string text, bool textIsAlreadyEncoded = false)
+        /// <param name="awaitAllDataUploaded">Display a message witholding the completion code until all analytics data has been uploaded</param>
+        public static void PopulateTextBoxWithCopyableCompletionCode(UnityEngine.UI.InputField textBox, string text, bool textIsAlreadyEncoded = false, bool awaitAllDataUploaded = true)
         {
+            if (awaitAllDataUploaded && Rest.OutstandingRequests)
+            {
+                textBox.gameObject.StartCoroutine(WaitForOutstandingRequests(textBox, text, textIsAlreadyEncoded));
+                return;
+            }
+
             if (!textIsAlreadyEncoded)
             {
                 textBox.text = GenerateCompletionCode(text);
@@ -72,6 +86,29 @@ namespace PlayUR
                 ClickEvent(s);
             });
             et.triggers.Add(new EventTrigger.Entry() { eventID = EventTriggerType.PointerClick, callback = ett });
+        }
+
+        static IEnumerator WaitForOutstandingRequests(TMPro.TMP_InputField textBox, string text, bool textIsAlreadyEncoded = false)
+        {
+            while (Rest.OutstandingRequests)
+            {
+                Debug.Log("waiting for data to be uploaded")
+
+                textBox.text = string.Format("Waiting for data to finish uploading... ({0} remaining)", Rest.OutstandingRequestCount);
+                yield return new WaitForSecondsRealtime(1f);
+            }
+            PopulateTextBoxWithCopyableCompletionCode(textBox, text, textIsAlreadyEncoded, false);
+        }
+        static IEnumerator WaitForOutstandingRequests(UnityEngine.UI.InputField textBox, string text, bool textIsAlreadyEncoded = false, )
+        {
+            while (Rest.OutstandingRequests)
+            {
+                Debug.Log("waiting for data to be uploaded")
+
+                textBox.text = string.Format("Waiting for data to finish uploading... ({0} remaining)", Rest.OutstandingRequestCount);
+                yield return new WaitForSecondsRealtime(1f);
+            }
+            PopulateTextBoxWithCopyableCompletionCode(textBox, text, textIsAlreadyEncoded, false);
         }
 
         static MonoBehaviour selectedTextBox;

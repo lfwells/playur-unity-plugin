@@ -12,6 +12,9 @@ namespace PlayUR.Core
         private static RestQueue _queue = new RestQueue();
         internal static RestQueue Queue => _queue;
 
+        public static bool OutstandingRequests => Queue.OutstandingRequests;
+        public static int OutstandingRequestCount => Queue.OutstandingRequestCount;
+
         /// <summary>
         /// Enqueues a GET command
         /// </summary>/// <param name="page">The endpoint we are requesting (relative to <see cref="PlayURPlugin.SERVER_URL"/>/api/</param>
@@ -62,7 +65,7 @@ namespace PlayUR.Core
             try
             {
                 json = JSON.Parse(request.Response.Content);
-                if (json == null) { throw new System.Exception();  }
+                if (json == null) { throw new System.Exception(); }
             }
             catch (System.Exception ex)
             {
