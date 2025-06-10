@@ -135,7 +135,7 @@ namespace PlayUR
             }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            textBox.AddComponent<WebGLCopyAndPaste>();
+            textBox.gameObject.AddComponent<WebGLCopyAndPaste>();
 #endif
             var et = textBox.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
             var ett = new EventTrigger.TriggerEvent();
