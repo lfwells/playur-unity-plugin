@@ -518,14 +518,15 @@ namespace PlayUR
                 configuration.experiment = (Experiment)configuration.experimentID;
                 configuration.experimentGroup = (ExperimentGroup)configuration.experimentGroupID;
 
+                #if UNITY_WEBGL
                 if (result.HasKey("buildID"))
                 {
                     configuration.buildID = result["buildID"];
                 }
-                else
-                {
+                #else
                     configuration.buildID = Configuration.detectedBuildID;
-                }
+                #endif
+                
                 if (result.HasKey("branch"))
                 {
                     configuration.branch = result["branch"];
