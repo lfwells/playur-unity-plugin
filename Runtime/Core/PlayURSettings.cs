@@ -194,6 +194,11 @@ namespace PlayUR
         /// A set of parameter overrides that apply to the editor only. This allows you to test the game with different parameters in the editor, without using the PlayUR back-end.
         /// </summary>
         public List<ParameterOverride> editorParameterOverrides = new List<ParameterOverride>();
+
+        /// <summary>
+        /// For use in-editor only, this allows us to test the game with given URL parameters
+        /// </summary>
+        public string forceUrlParametersInEditor = null;
         #endregion
 
 #if UNITY_EDITOR

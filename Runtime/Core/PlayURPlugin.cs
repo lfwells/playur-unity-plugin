@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -626,6 +627,22 @@ namespace PlayUR
                     configuration.mturkparams = result["params"];
                 }
 
+
+                if (result.HasKey("urlExtraSuffix"))
+                {
+                    instance.urlExtraSuffixFromStandalone = new Dictionary<string, string>();
+                    var text = result["urlExtraSuffix"]; //e.g. "%26prolificID%3Dasdf%26something%3Delse%26experimentID%3D199%26experimentGroupID%3D-1"; //
+                    var unescaped = Uri.UnescapeDataString(text);
+                    unescaped.Split('&').ToList().Select(pair => pair.Split('=')).ToList().ForEach(kvp =>
+                    {
+                        if (kvp.Length == 2)
+                        {
+                            instance.urlExtraSuffixFromStandalone[kvp[0]] = kvp[1];
+                        }
+                    });
+            
+                }
+
                 return configuration;
             }
             else
@@ -674,7 +691,16 @@ namespace PlayUR
 
             s += "\tParams = " + paramsFromStandaloneLoginInfo + "\n\n";
 
-            s += "\tAnalytics columns:\n";
+            s += "\tURL Extra Suffix:\n";
+            var tmp = GetURLParameters();
+            if (tmp == null) s += "\t\tNULL\n";
+            else
+                foreach (var p in tmp)
+                {
+                    s += "\t\t" + p.Key + "\t" + p.Value + "\n";
+                }
+
+            s += "\n\tAnalytics columns:\n";
             if (configuration.analyticsColumnsOrder == null) s += "\t\tNULL\n";
             else
                 foreach (var c in configuration.analyticsColumnsOrder)
@@ -684,6 +710,9 @@ namespace PlayUR
 
 
             Log(s);
+
+
+
         }
 
         /// <summary>Event called when <see cref="IsReady"/> becomes <c>true</c>. If a new listener is added when the plugin is already ready, the code will be executed immediately.</summary>
@@ -1898,6 +1927,38 @@ namespace PlayUR
         private string GetHistoryString()
         {
             return Convert.ToBase64String(Rest.Queue.Save(System.IO.Compression.CompressionLevel.Fastest));
+        }
+
+
+        Dictionary<string, string> urlExtraSuffixFromStandalone = new Dictionary<string, string>();
+        public string GetURLParameter(string key)
+        {
+            if (GetURLParameters().TryGetValue(key, out string value))
+            {
+                return value;
+            }
+            return null;
+        }
+        public Dictionary<string, string> GetURLParameters()
+        {
+            #if UNITY_EDITOR
+                urlExtraSuffixFromStandalone = new Dictionary<string, string>();
+                var text = Settings.forceUrlParametersInEditor; 
+                var unescaped = Uri.UnescapeDataString(text);
+                unescaped.Split('&').Select(pair => pair.Split('=')).ToList().ForEach(kvp =>
+                {
+                    if (kvp.Length == 2)
+                    {
+                        urlExtraSuffixFromStandalone[kvp[0]] = kvp[1];
+                    }
+                });
+                return urlExtraSuffixFromStandalone;
+            
+            #elif UNITY_STANDALONE // || UNITY_EDITOR   
+                return urlExtraSuffixFromStandalone;
+            #else
+                return URLParameters.GetSearchParameters();
+            #endif
         }
         #endregion
     }

@@ -35,6 +35,8 @@ namespace PlayUR
         private SerializedProperty groupToTestInEditor;
         private SerializedProperty forceMTurkIDInEditor;
         private SerializedProperty forceProlificIDInEditor;
+
+        private SerializedProperty forceUrlParametersInEditor;
         private SerializedProperty defaultHighScoreTablePrefab;
         private SerializedProperty defaultPopupPrefab;
         private SerializedProperty defaultSurveyPopupPrefab;
@@ -174,6 +176,9 @@ namespace PlayUR
             public static GUIContent forceExperimentGroup = new GUIContent("Force Experiment Group in Editor");
             public static GUIContent experimentGroup = new GUIContent("Experiment Group");
 
+
+            public static GUIContent forceUrlParameters = new GUIContent("Force URL Parameters in Editor", "Emulate URL parameters passed through in the experiment link, in URL pair format e.g.\nprolificID=asdf&something=smelly");
+
             public static GUIContent mobileAndDesktop = new GUIContent("Mobile and Desktop Settings");
             public static GUIContent mobileExpForce = new GUIContent("Force Experiment on Mobile");
             public static GUIContent desktopExpForce = new GUIContent("Force Experiment on Desktop");
@@ -263,6 +268,7 @@ namespace PlayUR
             prolificLogo = playurSettings.FindProperty("prolificLogo");
             logLevel = playurSettings.FindProperty("logLevel");
             logLevelToStore = playurSettings.FindProperty("minimumLogLevelToStore");
+            forceUrlParametersInEditor = playurSettings.FindProperty("forceUrlParametersInEditor");
 
             playurClientSecretSettings = PlayURClientSecretSettings.GetSerializedSettings();
             clientSecretProperty = playurClientSecretSettings.FindProperty("clientSecret");
@@ -459,6 +465,8 @@ namespace PlayUR
                     {
                         EditorGUILayout.PropertyField(groupToTestInEditor, Labels.experimentGroup);
                     }
+
+                    EditorGUILayout.PropertyField(forceUrlParametersInEditor, Labels.forceUrlParameters);
 
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
