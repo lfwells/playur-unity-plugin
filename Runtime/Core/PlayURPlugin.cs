@@ -847,6 +847,7 @@ namespace PlayUR
         {
             if (configuration == null)
             {
+                throw new ConfigurationNotReadyExceptionWithKey(key);
                 throw new ConfigurationNotReadyException();
             }
             return configuration.parameters.ContainsKey(key);
@@ -864,6 +865,7 @@ namespace PlayUR
         {
             if (configuration == null)
             {
+                throw new ConfigurationNotReadyExceptionWithKey(key);
                 throw new ConfigurationNotReadyException();
             }
             string result = null;
@@ -2031,7 +2033,23 @@ namespace PlayUR.Exceptions
         {
             get
             {
-                return "Configuration was null. This could be caused by script execution order. Make sure you have pressed 'PlayUR->Set Up Plugin' in the Editor.";
+                return "Configuration was null. This could be caused by script execution order. Make sure you have pressed 'PlayUR->Set Up Plugin' in the Editor. ";
+            }
+        }
+    }
+
+    /// <summary>
+    /// Thrown when attempting to access a configuration value but the <see cref="Configuration"/> has not yet been loaded.
+    /// </summary>
+    public class ConfigurationNotReadyExceptionWithKey : System.Exception
+    {
+        string key;
+        public ConfigurationNotReadyExceptionWithKey(string key) { this.key = key; }
+        public override string Message
+        {
+            get
+            {
+                return "Configuration was null. This could be caused by script execution order. Make sure you have pressed 'PlayUR->Set Up Plugin' in the Editor. \nRequested key: " + key;
             }
         }
     }
