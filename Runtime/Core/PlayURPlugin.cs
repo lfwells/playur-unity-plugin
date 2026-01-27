@@ -519,6 +519,15 @@ namespace PlayUR
                 configuration.experiment = (Experiment)configuration.experimentID;
                 configuration.experimentGroup = (ExperimentGroup)configuration.experimentGroupID;
 
+                if (HasMTurkID)
+                {
+                    configuration.mturkID = instance.MTurkID;
+                }
+                if (HasProlificID)
+                {
+                    configuration.prolificID = instance.ProlificID;
+                }
+
                 #if UNITY_WEBGL
                 if (result.HasKey("buildID"))
                 {
