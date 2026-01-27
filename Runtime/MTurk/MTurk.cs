@@ -41,6 +41,10 @@ namespace PlayUR
                 {
                     result = mTurkFromStandaloneLoginInfo;
                 }
+                if (string.IsNullOrEmpty(result))
+                {
+                    result = PlayURPlugin.instance.configuration.mturkID;
+                }
                 return result;
             }
         }

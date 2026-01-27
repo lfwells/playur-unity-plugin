@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics;
 using PlayUR.Core;
 
 namespace PlayUR
@@ -38,6 +39,11 @@ namespace PlayUR
                 {
                     result = prolificFromStandaloneLoginInfo;
                 }
+
+                if (string.IsNullOrEmpty(result))
+                {
+                    result = PlayURPlugin.instance.configuration.prolificID;
+                }
                 return result;
             }
         }
@@ -58,6 +64,7 @@ namespace PlayUR
 
                 var form = Rest.GetWWWFormWithExperimentInfo();
                 form.Add(PROLIFIC_URL_PARAM, ProlificID.ToString());
+                Debug.Log("Submitting Prolific init with ID: " + ProlificID.ToString());
 
                 yield return Rest.EnqueuePost(PROLIFIC_API_ENDPOINT, form, (succ, result) =>
                 {

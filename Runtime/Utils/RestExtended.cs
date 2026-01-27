@@ -113,7 +113,7 @@ namespace PlayUR.Core
             string url = PlayURPlugin.SERVER_URL + page + "/";
 
             if (debugOutput)
-                PlayURPlugin.Log("POST " + url);
+                PlayURPlugin.Log("POST " + url + "\nData: " + jsonOut.ToString());
 
             // Push the request
             RestRequest request = new RestRequest()

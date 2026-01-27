@@ -581,6 +581,15 @@ namespace PlayUR
                         configuration.parameters.Add(o.parameter, o.overrideValue);
                     configuration.parameters[o.parameter] = o.overrideValue;
                 }
+
+                if (!string.IsNullOrEmpty(PlayURPlugin.Settings.forceMTurkIDInEditor))
+                {
+                    configuration.mturkID = PlayURPlugin.Settings.forceMTurkIDInEditor;
+                }
+                if (!string.IsNullOrEmpty(PlayURPlugin.Settings.forceProlificIDInEditor))
+                {
+                    configuration.prolificID = PlayURPlugin.Settings.forceProlificIDInEditor;
+                }
 #endif
 
                 configuration.analyticsColumnsOrder = new List<AnalyticsColumn>();
@@ -640,6 +649,11 @@ namespace PlayUR
                             instance.urlExtraSuffixFromStandalone[kvp[0]] = kvp[1];
                         }
                     });
+
+                    if (instance.urlExtraSuffixFromStandalone.ContainsKey("prolificID"))
+                    {
+                        configuration.prolificID = instance.urlExtraSuffixFromStandalone["prolificID"];
+                    }
             
                 }
 
@@ -687,7 +701,7 @@ namespace PlayUR
                     s += "\t\t" + p.Key + "\t" + p.Value + "\n";
                 }
 
-            s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + mTurkFromStandaloneLoginInfo + "\n\t\tProlific = "+ prolificFromStandaloneLoginInfo+ "\n\n";
+            s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + configuration.mturkID + "\n\t\tProlific = "+ configuration.prolificID+ "\n\n";
 
             s += "\tParams = " + paramsFromStandaloneLoginInfo + "\n\n";
 
