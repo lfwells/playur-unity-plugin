@@ -1325,6 +1325,16 @@ namespace PlayUR
             form.Add("currentResolution", Screen.currentResolution.ToString());
             if (string.IsNullOrEmpty(browserInfo) == false) { form.Add("browserInfo", browserInfo); }
 
+            if (HasMTurkID)
+            {
+                form.Add("mturkID", MTurkID);
+            }
+
+            if (HasProlificID)
+            {
+                form.Add("prolificID", ProlificID);
+            }
+
             form.Add("configuration", JsonConvert.SerializeObject(Configuration));
 
             if (IsDetachedMode)
