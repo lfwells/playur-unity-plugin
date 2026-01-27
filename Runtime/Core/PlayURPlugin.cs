@@ -519,11 +519,11 @@ namespace PlayUR
                 configuration.experiment = (Experiment)configuration.experimentID;
                 configuration.experimentGroup = (ExperimentGroup)configuration.experimentGroupID;
 
-                if (HasMTurkID)
+                if (instance.HasMTurkID)
                 {
                     configuration.mturkID = instance.MTurkID;
                 }
-                if (HasProlificID)
+                if (instance.HasProlificID)
                 {
                     configuration.prolificID = instance.ProlificID;
                 }
