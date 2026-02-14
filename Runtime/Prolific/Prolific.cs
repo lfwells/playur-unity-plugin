@@ -42,7 +42,7 @@ namespace PlayUR
 
                 if (string.IsNullOrEmpty(result))
                 {
-                    result = PlayURPlugin.instance.configuration.prolificID;
+                    result = PlayURPlugin.instance.configuration?.prolificID;
                 }
                 return result;
             }
