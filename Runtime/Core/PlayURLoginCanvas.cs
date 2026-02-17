@@ -98,6 +98,16 @@ namespace PlayUR.Core
                             PlayURPlugin.Log("Login Success: " + succ + PlayURPlugin.instance.user.id);
                             if (succ)
                             {
+                                //extract prolific or mTurk values if they are in there
+                                if (!string.IsNullOrEmpty(result["mTurk"]) && result["mTurk"] != 0)
+                                {
+                                    PlayURPlugin.instance.mTurkFromStandaloneLoginInfo = result["mTurk"];
+                                }
+                                if (!string.IsNullOrEmpty(result["prolific"]) && result["prolific"] != 0)
+                                {
+                                    PlayURPlugin.instance.prolificFromStandaloneLoginInfo = result["prolific"];
+                                }
+
                                 LoggedIn = true;
                                 GoToNextScene();
                             }
@@ -121,7 +131,7 @@ namespace PlayUR.Core
             if (!string.IsNullOrEmpty(persistFeedbackMessage))
                 feedback.text = persistFeedbackMessage;
 
-            submit.onClick.AddListener(() => { usr = username.text;  pwd = password.text; Login(); });
+            submit.onClick.AddListener(() => { usr = username.text; pwd = password.text; Login(); });
             register.onClick.AddListener(() => { OpenRegister(); });
             register2.onClick.AddListener(() => { OpenRegister(); });
             registerCancel.onClick.AddListener(() => { CloseRegister(); });
@@ -153,14 +163,14 @@ namespace PlayUR.Core
                 }
             }
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
             try
             {
                 RequestWebGLLogin();
             } catch (System.EntryPointNotFoundException) { }
-            #else
+#else
             GetComponent<CanvasGroup>().alpha = 1;
-            #endif
+#endif
         }
 
         bool scheduleALoginOnNextFrame = false; //used to return to main thread on server info obtained
@@ -187,7 +197,7 @@ namespace PlayUR.Core
             PlayURPlugin.instance.Login(usr, pwd, (succ, result) =>
             {
                 password.text = string.Empty;
-                PlayURPlugin.Log("Login Success: "+ succ);
+                PlayURPlugin.Log("Login Success: " + succ);
                 if (succ)
                 {
                     //TODO: security ??
@@ -276,7 +286,7 @@ namespace PlayUR.Core
 
                 PlayURPlugin.instance.Register(registerUsername.text, registerPassword.text, registerEmail.text, registerFirstName.text, registerLastName.text, (succ, result) =>
                 {
-                    PlayURPlugin.Log("Register Success: " + succ+"'"+ result["message"]+"'");
+                    PlayURPlugin.Log("Register Success: " + succ + "'" + result["message"] + "'");
                     if (succ)
                     {
                         username.text = registerUsername.text;
@@ -289,7 +299,7 @@ namespace PlayUR.Core
                     else
                     {
                         GetComponent<CanvasGroup>().alpha = 1;
-                        registerFeedback.text = "Registration Failed: "+ result["message"];
+                        registerFeedback.text = "Registration Failed: " + result["message"];
                     }
                 });
             }
@@ -324,7 +334,7 @@ namespace PlayUR.Core
             pwd = jsonData["password"];
 
             PlayURPlugin.browserInfo = jsonData["browserInfo"];
-            
+
             var e = jsonData["experiment"];
             int i = -1;
             int.TryParse(e, out i);
@@ -367,7 +377,8 @@ namespace PlayUR.Core
         public void ShowError(string message, string title = "Error", bool showOK = false)
         {
             fullscreenError.SetActive(true);
-            errorOK.onClick.AddListener(() => {
+            errorOK.onClick.AddListener(() =>
+            {
                 fullscreenError.SetActive(false);
             });
             errorOK.gameObject.SetActive(showOK);
