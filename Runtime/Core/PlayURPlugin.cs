@@ -528,15 +528,15 @@ namespace PlayUR
                     configuration.prolificID = instance.ProlificID;
                 }
 
-                #if UNITY_WEBGL
+#if UNITY_WEBGL
                 if (result.HasKey("buildID"))
                 {
                     configuration.buildID = result["buildID"];
                 }
-                #else
-                    configuration.buildID = Configuration.detectedBuildID;
-                #endif
-                
+#else
+                configuration.buildID = Configuration.detectedBuildID;
+#endif
+
                 if (result.HasKey("branch"))
                 {
                     configuration.branch = result["branch"];
@@ -626,19 +626,34 @@ namespace PlayUR
 
                 if (result.HasKey("mTurk") && result["mTurk"] != "0")
                 {
-                    instance.mTurkFromStandaloneLoginInfo = result["mTurk"];
-                    configuration.mturkID = result["mTurk"];
+                    if (!string.IsNullOrEmpty(instance.mTurkFromStandaloneLoginInfo))
+                    {
+                        instance.mTurkFromStandaloneLoginInfo = result["mTurk"];
+                    }
                 }
                 if (result.HasKey("mTurkID") && result["mTurkID"] != "0")
                 {
-                    instance.mTurkFromStandaloneLoginInfo = result["mTurkID"];
-                    configuration.mturkID = result["mTurkID"];
+                    if (!string.IsNullOrEmpty(instance.mTurkFromStandaloneLoginInfo))
+                    {
+                        instance.mTurkFromStandaloneLoginInfo = result["mTurkID"];
+                    }
+                }
+                if (!string.IsNullOrEmpty(instance.mTurkFromStandaloneLoginInfo))
+                {
+                    configuration.mturkID = instance.mTurkFromStandaloneLoginInfo;
                 }
                 if (result.HasKey("prolificID") && result["prolificID"] != "0")
                 {
-                    instance.prolificFromStandaloneLoginInfo = result["prolificID"];
-                    configuration.prolificID = result["prolificID"];
+                    if (!string.IsNullOrEmpty(instance.prolificFromStandaloneLoginInfo))
+                    {
+                        instance.prolificFromStandaloneLoginInfo = result["prolificID"];
+                    }
                 }
+                if (!string.IsNullOrEmpty(instance.prolificFromStandaloneLoginInfo))
+                {
+                    configuration.prolificID = instance.prolificFromStandaloneLoginInfo;
+                }
+
                 if (result.HasKey("params") && result["params"] != "0")
                 {
                     instance.paramsFromStandaloneLoginInfo = result["params"];
@@ -663,7 +678,7 @@ namespace PlayUR
                     {
                         configuration.prolificID = instance.urlExtraSuffixFromStandalone["prolificID"];
                     }
-            
+
                 }
 
                 return configuration;
@@ -710,7 +725,7 @@ namespace PlayUR
                     s += "\t\t" + p.Key + "\t" + p.Value + "\n";
                 }
 
-            s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + configuration.mturkID + "\n\t\tProlific = "+ configuration.prolificID+ "\n\n";
+            s += "\tUser:\n\t\t" + user.name + "\n\t\tID = " + user.id + "\n\t\tAccess Level = " + user.accessLevel + "\n\t\tMTurk = " + configuration.mturkID + "\n\t\tProlific = " + configuration.prolificID + "\n\n";
 
             s += "\tParams = " + paramsFromStandaloneLoginInfo + "\n\n";
 
@@ -1599,7 +1614,7 @@ namespace PlayUR
         }
         public void GetLeaderboardEntries(string leaderboardID, LeaderboardConfiguration leaderBoardConfiguration, Rest.ServerCallback callback)
         {
-            if (IsDetachedMode) 
+            if (IsDetachedMode)
             {
                 DetachedModeProxy.GetLeaderboardEntries(this, leaderboardID, leaderBoardConfiguration, callback);
                 return;
@@ -1976,7 +1991,7 @@ namespace PlayUR
         }
         public Dictionary<string, string> GetURLParameters()
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
                 urlExtraSuffixFromStandalone = new Dictionary<string, string>();
                 var text = Settings.forceUrlParametersInEditor; 
                 var unescaped = Uri.UnescapeDataString(text);
@@ -1989,11 +2004,11 @@ namespace PlayUR
                 });
                 return urlExtraSuffixFromStandalone;
             
-            #elif UNITY_STANDALONE // || UNITY_EDITOR   
+#elif UNITY_STANDALONE // || UNITY_EDITOR   
                 return urlExtraSuffixFromStandalone;
-            #else
-                return URLParameters.GetSearchParameters();
-            #endif
+#else
+            return URLParameters.GetSearchParameters();
+#endif
         }
         #endregion
     }
@@ -2245,7 +2260,7 @@ public static class PlayerPrefs
 
     public static int GetInt(string key, int defaultValue = 0)
     {
-        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsGetInt(key,defaultValue); }
+        if (PlayUR.PlayURPlugin.IsDetachedMode) { return PlayURPlugin.DetachedModeProxy.PlayerPrefsGetInt(key, defaultValue); }
 
         if (DATA.ContainsKey(key))
             try
