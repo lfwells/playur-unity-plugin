@@ -48,7 +48,7 @@ namespace PlayUR
             }
         }
 
-        protected string prolificFromStandaloneLoginInfo = null; //if in a standalone build, we can get the prolific from the login info (api/Configuration/index.php returns this)
+        public string prolificFromStandaloneLoginInfo = null; //if in a standalone build, we can get the prolific from the login info (api/Configuration/index.php returns this)
 
         int prolificCompletionRowID;
 
