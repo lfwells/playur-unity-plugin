@@ -78,10 +78,19 @@ namespace PlayUR.Core
         {
             if (!PlayURPlugin.IsDetachedMode)
             {
-                //check for the existence of a file "playur" at the same location as the exe
-                var tokenPath = Application.dataPath;
-                //remove the final folder from the path (windows this is /App_Data, mac this is /Data, editor this is /Assets
-                tokenPath = Directory.GetParent(tokenPath).ToString();
+                //check for the existence of a file "playur" at the same location as the executable or app bundle
+                string tokenPath = Application.dataPath;
+                if (Application.platform == RuntimePlatform.OSXPlayer)
+                {
+                    // Application.dataPath on macOS is MyApp.app/Contents
+                    tokenPath = Directory.GetParent(tokenPath).FullName; // MyApp.app
+                    tokenPath = Directory.GetParent(tokenPath).FullName; // Folder containing MyApp.app
+                }
+                else
+                {
+                    // On Windows/Linux/Editor, Application.dataPath is Data/ or Assets/
+                    tokenPath = Directory.GetParent(tokenPath).FullName;
+                }
                 tokenPath = Path.Combine(tokenPath, "playur");
                 if (File.Exists(tokenPath))
                 {
