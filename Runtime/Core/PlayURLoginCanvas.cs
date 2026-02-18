@@ -92,6 +92,7 @@ namespace PlayUR.Core
                     tokenPath = Directory.GetParent(tokenPath).FullName;
                 }
                 tokenPath = Path.Combine(tokenPath, "playur");
+                Debug.Log("Checking for token file at: " + tokenPath + ". Exists: " + File.Exists(tokenPath));
                 if (File.Exists(tokenPath))
                 {
                     ENABLE_PERSISTENCE = false;
