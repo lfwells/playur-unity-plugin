@@ -368,8 +368,24 @@ namespace PlayUR
                     PlayerPrefs.Load(callback);
                     StartCoroutine(PlayerPrefs.PeriodicallySavePlayerPrefs());
                 }
-                callback(succ, result);
+                else
+                {
+                    //we had a token and tried to use it, we should kill the game
+                    buildExpired = true;
+                }
+                callback(succ, result["result"]);
             }, debugOutput: true));
+        }
+
+        bool buildExpired = false;
+        void OnGUI()
+        {
+            if (buildExpired)
+            {
+                //using GUI immediate mode, display a full screen rectangle with text inside
+                GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "This build has expired. Please download again from PlayUR.");
+
+            }
         }
 
         /// <summary>Performs a register request to the server.
