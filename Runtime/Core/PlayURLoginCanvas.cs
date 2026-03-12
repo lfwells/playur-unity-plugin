@@ -83,7 +83,7 @@ namespace PlayUR.Core
                 if (Application.platform == RuntimePlatform.OSXPlayer)
                 {
                     // Application.dataPath on macOS is MyApp.app/Contents
-                    tokenPath = System.IO.Path.Combine(Application.streamingAssetsPath, "playur");
+                    //just doing nothing here, but also not setting to null
                 }
                 else
                 {

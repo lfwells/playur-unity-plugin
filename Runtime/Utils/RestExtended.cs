@@ -50,7 +50,7 @@ namespace PlayUR.Core
             yield return new WaitUntil(() => request.IsCompleted);
 
             if (debugOutput)
-                PlayURPlugin.Log($"GET REQUEST FINISHED\nStatus: {request.Response.StatusCode}\nContent:\n{request.Response.Content}");
+                PlayURPlugin.Log($"GET REQUEST FINISHED ({url})\nStatus: {request.Response.StatusCode}\nContent:\n{request.Response.Content}");
 
             // EnqueueRequest will execute it eventually and will do fallback.
             // If it's still bad it is appropriate to throw errors
@@ -129,7 +129,7 @@ namespace PlayUR.Core
             yield return new WaitUntil(() => request.IsCompleted);
 
             if (debugOutput)
-                PlayURPlugin.Log($"POST REQUEST FINISHED\nStatus: {request.Response.StatusCode}\nContent:\n{request.Response.Content}");
+                PlayURPlugin.Log($"POST REQUEST FINISHED ({url})\nStatus: {request.Response.StatusCode}\nContent:\n{request.Response.Content}");
 
             // EnqueueRequest will execute it eventually and will do fallback.
             // If it's still bad it is appropriate to throw errors

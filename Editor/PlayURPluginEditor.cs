@@ -602,7 +602,7 @@ namespace PlayUR.Editor
                 FileName = "zip",
                 UseShellExecute = false,
                 //CreateNoWindow = false,
-                Arguments = "-r index.zip index.app",
+                Arguments = "-r -y index.zip index.app",
                 RedirectStandardOutput = true,
                 WorkingDirectory = directory,
             };

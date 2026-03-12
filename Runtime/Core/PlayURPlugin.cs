@@ -338,11 +338,26 @@ namespace PlayUR
                     if (result["username"]) user.name = result["username"];
                     user.id = result["id"];
 
-                    PlayerPrefs.Load(callback);
-                    StartCoroutine(PlayerPrefs.PeriodicallySavePlayerPrefs());
+                    StartCoroutine(Rest.EnqueueGet("StandaloneExperimentLogin", form, (succ, result) =>
+                    {
+                        if (succ)
+                        {
+                            HandleStandaloneLoginResult(result);
+
+                            PlayerPrefs.Load(callback);
+                            StartCoroutine(PlayerPrefs.PeriodicallySavePlayerPrefs());
+                        }
+                        else
+                        {
+                            callback(succ, result);
+                        }
+                    }, debugOutput: true));
                 }
-                callback(succ, result);
-            }));
+                else
+                {
+                    callback(succ, result);
+                }
+            }, debugOutput: true));
         }
 
         public void StandaloneTokenLogin(string token, Rest.ServerCallback callback)
@@ -365,6 +380,8 @@ namespace PlayUR
                     if (result["result"]["username"]) user.name = result["result"]["username"];
                     user.id = result["result"]["userID"].AsInt;
 
+                    HandleStandaloneLoginResult(result);
+
                     PlayerPrefs.Load(callback);
                     StartCoroutine(PlayerPrefs.PeriodicallySavePlayerPrefs());
                 }
@@ -375,6 +392,17 @@ namespace PlayUR
                 }
                 callback(succ, result["result"]);
             }, debugOutput: true));
+        }
+
+        void HandleStandaloneLoginResult(JSONNode result)
+        {
+            if (result["results"].Count > 0)
+            {
+                var r = result["results"][0];
+                instance.mTurkFromStandaloneLoginInfo = r["mTurk"];
+                instance.prolificFromStandaloneLoginInfo = r["prolific"];
+                //todo: experiment id and group id are returned by this, do we want it?
+            }
         }
 
         bool buildExpired = false;
@@ -2250,8 +2278,9 @@ public static class PlayerPrefs
                 }
                 catch (System.Exception e) { PlayUR.PlayURPlugin.LogError("Failed to convert " + value + " to " + type + ". Exception:" + e.GetType() + " - " + e.Message); }
 
-                if (callback != null) callback(succ, result);
             }
+            
+            if (callback != null) callback(succ, result);
         });
     }
     public static IEnumerator PeriodicallySavePlayerPrefs(float interval = 5)
