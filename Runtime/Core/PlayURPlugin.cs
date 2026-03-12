@@ -693,6 +693,13 @@ namespace PlayUR
                         instance.prolificFromStandaloneLoginInfo = result["prolificID"];
                     }
                 }
+                if (result.HasKey("prolific") && result["prolific"] != "0")
+                {
+                    if (!string.IsNullOrEmpty(instance.prolificFromStandaloneLoginInfo))
+                    {
+                        instance.prolificFromStandaloneLoginInfo = result["prolific"];
+                    }
+                }
                 if (!string.IsNullOrEmpty(instance.prolificFromStandaloneLoginInfo))
                 {
                     configuration.prolificID = instance.prolificFromStandaloneLoginInfo;
@@ -2279,7 +2286,7 @@ public static class PlayerPrefs
                 catch (System.Exception e) { PlayUR.PlayURPlugin.LogError("Failed to convert " + value + " to " + type + ". Exception:" + e.GetType() + " - " + e.Message); }
 
             }
-            
+
             if (callback != null) callback(succ, result);
         });
     }
