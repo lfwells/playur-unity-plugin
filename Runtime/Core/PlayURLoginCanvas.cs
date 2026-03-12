@@ -76,24 +76,26 @@ namespace PlayUR.Core
         }
         private void Start()
         {
+            PlayURPlugin.Log("PlayURLoginCanvas Start() called");
+
             if (!PlayURPlugin.IsDetachedMode)
             {
                 if (Application.platform == RuntimePlatform.OSXPlayer)
                 {
                     // Application.dataPath on macOS is MyApp.app/Contents
                     //just doing nothing here, but also not setting to null
-                    Debug.Log("Running on MacOS, not looking for token file");
+                    PlayURPlugin.Log("Running on MacOS, not looking for token file");
                 }
                 else
                 {
                     //check for the existence of a file "playur" at the same location as the executable or app bundle
                     string tokenPath = Application.dataPath;
-                    
+                    PlayURPlugin.Log("Checking for token file at: " + tokenPath);
                     // On Windows/Linux/Editor, Application.dataPath is Data/ or Assets/
                     tokenPath = Directory.GetParent(tokenPath).FullName;
                 
                     tokenPath = Path.Combine(tokenPath, "playur");
-                    Debug.Log("Checking for token file at: " + tokenPath + ". Exists: " + File.Exists(tokenPath));
+                    PlayURPlugin.Log("Checking for token file at: " + tokenPath + ". Exists: " + File.Exists(tokenPath));
                     if (File.Exists(tokenPath))
                     {
                         ENABLE_PERSISTENCE = false;
