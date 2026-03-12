@@ -78,62 +78,65 @@ namespace PlayUR.Core
         {
             if (!PlayURPlugin.IsDetachedMode)
             {
-                //check for the existence of a file "playur" at the same location as the executable or app bundle
-                string tokenPath = Application.dataPath;
                 if (Application.platform == RuntimePlatform.OSXPlayer)
                 {
                     // Application.dataPath on macOS is MyApp.app/Contents
                     //just doing nothing here, but also not setting to null
+                    Debug.Log("Running on MacOS, not looking for token file");
                 }
                 else
                 {
+                    //check for the existence of a file "playur" at the same location as the executable or app bundle
+                    string tokenPath = Application.dataPath;
+                    
                     // On Windows/Linux/Editor, Application.dataPath is Data/ or Assets/
                     tokenPath = Directory.GetParent(tokenPath).FullName;
-                }
-                tokenPath = Path.Combine(tokenPath, "playur");
-                Debug.Log("Checking for token file at: " + tokenPath + ". Exists: " + File.Exists(tokenPath));
-                if (File.Exists(tokenPath))
-                {
-                    ENABLE_PERSISTENCE = false;
-
-                    var info = JSON.Parse(File.ReadAllText(tokenPath));
-                    var token = info["token"];
-                    if (!string.IsNullOrEmpty(token))
+                
+                    tokenPath = Path.Combine(tokenPath, "playur");
+                    Debug.Log("Checking for token file at: " + tokenPath + ". Exists: " + File.Exists(tokenPath));
+                    if (File.Exists(tokenPath))
                     {
-                        PlayURPlugin.Log("Auto-login...");
-                        PlayURPlugin.instance.StandaloneTokenLogin(token, (succ, result) =>
+                        ENABLE_PERSISTENCE = false;
+
+                        var info = JSON.Parse(File.ReadAllText(tokenPath));
+                        var token = info["token"];
+                        if (!string.IsNullOrEmpty(token))
                         {
-                            password.text = string.Empty;
-                            PlayURPlugin.Log("Login Success: " + succ + PlayURPlugin.instance.user.id);
-                            if (succ)
+                            PlayURPlugin.Log("Auto-login...");
+                            PlayURPlugin.instance.StandaloneTokenLogin(token, (succ, result) =>
                             {
-                                //extract prolific or mTurk values if they are in there
-                                if (!string.IsNullOrEmpty(result["mTurk"]) && result["mTurk"] != 0)
+                                password.text = string.Empty;
+                                PlayURPlugin.Log("Login Success: " + succ + PlayURPlugin.instance.user.id);
+                                if (succ)
                                 {
-                                    PlayURPlugin.instance.mTurkFromStandaloneLoginInfo = result["mTurk"];
-                                }
-                                if (!string.IsNullOrEmpty(result["prolific"]) && result["prolific"] != 0)
-                                {
-                                    PlayURPlugin.instance.prolificFromStandaloneLoginInfo = result["prolific"];
-                                }
+                                    //extract prolific or mTurk values if they are in there
+                                    if (!string.IsNullOrEmpty(result["mTurk"]) && result["mTurk"] != 0)
+                                    {
+                                        PlayURPlugin.instance.mTurkFromStandaloneLoginInfo = result["mTurk"];
+                                    }
+                                    if (!string.IsNullOrEmpty(result["prolific"]) && result["prolific"] != 0)
+                                    {
+                                        PlayURPlugin.instance.prolificFromStandaloneLoginInfo = result["prolific"];
+                                    }
 
-                                LoggedIn = true;
-                                GoToNextScene();
-                            }
-                            else
-                            {
-                                GetComponent<CanvasGroup>().alpha = 1;
-                                feedback.text = "Could not login using Auto-Login -- try to manually login, or contact the researcher.";//todo pull from server?
-                            }
-                        });
+                                    LoggedIn = true;
+                                    GoToNextScene();
+                                }
+                                else
+                                {
+                                    GetComponent<CanvasGroup>().alpha = 1;
+                                    feedback.text = "Could not login using Auto-Login -- try to manually login, or contact the researcher.";//todo pull from server?
+                                }
+                            });
+                        }
+
+                        var buildID = info["buildID"];
+                        PlayUR.Configuration.detectedBuildID = buildID;
+                        var buildBranch = info["buildBranch"];
+                        PlayUR.Configuration.detectedBuildBranch = buildBranch;
+                        var downloadTime = info["downloadTime"];
+                        PlayUR.Configuration.detectedDownloadTime = downloadTime;
                     }
-
-                    var buildID = info["buildID"];
-                    PlayUR.Configuration.detectedBuildID = buildID;
-                    var buildBranch = info["buildBranch"];
-                    PlayUR.Configuration.detectedBuildBranch = buildBranch;
-                    var downloadTime = info["downloadTime"];
-                    PlayUR.Configuration.detectedDownloadTime = downloadTime;
                 }
             }
 
