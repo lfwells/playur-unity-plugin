@@ -396,11 +396,13 @@ namespace PlayUR
 
         void HandleStandaloneLoginResult(JSONNode result)
         {
-            if (result["results"].Count > 0)
+            if (result["result"] != null)
             {
-                var r = result["results"][0];
+                var r = result["result"];
                 instance.mTurkFromStandaloneLoginInfo = r["mTurk"];
+                Log("Standalone login info - mTurk: " + instance.mTurkFromStandaloneLoginInfo);
                 instance.prolificFromStandaloneLoginInfo = r["prolific"];
+                Log("Standalone login info - prolific: " + instance.prolificFromStandaloneLoginInfo);
                 //todo: experiment id and group id are returned by this, do we want it?
             }
         }

@@ -116,10 +116,12 @@ namespace PlayUR.Core
                                     {
                                         PlayURPlugin.instance.mTurkFromStandaloneLoginInfo = result["mTurk"];
                                     }
+                                    PlayURPlugin.Log("Standalone login info - mTurk: " + PlayURPlugin.instance.mTurkFromStandaloneLoginInfo);
                                     if (!string.IsNullOrEmpty(result["prolific"]) && result["prolific"] != 0)
                                     {
                                         PlayURPlugin.instance.prolificFromStandaloneLoginInfo = result["prolific"];
                                     }
+                                    PlayURPlugin.Log("Standalone login info - prolific: " + PlayURPlugin.instance.prolificFromStandaloneLoginInfo);
 
                                     LoggedIn = true;
                                     GoToNextScene();
