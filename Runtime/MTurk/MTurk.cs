@@ -16,7 +16,7 @@ namespace PlayUR
         /// </summary>
         public bool HasMTurkID
         {
-            get { return !string.IsNullOrEmpty(MTurkID); }
+            get { return !string.IsNullOrEmpty(MTurkID) && MTurkID != "0"; }
         }
 
         /// <summary>
