@@ -41,6 +41,7 @@ namespace PlayUR
                 return;
             }
 
+            PlayURLoginCanvas.LoggedIn = false;
             gameObject.AddComponent<URLParameters>();
 
             instance = this;
