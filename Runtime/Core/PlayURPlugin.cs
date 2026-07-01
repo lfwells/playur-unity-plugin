@@ -809,6 +809,11 @@ namespace PlayUR
         /// <summary>Event called when <see cref="IsReady"/> becomes <c>true</c>. If a new listener is added when the plugin is already ready, the code will be executed immediately.</summary>
         public PlayURReadyEvent OnReady = new PlayURReadyEvent();
 
+
+        /// <summary>Event called just before redirecting to the PlayURLoginScene . Would only be called in the editor by the PlayURPluginHelper.</summary>
+        public static PlayUROnRedirectToLoginEvent OnRedirectToLogin = new PlayUROnRedirectToLoginEvent();
+
+
         #endregion
 
         #region Game Element Getters

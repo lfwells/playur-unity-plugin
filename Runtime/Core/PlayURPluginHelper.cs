@@ -59,6 +59,10 @@ namespace PlayUR
             var currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
             if (startedFromScene == -1)
             {
+
+                print("PlayURPluginHelper: Redirecting to login scene from scene " + currentSceneIndex);
+                PlayURPlugin.OnRedirectToLogin.Invoke();
+
                 startedFromScene = currentSceneIndex;
                 //if already on the login page, can  skip login
                 if (currentSceneIndex == 0)
