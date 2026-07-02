@@ -1380,8 +1380,9 @@ namespace PlayUR
         /// Starts logging a new session (if not already in a session). Records system information, note that on WebGL, returned information
         /// may be inconsistent or incorrect, based upon browser compatability--use with caution.
         /// </summary>
+        /// <param name="externalID">optional external ID to associate with this session -- will automatically be populated for mTurk and Prolific, but you may have another id you want to use</param>
         /// <exception cref="SessionAlreadyStartedException">thrown if there is already a running session.</exception>
-        public void StartSession()
+        public void StartSession(string externalID = null)
         {
             if (inSession) return;
             //                throw new SessionAlreadyStartedException(); //meh
@@ -1394,6 +1395,7 @@ namespace PlayUR
             form.Add("buildID", CurrentBuildID.ToString());
             form.Add("branch", CurrentBuildBranch);
             form.Add("downloadTime", configuration.downloadTime);
+            form.Add("externalID", externalID);
 
             form.Add("platform", CurrentPlatform.ToString());
             form.Add("operatingSystem", SystemInfo.operatingSystem);
@@ -1441,8 +1443,9 @@ namespace PlayUR
         /// Starts logging a new session (if not already in a session). Records system information, note that on WebGL, returned information
         /// may be inconsistent or incorrect, based upon browser compatability--use with caution.
         /// </summary>
+        /// <param name="externalID">optional external ID to associate with this session -- will automatically be populated for mTurk and Prolific, but you may have another id you want to use</param>
         /// <exception cref="SessionAlreadyStartedException">thrown if there is already a running session.</exception>
-        public IEnumerator StartSessionAsync() //TODO fix these async ones to not repeat code
+        public IEnumerator StartSessionAsync(string externalID = null) //TODO fix these async ones to not repeat code
         {
             if (inSession) yield break;
             //                throw new SessionAlreadyStartedException(); //meh
@@ -1450,6 +1453,11 @@ namespace PlayUR
             var form = Rest.GetWWWFormWithExperimentInfo();
             form.Add("start", GetMysqlFormatTime());
             //form.Add("experimentID", configuration.experimentID.ToString());
+
+            if (!string.IsNullOrEmpty(externalID))
+            {
+                form.Add("externalID", externalID);
+            }
 
             form.Add("operatingSystem", SystemInfo.operatingSystem);
             form.Add("deviceType", SystemInfo.deviceType.ToString());
