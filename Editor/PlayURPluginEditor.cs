@@ -549,7 +549,7 @@ namespace PlayUR.Editor
         [MenuItem("PlayUR/Upload MacOS Player", isValidateFunction: true)]
         public static bool ValidateMacOSMenuFunctions()
         {
-            return Application.platform == RuntimePlatform.OSXEditor;
+            return Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.WindowsEditor;
         }
 
         [MenuItem("PlayUR/Build and Upload Web Player", isValidateFunction: true)]
