@@ -455,7 +455,7 @@ namespace PlayUR.Editor
                 if (buildPath.EndsWith(".app"))
                     buildPath = buildPath.Substring(0, buildPath.LastIndexOf('/'));
                 uploadfilename = buildPath + "/index.zip";
-                if (buildTarget == BuildTarget.StandaloneOSX)
+                if (buildTarget == BuildTarget.StandaloneOSX && Application.platform == RuntimePlatform.OSXEditor)
                     CompressDirectoryWithCommand(buildPath + "/", uploadfilename);
                 else
                     CompressDirectory(buildPath + "/", uploadfilename);
