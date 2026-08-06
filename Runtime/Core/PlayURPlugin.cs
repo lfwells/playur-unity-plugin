@@ -1398,6 +1398,7 @@ namespace PlayUR
         bool inSession;
         const int NO_SESSION = -1;
         int sessionID = NO_SESSION;
+        bool currentSessionUsedScreenRecording = false;
         public int CurrentSession
         {
             get { return sessionID; }
@@ -1412,8 +1413,9 @@ namespace PlayUR
         /// may be inconsistent or incorrect, based upon browser compatability--use with caution.
         /// </summary>
         /// <param name="externalID">optional external ID to associate with this session -- will automatically be populated for mTurk and Prolific, but you may have another id you want to use</param>
+        /// <param name="recordScreen">optional parameter to indicate whether to start recording the screen</param>
         /// <exception cref="SessionAlreadyStartedException">thrown if there is already a running session.</exception>
-        public void StartSession(string externalID = null)
+        public void StartSession(string externalID = null, bool recordScreen = false)
         {
             if (inSession) return;
             //                throw new SessionAlreadyStartedException(); //meh
@@ -1469,14 +1471,21 @@ namespace PlayUR
                     _periodicBackup = StartCoroutine(PeriodicallyBackupSession());
                 }
             }, debugOutput: false));
+
+            if (recordScreen)
+            {
+                currentSessionUsedScreenRecording = true;
+                BeginScreenRecording();
+            }
         }
         /// <summary>
         /// Starts logging a new session (if not already in a session). Records system information, note that on WebGL, returned information
         /// may be inconsistent or incorrect, based upon browser compatability--use with caution.
         /// </summary>
         /// <param name="externalID">optional external ID to associate with this session -- will automatically be populated for mTurk and Prolific, but you may have another id you want to use</param>
+        /// <param name="recordScreen">optional parameter to indicate whether to start recording the screen</param>
         /// <exception cref="SessionAlreadyStartedException">thrown if there is already a running session.</exception>
-        public IEnumerator StartSessionAsync(string externalID = null) //TODO fix these async ones to not repeat code
+        public IEnumerator StartSessionAsync(string externalID = null, bool recordScreen = false) //TODO fix these async ones to not repeat code
         {
             if (inSession) yield break;
             //                throw new SessionAlreadyStartedException(); //meh
@@ -1517,6 +1526,12 @@ namespace PlayUR
                     Log("Session Started " + sessionID);
                 }
             }, debugOutput: true));
+
+            if (recordScreen)
+            {
+                currentSessionUsedScreenRecording = true;
+                BeginScreenRecording();
+            }
         }
 
         /// <summary>
@@ -1553,6 +1568,12 @@ namespace PlayUR
                         StartSession();
                 }
             }, debugOutput: false, storeFormInHistory: false));
+
+            if (currentSessionUsedScreenRecording)
+            {
+                EndScreenRecordingAndUploadFile();
+                currentSessionUsedScreenRecording = false;
+            }
         }
 
 

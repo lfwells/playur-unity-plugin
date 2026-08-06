@@ -31,7 +31,6 @@ namespace PlayUR
             {
                 form.Add("sessionId", CurrentSession.ToString());
             }
-            form.Add("sessionId", CurrentSession.ToString());
 
             StartCoroutine(Rest.EnqueuePostFile(USER_FILE_API_ENDPOINT, fileData, fileName, mimeType, form, callback, debugOutput: debugOutput));
         }
