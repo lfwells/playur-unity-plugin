@@ -172,6 +172,75 @@ namespace PlayUR.Core
             callback?.Invoke(true, json);
         }
 
+        public static IEnumerator EnqueuePostFile(string page, byte[] fileData, string fileName, string mimeType, Dictionary<string, string> form, ServerCallback callback = null, bool HTMLencode = false, bool debugOutput = false, bool storeFormInHistory = true)
+        {
+            string url = PlayURPlugin.SERVER_URL + page + "/";
+
+            if (debugOutput)
+                PlayURPlugin.Log("POST FILE " + url);
+
+            string boundary;
+            // Push the request
+            RestRequest request = new RestRequest()
+            {
+                Method = RestMethod.POST,
+                Endpoint = page,
+                Url = url,
+                //combine the form data and the file data into a single byte array
+                Data = RestRequest.CombineFormAndFileData(form, fileData, fileName, mimeType, out boundary),
+                ClearPostRequest = !storeFormInHistory
+            };
+            request.Headers.Add("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+            Queue.Enqueue(request);
+            yield return new WaitUntil(() => request.IsCompleted);
+
+            yield return new WaitUntil(() => request.IsCompleted);
+
+            if (debugOutput)
+                PlayURPlugin.Log($"POST REQUEST FINISHED ({url})\nStatus: {request.Response.StatusCode}\nContent:\n{request.Response.Content}");
+
+            // EnqueueRequest will execute it eventually and will do fallback.
+            // If it's still bad it is appropriate to throw errors
+            if (request.Response.IsNetworkError)
+            {
+                PlayURPlugin.Log($"Failed to POST (Network): {request.Response.NetworkError}");
+                throw new ServerCommunicationException(request.Response.NetworkError);
+            }
+
+            // Process the JSON
+            JSONNode json;
+            try
+            {
+                json = JSON.Parse(request.Response.Content);
+                if (json == null) { throw new System.Exception();  }
+            }
+            catch (System.Exception ex)
+            {
+                PlayURPlugin.Log($"Failed to POST (JSON): {ex.Message} (status: {request.Response.StatusCode})");
+                throw new ServerCommunicationException("JSON Parser Error: " + ex.Message + "\nRaw: '" + request.Response.Content + "'\n" +
+                    "Page: " + page + "\n" +
+                    "Form: " + string.Join(",", form.Select((kvp) => kvp.Key + "=" + kvp.Value))
+                );
+            }
+
+            // Return if HTTP error
+            if (request.Response.IsHttpError)
+            {
+                PlayURPlugin.Log($"Failed to POST (HTTP): {request.Response.StatusCode}");
+                callback?.Invoke(false, json);
+                yield break;
+            }
+
+            if (json != null && json.HasKey("success") && json["success"].AsBool != true)
+            {
+                callback?.Invoke(false, json);
+                yield break;
+            }
+
+            callback?.Invoke(true, json);
+        }
+
         /// <summary>
         /// Enqueues a PUT command
         /// </summary>
@@ -249,6 +318,54 @@ namespace PlayUR.Core
             }
 
             callback?.Invoke(true, json);
+        }
+
+        /// <summary>
+        /// Enqueues a GET command to download a file from the server.
+        /// </summary>
+        /// <param name="page">The endpoint we are requesting (relative to <see cref="PlayURPlugin.SERVER_URL"/>/api/</param>
+        /// <param name="id">id of the file we are downloading.</param>
+        /// <param name="callback">Callback for handling response from the server.</param>
+        /// <param name="debugOutput">Optionally debug to the Unity console a bunch of information about how the request occurred. </param>
+        public static IEnumerator EnqueueGetFile(string page, int id, ServerFileCallback callback, bool debugOutput = false)
+        {
+            string url = PlayURPlugin.SERVER_URL + page + "/" + id;
+
+            if (debugOutput)
+                PlayURPlugin.Log("GET FILE " + url);
+
+            // Push the request
+            RestRequest request = new RestRequest()
+            {
+                Method = RestMethod.GET,
+                Endpoint = page,
+                Url = url,
+                Data = null,
+            };
+
+            Queue.Enqueue(request);
+            yield return new WaitUntil(() => request.IsCompleted);
+
+            if (debugOutput)
+                PlayURPlugin.Log($"GET FILE REQUEST FINISHED ({url})\nStatus: {request.Response.StatusCode}\nContent:\n{request.Response.Content}");
+
+            // EnqueueRequest will execute it eventually and will do fallback.
+            // If it's still bad it is appropriate to throw errors
+            if (request.Response.IsNetworkError)
+            {
+                PlayURPlugin.Log($"Failed to GET FILE (Network): {request.Response.NetworkError}");
+                throw new ServerCommunicationException(request.Response.NetworkError);
+            }
+
+            // Return if HTTP error
+            if (request.Response.IsHttpError)
+            {
+                PlayURPlugin.Log($"Failed to GET FILE (HTTP): {request.Response.StatusCode}");
+                callback?.Invoke(false, null);
+                yield break;
+            }
+
+            callback?.Invoke(true, request.Response.Data);
         }
 
         /// <summary>Creates a query param from the given form.</summary>

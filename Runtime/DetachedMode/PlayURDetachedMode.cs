@@ -240,7 +240,29 @@ namespace PlayUR
                 UnityEngine.PlayerPrefs.DeleteAll();
             }
             #endregion
+
+            public void UploadUserFile(byte[] bytes, string fileName, string mimeType, Rest.ServerCallback callback, bool debugOutput = true)
+            {
+                callback?.Invoke(false, null);
+            }
+            public void UploadUserFile(string filePath, Rest.ServerCallback callback, bool debugOutput = true)
+            {
+                callback?.Invoke(false, null);
+            }
+            public void UploadUserFile(FileInfo fileInfo, Rest.ServerCallback callback, bool debugOutput = true)
+            {
+                callback?.Invoke(false, null);
+            }
+            public void DownloadUserFile(int id, Rest.ServerFileCallback callback, bool debugOutput = true)
+            {
+                callback?.Invoke(false, null);
+            }
+            public void ListUserFiles(Rest.ServerCallback callback, bool debugOutput = true)
+            {
+                callback?.Invoke(false, null);
+            }
         }
+        
     }
 
     /// <summary>

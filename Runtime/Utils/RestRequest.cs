@@ -37,6 +37,9 @@ namespace PlayUR.Core
             }
         }
 
+        [XmlIgnore]
+        public Dictionary<string, string> Headers = new();
+
         /// <summary>Was the data cleared an no longer available?</summary>
         [XmlAttribute("culled")]
         public bool IsCleared { get; set; } = false;
@@ -57,23 +60,75 @@ namespace PlayUR.Core
 
         internal UnityWebRequest CreateWebRequest()
         {
+            UnityWebRequest request;
             switch (this.Method)
             {
                 default:
                     throw new InvalidOperationException("Unkown method " + Method);
 
                 case RestMethod.GET:
-                    return UnityWebRequest.Get(Url);
+                    request = UnityWebRequest.Get(Url);
+                    break;
 
                 case RestMethod.PUT:
-                    return UnityWebRequest.Put(Url, Data);
+                    request = UnityWebRequest.Put(Url, Data);
+                    break;
 
                 case RestMethod.POST:
                     var wwwPost = UnityWebRequest.Put(Url, Data);
                     wwwPost.method = "post";
-                    return wwwPost;
+                    request = wwwPost;
+                    break;
             }
+
+            if (Headers != null)
+            {
+                foreach (var kvp in Headers)
+                {
+                    request.SetRequestHeader(kvp.Key, kvp.Value);
+                }
+            }
+            return request;
         }
+public static byte[] CombineFormAndFileData(Dictionary<string, string> form, byte[] fileData, string fileName, string mimeType, out string boundaryText)
+    {
+        boundaryText = "----WebKitFormBoundary" + Guid.NewGuid().ToString("N");
+        string lineBreak = "\r\n";
+
+        using (var memoryStream = new MemoryStream())
+        {
+            // 1. Add text form fields (e.g., 'data' JSON string for $_POST['data'])
+            foreach (var kvp in form)
+            {
+                string fieldHeader = $"--{boundaryText}{lineBreak}" +
+                                     $"Content-Disposition: form-data; name=\"{kvp.Key}\"{lineBreak}{lineBreak}" +
+                                     $"{kvp.Value}{lineBreak}";
+                byte[] fieldBytes = Encoding.UTF8.GetBytes(fieldHeader);
+                memoryStream.Write(fieldBytes, 0, fieldBytes.Length);
+            }
+
+            // 2. Add file payload -> Sets $_FILES['data']
+            string fileHeader = $"--{boundaryText}{lineBreak}" +
+                                $"Content-Disposition: form-data; name=\"data\"; filename=\"{fileName}\"{lineBreak}" +
+                                $"Content-Type: {mimeType}{lineBreak}{lineBreak}";
+            byte[] fileHeaderBytes = Encoding.UTF8.GetBytes(fileHeader);
+            memoryStream.Write(fileHeaderBytes, 0, fileHeaderBytes.Length);
+            
+            // File bytes
+            memoryStream.Write(fileData, 0, fileData.Length);
+            
+            // Line break after binary data
+            byte[] lineBreakBytes = Encoding.UTF8.GetBytes(lineBreak);
+            memoryStream.Write(lineBreakBytes, 0, lineBreakBytes.Length);
+
+            // 3. Closing boundary
+            string footer = $"--{boundaryText}--{lineBreak}";
+            byte[] footerBytes = Encoding.UTF8.GetBytes(footer);
+            memoryStream.Write(footerBytes, 0, footerBytes.Length);
+
+            return memoryStream.ToArray();
+        }
+    }
     }
     internal class RestResponse
     {
@@ -84,6 +139,7 @@ namespace PlayUR.Core
         public string NetworkError { get; }
 
         public string Content { get; }
+        public byte[] Data { get; }
 
         public RestResponse(UnityWebRequest request)
         {
@@ -94,6 +150,7 @@ namespace PlayUR.Core
             IsNetworkError = request.result == UnityWebRequest.Result.ConnectionError;
             NetworkError = request.error;
             Content = request.downloadHandler.text;
+            Data = request.downloadHandler.data;
         }
     }
 
@@ -155,7 +212,7 @@ namespace PlayUR.Core
         public void ProcessImmediate()
         {
             // Suggestion by https://stackoverflow.com/a/60447131/5010271
-            PlayURPlugin.Log("<color=#FF0000>WARNING: Request has been set to immedaite! This will break unity for a short while!!!</color>");
+            PlayURPlugin.Log("<color=#FF0000>WARNING: Request has been set to immediate! This will break unity for a short while!!!</color>");
             IsProcessing = false;
 
             while (_pending.Count > 0)
