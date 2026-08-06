@@ -204,6 +204,37 @@ namespace PlayUR
         public static bool Ready { get { return instance.inited; } }
 
         /// <summary>
+        /// Waits until the plugin is ready, and then invokes the callback. If the plugin is already ready, the callback is invoked immediately.
+        /// </summary>
+        /// <param name="callback">The callback to invoke when the plugin is ready.</param>
+        public static void WaitUntilReady(System.Action callback, MonoBehaviour context = null)
+        {
+            if (IsReady)
+            {
+                callback.Invoke();
+                return;
+            }
+            if (exists && context == null)
+            {
+                context = instance;
+            }
+            if (context == null)
+            {
+                Debug.LogError("PlayURPlugin.WaitUntilReady: No context provided, and no instance of PlayURPlugin exists. Cannot wait until ready.");
+                return;
+            }
+            context.StartCoroutine(WaitUntilReadyRoutine(callback));
+        }
+        static IEnumerator WaitUntilReadyRoutine(System.Action callback)
+        {
+            while (!IsReady)
+            {
+                yield return null;
+            }
+            callback.Invoke();
+        }
+
+        /// <summary>
         /// The current configuration of the plugin. Contains the current experiment, experiment group, and active elements and parameters.
         /// However it is recommended to use the <see cref="CurrentExperiment"/>, <see cref="CurrentExperimentGroup"/>, <see cref="CurrentElements"/> and <see cref="CurrentParameters"/> properties instead.
         /// </summary>
@@ -1981,6 +2012,12 @@ namespace PlayUR
         {
             if (Settings?.logLevel > LogLevel.Log)
                 return;
+
+            // spot the client secret and redact it
+            if (o is string str && str.Contains("clientSecret"))
+            {
+                o = str.Replace(PlayURPlugin.ClientSecret, "REDACTED");
+            }
 
             if (o == null)
                 Debug.Log("[PlayUR] NULL", context);
