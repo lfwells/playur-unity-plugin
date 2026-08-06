@@ -8,6 +8,11 @@ namespace PlayUR
     public partial class PlayURPlugin : UnitySingletonPersistent<PlayURPlugin>
     {
         /// <summary>
+        /// Returns true if a screen recording is currently active. Note that this may be inconsistent or incorrect, based upon browser compatability--use with caution.
+        /// </summary>
+        public bool IsScreenRecordingActive => CanvasRecorder.IsRecording;
+
+        /// <summary>
         /// Begins recording the current screen or canvas. The recording will continue until <see cref="EndScreenRecording"/> or <see cref="EndScreenRecordingAndUploadFile"/> is called.
         /// </summary>
         public void BeginScreenRecording()

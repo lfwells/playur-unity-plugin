@@ -51,6 +51,7 @@ namespace PlayUR.Core
         public DateTime RequestedAt { get; set; }
 
         /// <summary>Data sent with the request</summary>
+        [XmlIgnore]
         public byte[] Data { get; set; }
 
         /// <summary>Empty the data after the quest has been made.</summary>
@@ -90,45 +91,45 @@ namespace PlayUR.Core
             }
             return request;
         }
-public static byte[] CombineFormAndFileData(Dictionary<string, string> form, byte[] fileData, string fileName, string mimeType, out string boundaryText)
-    {
-        boundaryText = "----WebKitFormBoundary" + Guid.NewGuid().ToString("N");
-        string lineBreak = "\r\n";
-
-        using (var memoryStream = new MemoryStream())
+        public static byte[] CombineFormAndFileData(Dictionary<string, string> form, byte[] fileData, string fileName, string mimeType, out string boundaryText)
         {
-            // 1. Add text form fields (e.g., 'data' JSON string for $_POST['data'])
-            foreach (var kvp in form)
+            boundaryText = "----WebKitFormBoundary" + Guid.NewGuid().ToString("N");
+            string lineBreak = "\r\n";
+
+            using (var memoryStream = new MemoryStream())
             {
-                string fieldHeader = $"--{boundaryText}{lineBreak}" +
-                                     $"Content-Disposition: form-data; name=\"{kvp.Key}\"{lineBreak}{lineBreak}" +
-                                     $"{kvp.Value}{lineBreak}";
-                byte[] fieldBytes = Encoding.UTF8.GetBytes(fieldHeader);
-                memoryStream.Write(fieldBytes, 0, fieldBytes.Length);
+                // 1. Add text form fields (e.g., 'data' JSON string for $_POST['data'])
+                foreach (var kvp in form)
+                {
+                    string fieldHeader = $"--{boundaryText}{lineBreak}" +
+                                        $"Content-Disposition: form-data; name=\"{kvp.Key}\"{lineBreak}{lineBreak}" +
+                                        $"{kvp.Value}{lineBreak}";
+                    byte[] fieldBytes = Encoding.UTF8.GetBytes(fieldHeader);
+                    memoryStream.Write(fieldBytes, 0, fieldBytes.Length);
+                }
+
+                // 2. Add file payload -> Sets $_FILES['data']
+                string fileHeader = $"--{boundaryText}{lineBreak}" +
+                                    $"Content-Disposition: form-data; name=\"data\"; filename=\"{fileName}\"{lineBreak}" +
+                                    $"Content-Type: {mimeType}{lineBreak}{lineBreak}";
+                byte[] fileHeaderBytes = Encoding.UTF8.GetBytes(fileHeader);
+                memoryStream.Write(fileHeaderBytes, 0, fileHeaderBytes.Length);
+                
+                // File bytes
+                memoryStream.Write(fileData, 0, fileData.Length);
+                
+                // Line break after binary data
+                byte[] lineBreakBytes = Encoding.UTF8.GetBytes(lineBreak);
+                memoryStream.Write(lineBreakBytes, 0, lineBreakBytes.Length);
+
+                // 3. Closing boundary
+                string footer = $"--{boundaryText}--{lineBreak}";
+                byte[] footerBytes = Encoding.UTF8.GetBytes(footer);
+                memoryStream.Write(footerBytes, 0, footerBytes.Length);
+
+                return memoryStream.ToArray();
             }
-
-            // 2. Add file payload -> Sets $_FILES['data']
-            string fileHeader = $"--{boundaryText}{lineBreak}" +
-                                $"Content-Disposition: form-data; name=\"data\"; filename=\"{fileName}\"{lineBreak}" +
-                                $"Content-Type: {mimeType}{lineBreak}{lineBreak}";
-            byte[] fileHeaderBytes = Encoding.UTF8.GetBytes(fileHeader);
-            memoryStream.Write(fileHeaderBytes, 0, fileHeaderBytes.Length);
-            
-            // File bytes
-            memoryStream.Write(fileData, 0, fileData.Length);
-            
-            // Line break after binary data
-            byte[] lineBreakBytes = Encoding.UTF8.GetBytes(lineBreak);
-            memoryStream.Write(lineBreakBytes, 0, lineBreakBytes.Length);
-
-            // 3. Closing boundary
-            string footer = $"--{boundaryText}--{lineBreak}";
-            byte[] footerBytes = Encoding.UTF8.GetBytes(footer);
-            memoryStream.Write(footerBytes, 0, footerBytes.Length);
-
-            return memoryStream.ToArray();
         }
-    }
     }
     internal class RestResponse
     {
@@ -211,46 +212,53 @@ public static byte[] CombineFormAndFileData(Dictionary<string, string> form, byt
         /// <summary>Stops processing the loop and processes the files IMMEDIATELY. This will block the thread until it's done.</summary>
         public void ProcessImmediate()
         {
-            // Suggestion by https://stackoverflow.com/a/60447131/5010271
             PlayURPlugin.Log("<color=#FF0000>WARNING: Request has been set to immediate! This will break unity for a short while!!!</color>");
             IsProcessing = false;
 
+        #if UNITY_WEBGL && !UNITY_EDITOR
+            // On WebGL, delegate to a Coroutine to prevent freezing the single JS thread
+            PlayURPlugin.instance.StartCoroutine(ProcessImmediateCoroutine());
+        #else
+            // Synchronous execution using Thread.Sleep on Desktop/Editor
+            ProcessImmediateSync();
+        #endif
+        }
+
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        private IEnumerator ProcessImmediateCoroutine()
+        {
             while (_pending.Count > 0)
             {
                 _backoffSeconds = InitialBackoff;
                 var restRequest = _pending.Peek();
 
-                // While we are within the backoff time, lets keep requesting until success
-                // (note we do backoff and not just true to ensure we dont hit a infinte loop)
                 while (_backoffSeconds < MaxBackoffTime)
                 {
                     restRequest.RequestedAt = DateTime.UtcNow;
                     using (var wwwRequest = restRequest.CreateWebRequest())
                     {
                         var operation = wwwRequest.SendWebRequest();
-                        while (!operation.isDone)
-                            System.Threading.Thread.Sleep(100);
 
-                        // If there is a DNS/Network Error, OR a HTTP error that matches the code >= 500 (server error) or 408 (timeout)
-                        if (wwwRequest.result == UnityWebRequest.Result.ConnectionError || (wwwRequest.result == UnityWebRequest.Result.ProtocolError && (wwwRequest.responseCode >= 500 || wwwRequest.responseCode == 408)))
+                        // Yield control back to WebGL event loop so network transfers complete
+                        yield return operation;
+
+                        // Check for DNS/Network Error or server error (>= 500) / timeout (408)
+                        if (wwwRequest.result == UnityWebRequest.Result.ConnectionError || 
+                        (wwwRequest.result == UnityWebRequest.Result.ProtocolError && (wwwRequest.responseCode >= 500 || wwwRequest.responseCode == 408)))
                         {
                             if (_backoffSeconds >= 1f)
                             {
-                                //PlayURPlugin.LogError($"Rest Queue: #{restRequest.Order} exceeded backoff time of {MaxBackoffTime}s. Giving up!!!!");
                                 restRequest.Response = new RestResponse(wwwRequest);
                                 break;
                             }
                             else
                             {
-                                // We need to wait before looping again. Increment the backoff exponentially 
-                                //PlayURPlugin.LogWarning($"Rest Queue: Required to backoff and attempt {restRequest.Order} again. Waiting {_backoffSeconds}s");
-                                System.Threading.Thread.Sleep(Mathf.FloorToInt(_backoffSeconds * 1000f));
+                                yield return new WaitForSeconds(_backoffSeconds);
                                 _backoffSeconds *= 2;
                             }
                         }
                         else
                         {
-                            //PlayURPlugin.Log($"Rest Queue: #{restRequest.Order} finished (took backoff of {_backoffSeconds}s).");
                             restRequest.Response = new RestResponse(wwwRequest);
                             break;
                         }
@@ -262,6 +270,54 @@ public static byte[] CombineFormAndFileData(Dictionary<string, string> form, byt
 
             SaveToFile();
         }
+        #else
+        private void ProcessImmediateSync()
+        {
+            while (_pending.Count > 0)
+            {
+                _backoffSeconds = InitialBackoff;
+                var restRequest = _pending.Peek();
+
+                while (_backoffSeconds < MaxBackoffTime)
+                {
+                    restRequest.RequestedAt = DateTime.UtcNow;
+                    using (var wwwRequest = restRequest.CreateWebRequest())
+                    {
+                        var operation = wwwRequest.SendWebRequest();
+
+                        while (!operation.isDone)
+                        {
+                            System.Threading.Thread.Sleep(100);
+                        }
+
+                        if (wwwRequest.result == UnityWebRequest.Result.ConnectionError || 
+                        (wwwRequest.result == UnityWebRequest.Result.ProtocolError && (wwwRequest.responseCode >= 500 || wwwRequest.responseCode == 408)))
+                        {
+                            if (_backoffSeconds >= 1f)
+                            {
+                                restRequest.Response = new RestResponse(wwwRequest);
+                                break;
+                            }
+                            else
+                            {
+                                System.Threading.Thread.Sleep(Mathf.FloorToInt(_backoffSeconds * 1000f));
+                                _backoffSeconds *= 2;
+                            }
+                        }
+                        else
+                        {
+                            restRequest.Response = new RestResponse(wwwRequest);
+                            break;
+                        }
+                    }
+                }
+
+                Pop();
+            }
+
+            SaveToFile();
+        }
+        #endif
 
         /// <summary>Starts a loop trying to process requests</summary>
         public IEnumerator StartProcessing()

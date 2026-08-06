@@ -28,7 +28,7 @@ namespace PlayUR
         {
             if (bufferPtr == IntPtr.Zero || bufferSize <= 0)
             {
-                PlayUR.LogWarning("WebGL returned empty recording buffer.");
+                PlayURPlugin.LogWarning("WebGL returned empty recording buffer.");
                 activeOnCompleteCallback?.Invoke(null);
                 activeOnCompleteCallback = null;
                 return;
