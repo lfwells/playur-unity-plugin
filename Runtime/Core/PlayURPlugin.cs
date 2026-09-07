@@ -2403,7 +2403,12 @@ public static class PlayerPrefs
         else
             DATA[key] = v;
 
-        UnityEngine.PlayerPrefs.SetString(key, v);
+        try
+        {
+            UnityEngine.PlayerPrefs.SetString(key, v);
+        }
+        catch (System.Exception e) { }
+            
     }
     public static string GetString(string key, string defaultValue = "")
     {
@@ -2425,7 +2430,11 @@ public static class PlayerPrefs
         else
             DATA[key] = v;
 
-        UnityEngine.PlayerPrefs.SetFloat(key, v);
+        try
+        {
+            UnityEngine.PlayerPrefs.SetFloat(key, v);
+        }
+        catch (System.Exception e) { }
     }
     public static float GetFloat(string key, float defaultValue = 0)
     {
@@ -2447,7 +2456,11 @@ public static class PlayerPrefs
         else
             DATA[key] = v;
 
-        UnityEngine.PlayerPrefs.SetInt(key, v ? 1 : 0);
+        try
+        {
+            UnityEngine.PlayerPrefs.SetInt(key, v ? 1 : 0);
+        }
+        catch (System.Exception e) { }
     }
     public static bool GetBool(string key, bool defaultValue = false)
     {
