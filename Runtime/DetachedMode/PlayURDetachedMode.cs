@@ -148,7 +148,7 @@ namespace PlayUR
                 EndSession(plugin, startNew, form);
                 yield return 0;
             }
-            public IEnumerator RecordActionDirectly(PlayURPlugin plugin, ActionParamsList actions, Rest.ServerCallback callback)
+            public IEnumerator RecordActionDirectly(PlayURPlugin plugin, ActionParamsList actions, Rest.ServerCallback callback, bool debugOutput = false)
             {
                 if (currentAnalyticsFile != null)
                 {

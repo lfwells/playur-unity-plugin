@@ -46,15 +46,15 @@ namespace PlayUR
             actionQueue.Enqueue(GenerateUploadableActionData(a,extra,HTMLencode,debugOutput,waitForPendingActions,columns));
         }
 
-        IEnumerator RecordActionDirectly(ActionParams singleAction, Rest.ServerCallback callback)
+        IEnumerator RecordActionDirectly(ActionParams singleAction, Rest.ServerCallback callback, bool debugOutput = false)
         {
-            yield return StartCoroutine(RecordActionDirectly(new ActionParamsList { actions = new ActionParams[] { singleAction } }, callback));
+            yield return StartCoroutine(RecordActionDirectly(new ActionParamsList { actions = new ActionParams[] { singleAction } }, callback, debugOutput));
         }
-        IEnumerator RecordActionDirectly(ActionParamsList actions, Rest.ServerCallback callback)
+        IEnumerator RecordActionDirectly(ActionParamsList actions, Rest.ServerCallback callback, bool debugOutput = false)
         {
             if (IsDetachedMode)
             {
-                yield return StartCoroutine(DetachedModeProxy.RecordActionDirectly(this, actions, callback));
+                yield return StartCoroutine(DetachedModeProxy.RecordActionDirectly(this, actions, callback, debugOutput));
                 yield break;
             }
 
@@ -64,7 +64,7 @@ namespace PlayUR
             while (!inSession) yield return new WaitForEndOfFrame();
             form.Add("sessionID", sessionID.ToString());
 
-            yield return StartCoroutine(Rest.EnqueuePost("UserAction", form, HTMLencode: false, debugOutput: true, callback: callback));
+            yield return StartCoroutine(Rest.EnqueuePost("UserAction", form, HTMLencode: false, debugOutput: debugOutput, callback: callback));
         }
         ActionParams GenerateUploadableActionData(Action a, object extra = null, bool HTMLencode = false, bool debugOutput = false, bool waitForPendingActions = true, Dictionary<AnalyticsColumn, object> columns = null)
         {
