@@ -80,6 +80,18 @@ namespace PlayUR
         public Dictionary<string, string> parameters;
 
         /// <summary>
+        /// Key-Value-Pairs of glolbal experiment data (same for all participants
+        /// </summary>
+        [System.NonSerialized]
+        public Dictionary<string, string> experimentData;
+
+        /// <summary>
+        /// Mapping of key value pairs to database ids for experiment data (internal use only)
+        /// </summary>
+        [System.NonSerialized]
+        public Dictionary<string, int> experimentDataIds;
+
+        /// <summary>
         /// The list of extra analytics columns, but sorted by custom sort order from admin page.
         /// </summary>
         [System.NonSerialized]
@@ -382,13 +394,13 @@ namespace PlayUR
                         {
                             callback(succ, result);
                         }
-                    }, debugOutput: true));
+                    }, debugOutput: false));
                 }
                 else
                 {
                     callback(succ, result);
                 }
-            }, debugOutput: true));
+            }, debugOutput: false));
         }
 
         public void StandaloneTokenLogin(string token, Rest.ServerCallback callback)
@@ -659,6 +671,15 @@ namespace PlayUR
                     configuration.parameters.Add(p.Key, p.Value);
                 }
 
+                var experimentData = result["experimentData"].AsArray;
+                configuration.experimentData = new Dictionary<string, string>();
+                configuration.experimentDataIds = new Dictionary<string, int>();
+                foreach (var p in experimentData.Values)
+                {
+                    configuration.experimentData.Add(p["keyName"], p["value"]);
+                    configuration.experimentDataIds.Add(p["keyName"], p["id"].AsInt);
+                }
+
 #if UNITY_EDITOR
                 //add in the overrides from settings for the editor
                 foreach (var o in Settings.editorParameterOverrides)
@@ -805,6 +826,14 @@ namespace PlayUR
             if (configuration.parameters == null) s += "\t\tNULL\n";
             else
                 foreach (var p in configuration.parameters)
+                {
+                    s += "\t\t" + p.Key + "\t" + p.Value + "\n";
+                }
+
+            s += "\tExperiment Data:\n";
+            if (configuration.experimentData == null) s += "\t\tNULL\n";
+            else
+                foreach (var p in configuration.experimentData)
                 {
                     s += "\t\t" + p.Key + "\t" + p.Value + "\n";
                 }
@@ -2408,7 +2437,7 @@ public static class PlayerPrefs
             UnityEngine.PlayerPrefs.SetString(key, v);
         }
         catch (System.Exception e) { }
-            
+
     }
     public static string GetString(string key, string defaultValue = "")
     {
