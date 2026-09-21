@@ -8,6 +8,15 @@ using UnityEditor;
 
 namespace PlayUR.Editor
 { 
+    public class BypassCertificate : CertificateHandler
+    {
+        protected override bool ValidateCertificate(byte[] certificateData)
+        {
+            // Accept all certificates (Warning: vulnerable to man-in-the-middle attacks)
+            return true; 
+        }
+    }
+
     /// <summary>
     /// Interface class used for communicating with the REST API on the server.
     /// </summary>
@@ -48,7 +57,7 @@ namespace PlayUR.Editor
         /// Used for requesting information FROM the server.
         /// Has a callback for reading the response.
         /// </summary>
-        /// <param name="page">The endpoint we are requesting (relative to <see cref="PlayURPlugin.SERVER_URL"/>/api/</param>
+        /// <param name="page">The endpoint we are requesting (relative to <see cref="PlayURPlugin.EDITOR_SERVER_URL"/>/api/</param>
         /// <param name="form">Dictionary of key value pairs of information we want to send to the server.</param>
         /// <param name="callback">Callback for handling response from the server.</param>
         /// <param name="debugOutput">Optionally debug to the Unity console a bunch of information about how the request occurred. 
@@ -56,7 +65,7 @@ namespace PlayUR.Editor
         /// <exception cref="ServerCommunicationException">thrown when the server is unreachable.</exception>
         public static IEnumerator Get(string page, Dictionary<string, string> form, ServerCallback callback, bool debugOutput = false)
         {
-            //var www = new WWW(SERVER_URL + page+".php", form.data);
+            //var www = new WWW(EDITOR_SERVER_URL + page+".php", form.data);
             var kvp = "?";
             if (form != null)
             {
@@ -66,13 +75,14 @@ namespace PlayUR.Editor
                 }
             }
 
-            var url = PlayURPlugin.SERVER_URL + page + "/" + kvp;
+            var url = PlayURPlugin.EDITOR_SERVER_URL + page + "/" + kvp;
             if (page.IndexOf(".php") > 0)
-                url = PlayURPlugin.SERVER_URL + page + kvp;
+                url = PlayURPlugin.EDITOR_SERVER_URL + page + kvp;
             if (debugOutput) PlayURPlugin.Log("GET " + url);
 
             int key = nextRequestKey++;
             www[key] = UnityWebRequest.Get(url);
+            www[key].certificateHandler = new BypassCertificate();
             operation[key] = www[key].SendWebRequest();
 
             www[key] = UnityWebRequest.Get(url);

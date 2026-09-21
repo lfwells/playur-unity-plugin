@@ -189,6 +189,11 @@ namespace PlayUR
         /// </summary>
         public const string SERVER_URL = "https://playur.io/api/";
 
+        /// <summary>The base url of the server instance through which all editor requests will go. 
+        /// Should point to the "api" sub-directory on the server.
+        /// </summary>
+        public const string EDITOR_SERVER_URL = "https://131.217.172.97/api/";
+
         /// <summary>The base url of the dashboard, used for user-facing links. 
         /// Should point to the "api" sub-directory on the server.
         /// </summary>

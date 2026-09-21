@@ -635,7 +635,7 @@ namespace PlayUR.Editor
         {
             PlayURPlugin.Log("New Build ID: " + newBuildID);
             PlayURPlugin.Log("Branch: " + branch);
-            PlayURPlugin.Log(PlayURPlugin.SERVER_URL + "Build/");
+            PlayURPlugin.Log(PlayURPlugin.EDITOR_SERVER_URL + "Build/");
 
             JSONObject jsonSend = new JSONObject();
             jsonSend["gameID"] = gameID;
@@ -688,7 +688,8 @@ namespace PlayUR.Editor
 
             if (additionalRequest != null) form.AddField("request", additionalRequest.ToString());
 
-            www = UnityWebRequest.Post(PlayURPlugin.SERVER_URL + endPoint, form);
+            www = UnityWebRequest.Post(PlayURPlugin.EDITOR_SERVER_URL + endPoint, form);
+            www.certificateHandler = new BypassCertificate();
             
             PlayURPlugin.Log("Upload Begin");
 
